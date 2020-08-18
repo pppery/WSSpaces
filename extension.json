@@ -1,0 +1,44 @@
+{
+  "name": "Pega Departmental Permissions",
+  "version": "1.0",
+  "namemsg": "pdp-extensionname",
+  "url": "https://pega.com",
+  "type": "other",
+  "author": [
+    "[https://mediawiki.org/wiki/User:Xxmarijnw Marijn van Wezel]"
+  ],
+  "descriptionmsg": "pdp-desc",
+  "license-name": "MIT",
+  "requires": {
+    "MediaWiki": ">= 1.31.0",
+    "extensions": {
+      "Lockdown": "*"
+    }
+  },
+  "MessagesDirs": {
+    "PegaDepartmentalPermissions": [
+      "i18n"
+    ]
+  },
+  "ExtensionMessagesFiles": {
+    "PegaDepartmentalPermissionsMagic": "i18n/PegaDepartmentalPermissions.i18n.php"
+  },
+  "AutoloadNamespaces": {
+    "PDP\\": "src/"
+  },
+  "Hooks": {
+    "SecuritySensitiveOperationStatus": "PDP\\PDPHooks::onSecuritySensitiveOperationStatus"
+  },
+  "SpecialPages": {
+    "Permissions": "PDP\\Special\\SpecialPermissions"
+  },
+  "AvailableRights": [
+    "pdp-manage"
+  ],
+  "GroupPermissions": {
+    "sysop": {
+      "pdp-manage": true
+    }
+  },
+  "manifest_version": 2
+}

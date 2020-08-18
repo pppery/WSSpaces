@@ -1,0 +1,13 @@
+{
+  "@metadata": {
+    "authors": [
+      "Marijn van Wezel <xxmarijnw>"
+    ]
+  },
+  "pdp-extensionname": "Pega Departementale Rechten",
+  "pdp-desc": "Dynamisch rechtensysteem for use on Pega.",
+  "pdp-special-title": "Beheer rechten",
+  "pdp-permissions-matrix-submit-text": "Rechten opslaan",
+  "right-pdp-manage": "Beheer rechten",
+  "action-pdp-manage": "rechten te beheren"
+}

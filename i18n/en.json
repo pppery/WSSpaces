@@ -1,0 +1,13 @@
+{
+  "@metadata": {
+    "authors": [
+      "Marijn van Wezel <xxmarijnw>"
+    ]
+  },
+  "pdp-extensionname": "Pega Departmental Permissions",
+  "pdp-desc": "Dynamic departmental permission management system for use on Pega.",
+  "pdp-special-title": "Manage permissions",
+  "pdp-permissions-matrix-submit-text": "Save permissions",
+  "right-pdp-manage": "Manage permissions",
+  "action-pdp-manage": "manage permissions"
+}
