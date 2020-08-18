@@ -2,24 +2,18 @@
 
 namespace PDP\Form;
 
+use ConfigException;
+use MediaWiki\MediaWikiServices;
+
 class PermissionsMatrixForm extends AbstractForm {
     /**
      * Returns this form's descriptor.
      *
      * @return array
+     * @throws ConfigException
      */
     function getDescriptor(): array {
-        return [
-            'checkmatrix' => [
-                'type' => 'checkmatrix',
-                'class' => 'HTMLCheckMatrix',
-                'columns' => [], // TODO
-                'rows' => [], // TODO
-                'validation-callback' => function( $value, $data ) {
-                    return $this->getValidationCallback()->validateField( 'permissions-matrix', $value, $data );
-                }
-            ]
-        ];
+        return [];
     }
 
     /**
@@ -47,5 +41,28 @@ class PermissionsMatrixForm extends AbstractForm {
      */
     public function isDestructive(): bool {
         return true;
+    }
+
+    /**
+     * Returns a list of key-value pairs where the key is the namespace text and the value is the namespace ID.
+     *
+     * @return array
+     * @throws ConfigException
+     */
+    private function getNamespaces(): array {
+        $config = MediaWikiServices::getInstance()->getMainConfig();
+
+        $namespaces = [ NS_MAIN => 'Main' ] + $config->get( 'CanonicalNamespaceNames' );
+        $namespaces += \ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
+
+        if ( is_array( $config->get( 'ExtraNamespaces' ) ) ) {
+            $namespaces += $config->get( 'ExtraNamespaces' );
+        }
+
+        foreach ( $namespaces as $constant => &$name ) {
+            $name = str_replace( '_', ' ', $name );
+        }
+
+        return array_flip( $namespaces );
     }
 }
