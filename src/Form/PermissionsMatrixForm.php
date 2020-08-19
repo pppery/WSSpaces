@@ -4,16 +4,26 @@ namespace PDP\Form;
 
 use ConfigException;
 use MediaWiki\MediaWikiServices;
+use PDP\Validation\PermissionsMatrixValidationCallback;
 
 class PermissionsMatrixForm extends AbstractForm {
     /**
      * Returns this form's descriptor.
      *
      * @return array
-     * @throws ConfigException
      */
     function getDescriptor(): array {
-        return [];
+        return [
+            'checkmatrix' => [
+                'type' => 'checkmatrix',
+                'columns' => $this->getColumns(), // TODO
+                'rows' => $this->getRows(),
+                'default' => [], // TODO
+                'validation-callback' => function($field, $data) {
+                    return $this->getValidationCallback()->validateField('checkmatrix', $field, $data);
+                }
+            ]
+        ];
     }
 
     /**
@@ -43,26 +53,13 @@ class PermissionsMatrixForm extends AbstractForm {
         return true;
     }
 
-    /**
-     * Returns a list of key-value pairs where the key is the namespace text and the value is the namespace ID.
-     *
-     * @return array
-     * @throws ConfigException
-     */
-    private function getNamespaces(): array {
-        $config = MediaWikiServices::getInstance()->getMainConfig();
+    private function getColumns() {
+        $columns = PermissionsMatrixValidationCallback::getValidRights();
+        return array_combine($columns, $columns);
+    }
 
-        $namespaces = [ NS_MAIN => 'Main' ] + $config->get( 'CanonicalNamespaceNames' );
-        $namespaces += \ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
-
-        if ( is_array( $config->get( 'ExtraNamespaces' ) ) ) {
-            $namespaces += $config->get( 'ExtraNamespaces' );
-        }
-
-        foreach ( $namespaces as $constant => &$name ) {
-            $name = str_replace( '_', ' ', $name );
-        }
-
-        return array_flip( $namespaces );
+    private function getRows() {
+        $rows = PermissionsMatrixValidationCallback::getValidUserGroups();
+        return array_combine($rows, $rows);
     }
 }

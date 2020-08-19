@@ -8,6 +8,8 @@
   "pdp-desc": "Dynamisch rechtensysteem for use on Pega.",
   "pdp-special-title": "Beheer rechten",
   "pdp-permissions-matrix-submit-text": "Rechten opslaan",
+  "pdp-permissions-intro": "'''Groepen'''<br/>Ken rechten toe voor deze naamruimte aan alle leden van een groep.",
+  "pdp-permissions-topnav": "Selecteer naamruimte",
   "right-pdp-manage": "Beheer rechten",
   "action-pdp-manage": "rechten te beheren"
 }

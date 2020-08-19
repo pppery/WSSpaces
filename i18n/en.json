@@ -8,6 +8,12 @@
   "pdp-desc": "Dynamic departmental permission management system for use on Pega.",
   "pdp-special-title": "Manage permissions",
   "pdp-permissions-matrix-submit-text": "Save permissions",
+  "pdp-permissions-intro": "'''Groups'''<br/>Grant permissions for this space to all the members of a group.",
+  "pdp-permissions-topnav": "Select space",
+  "pdp-invalid-page-description": "The page you have requested is not valid. Please click on a page in the navigation menu above to return.",
+  "pdp-invalidpage-topnav": "Special pages",
+  "pdp-sidebar-header": "Pega Departmental Permissions",
+  "pdp-permissions-title": "$1: Manage permissions",
   "right-pdp-manage": "Manage permissions",
   "action-pdp-manage": "manage permissions"
 }

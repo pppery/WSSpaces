@@ -80,8 +80,9 @@ abstract class AbstractForm {
      * @return HTMLForm
      */
     public function getForm(): HTMLForm {
-        $form = new HTMLForm( $this->getDescriptor(), $this->page->getContext(), $this->getName() );
+        $form = HTMLForm::factory( 'ooui', $this->getDescriptor(), $this->page->getContext() );
 
+        $form->setMessagePrefix( $this->getName() );
         $form->setSubmitText( $this->getSubmitText() );
         $form->setSubmitCallback( [ $this->getSubmitCallback(), 'onSubmit' ] );
 

@@ -14,7 +14,7 @@ abstract class SpecialPage extends \SpecialPage {
      * @inheritDoc
      */
     public function execute( $parameter ) {
-        $result = $this->preExecuteChecks();
+        $result = $this->preExecute();
 
         if ( $result === false ) {
             return false;
@@ -34,7 +34,7 @@ abstract class SpecialPage extends \SpecialPage {
      *
      * @return bool
      */
-    abstract function preExecuteChecks(): bool;
+    abstract function preExecute(): bool;
 
     /**
      * The main method that gets invoked upon successfully loading the special page, after preExecuteChecks have

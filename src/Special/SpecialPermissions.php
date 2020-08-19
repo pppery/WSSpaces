@@ -4,7 +4,9 @@ namespace PDP\Special;
 
 use ErrorPageError;
 use PDP\SpecialPage;
+use PDP\UI\InvalidPageUI;
 use PDP\UI\PermissionsUI;
+use PDP\Validation\PermissionsMatrixValidationCallback;
 use PermissionsError;
 
 /**
@@ -20,13 +22,6 @@ class SpecialPermissions extends SpecialPage {
     public function __construct() {
         parent::__construct( self::getName(), self::getRestriction(), true );
         parent::requireLogin();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getDescription() {
-        return $this->msg( 'pdp-special-title' )->plain();
     }
 
     /**
@@ -55,8 +50,10 @@ class SpecialPermissions extends SpecialPage {
      * @throws ErrorPageError
      * @throws PermissionsError
      */
-    public function preExecuteChecks(): bool {
+    public function preExecute(): bool {
+        $this->setHeaders();
         $this->checkPermissions();
+
         return $this->checkLoginSecurityLevel( 'pega-change-permissions' );
     }
 
@@ -64,16 +61,25 @@ class SpecialPermissions extends SpecialPage {
      * @inheritDoc
      */
     public function doExecute( string $parameter ) {
-        $handler = new PermissionsUI( $this->getOutput() );
+        $parameter = $parameter ? $parameter : 'Main';
 
-        $handler->setParameter( $parameter );
-        $handler->execute();
+        if (!in_array($parameter, PermissionsMatrixValidationCallback::getValidSpaces())) {
+            $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+            $ui->execute();
+
+            return;
+        }
+
+        $ui = new PermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+
+        $ui->setParameter( $parameter );
+        $ui->execute();
     }
 
     /**
      * @inheritDoc
      */
     public function postExecuteCleanup() {
-        $this->setHeaders();
+
     }
 }

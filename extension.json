@@ -27,7 +27,8 @@
     "PDP\\": "src/"
   },
   "Hooks": {
-    "SecuritySensitiveOperationStatus": "PDP\\PDPHooks::onSecuritySensitiveOperationStatus"
+    "SecuritySensitiveOperationStatus": "PDP\\PDPHooks::onSecuritySensitiveOperationStatus",
+    "SkinBuildSidebar": "PDP\\PDPHooks::onSkinBuildSidebar"
   },
   "SpecialPages": {
     "Permissions": "PDP\\Special\\SpecialPermissions"
@@ -38,6 +39,32 @@
   "GroupPermissions": {
     "sysop": {
       "pdp-manage": true
+    }
+  },
+  "ResourceModules": {
+    "ext.pdp.SpecialPermissions": {
+      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.SpecialPermissions.css"
+    },
+    "ext.pdp.Global": {
+      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Global.css"
+    }
+  },
+  "config": {
+    "PDPValidRights": {
+      "value": [
+        "read",
+        "edit",
+        "delete",
+        "createpage",
+        "move",
+        "protect"
+      ]
+    },
+    "PDPValidUserGroups": {
+      "value": []
+    },
+    "PDPValidNamespaces": {
+      "value": ["Main", "Media", "Special", "User", "Project", "File", "MediaWiki", "Template", "Help", "Category"]
     }
   },
   "manifest_version": 2
