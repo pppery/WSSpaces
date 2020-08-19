@@ -33,7 +33,7 @@ class PermissionsUI extends PDPUI {
      * @inheritDoc
      */
     public function getHeader(): string {
-        return wfMessage( 'pdp-permissions-title', $this->getParameter() )->plain();
+        return wfMessage( 'pdp-permissions-header', $this->getParameter() )->plain();
     }
 
     /**

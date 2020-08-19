@@ -13,7 +13,8 @@
   "pdp-invalid-page-description": "The page you have requested is not valid. Please click on a page in the navigation menu above to return.",
   "pdp-invalidpage-topnav": "Special pages",
   "pdp-sidebar-header": "Pega Departmental Permissions",
-  "pdp-permissions-title": "$1: Manage permissions",
+  "pdp-permissions-header": "$1: Manage permissions",
+  "pdp-invalid-page-header": "Invalid page",
   "right-pdp-manage": "Manage permissions",
   "action-pdp-manage": "manage permissions"
 }

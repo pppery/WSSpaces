@@ -18,7 +18,7 @@ class InvalidPageUI extends PDPUI {
      * @return string
      */
     function getHeader(): string {
-        return "Invalid page";
+        return wfMessage( "pdp-invalid-page-header" )->plain();
     }
 
     /**
