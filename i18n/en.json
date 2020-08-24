@@ -15,6 +15,7 @@
   "pdp-sidebar-header": "Pega Departmental Permissions",
   "pdp-permissions-header": "$1: Manage permissions",
   "pdp-invalid-page-header": "Invalid page",
+  "pdp-permissions-saved-successfully": "Permissions have been saved successfully.",
   "right-pdp-manage": "Manage permissions",
   "action-pdp-manage": "manage permissions"
 }

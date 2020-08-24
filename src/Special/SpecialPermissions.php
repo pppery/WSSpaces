@@ -59,6 +59,7 @@ class SpecialPermissions extends SpecialPage {
 
     /**
      * @inheritDoc
+     * @throws \ConfigException
      */
     public function doExecute( string $parameter ) {
         $parameter = $parameter ? $parameter : 'Main';

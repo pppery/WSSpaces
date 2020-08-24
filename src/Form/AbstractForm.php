@@ -4,7 +4,7 @@ namespace PDP\Form;
 
 use HTMLForm;
 use OutputPage;
-use PDP\Handler\SubmitCallback;
+use PDP\SubmitCallback\SubmitCallback;
 use PDP\Validation\FakeValidationCallback;
 use PDP\Validation\ValidationCallback;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace PDP\Handler;
+namespace PDP\SubmitCallback;
 
 interface SubmitCallback {
     /**

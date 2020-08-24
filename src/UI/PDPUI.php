@@ -74,6 +74,15 @@ abstract class PDPUI {
     }
 
     /**
+     * Adds a modules to be loaded.
+     *
+     * @param string $module
+     */
+    public function addModule(string $module ) {
+        $this->modules[] = $module;
+    }
+
+    /**
      * Returns the output page for this UI.
      *
      * @return OutputPage
@@ -131,7 +140,7 @@ abstract class PDPUI {
      * Loads the specified modules.
      */
     private function loadModules() {
-        $modules = array_merge($this->getModules(), self::GLOBAL_MODULES);
+        $modules = array_merge($this->getModules(), $this->modules, self::GLOBAL_MODULES);
         $this->getOutput()->addModules( $modules );
     }
 

@@ -5,7 +5,7 @@ namespace PDP\UI;
 
 use MediaWiki\MediaWikiServices;
 use PDP\Form\PermissionsMatrixForm;
-use PDP\Handler\PermissionsMatrixHandler;
+use PDP\SubmitCallback\PermissionsMatrixSubmitCallback;
 use PDP\Validation\PermissionsMatrixValidationCallback;
 
 /**
@@ -68,14 +68,36 @@ class PermissionsUI extends PDPUI {
      * Shows the PermissionsMatrix form.
      */
     private function showPermissionsMatrixForm() {
+        $namespace_constant = self::getNamespaces()[$this->getParameter()] ?? 0;
+
         $form = new PermissionsMatrixForm(
+            $namespace_constant,
             $this->getOutput(),
-            new PermissionsMatrixHandler(),
+            new PermissionsMatrixSubmitCallback( $this, $namespace_constant ),
             new PermissionsMatrixValidationCallback()
         );
 
         $form->show();
     }
 
+    /**
+     * Returns a key-value pair of namespace constants and their associated name.
+     *
+     * @return array|mixed
+     */
+    private static function getNamespaces() {
+        try {
+            $config = MediaWikiServices::getInstance()->getMainConfig();
+            $namespaces = [ NS_MAIN => 'Main' ] + $config->get( 'CanonicalNamespaceNames' );
+            $namespaces += \ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
 
+            if ( is_array( $config->get( 'ExtraNamespaces' ) ) ) {
+                $namespaces += $config->get( 'ExtraNamespaces' );
+            }
+        } catch(\Exception $e) {
+            return [];
+        }
+
+        return array_flip( $namespaces );
+    }
 }

@@ -2,11 +2,36 @@
 
 namespace PDP\Form;
 
-use ConfigException;
-use MediaWiki\MediaWikiServices;
+use OutputPage;
+use PDP\SubmitCallback\SubmitCallback;
+use PDP\PermissionsMatrix;
 use PDP\Validation\PermissionsMatrixValidationCallback;
+use PDP\Validation\ValidationCallback;
 
 class PermissionsMatrixForm extends AbstractForm {
+    /**
+     * @var string
+     */
+    private $namespace_constant;
+
+    /**
+     * PermissionsMatrixForm constructor.
+     * @param string $namespace_constant
+     * @param OutputPage $page
+     * @param SubmitCallback $submit_callback
+     * @param ValidationCallback|null $validation_callback
+     */
+    public function __construct(
+        string $namespace_constant,
+        OutputPage $page,
+        SubmitCallback $submit_callback,
+        ValidationCallback $validation_callback = null
+    ) {
+        $this->namespace_constant = $namespace_constant;
+
+        parent::__construct( $page, $submit_callback, $validation_callback );
+    }
+
     /**
      * Returns this form's descriptor.
      *
@@ -18,7 +43,7 @@ class PermissionsMatrixForm extends AbstractForm {
                 'type' => 'checkmatrix',
                 'columns' => $this->getColumns(), // TODO
                 'rows' => $this->getRows(),
-                'default' => [], // TODO
+                'default' => $this->getDefault(),
                 'validation-callback' => function($field, $data) {
                     return $this->getValidationCallback()->validateField('checkmatrix', $field, $data);
                 }
@@ -50,7 +75,7 @@ class PermissionsMatrixForm extends AbstractForm {
      * @return bool
      */
     public function isDestructive(): bool {
-        return true;
+        return false;
     }
 
     private function getColumns() {
@@ -61,5 +86,12 @@ class PermissionsMatrixForm extends AbstractForm {
     private function getRows() {
         $rows = PermissionsMatrixValidationCallback::getValidUserGroups();
         return array_combine($rows, $rows);
+    }
+
+    private function getDefault() {
+        $permissions = PermissionsMatrix::newFromNamespaceConstant( $this->namespace_constant );
+        $permissions->setStringMode();
+
+        return iterator_to_array( $permissions );
     }
 }

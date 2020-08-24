@@ -28,7 +28,9 @@
   },
   "Hooks": {
     "SecuritySensitiveOperationStatus": "PDP\\PDPHooks::onSecuritySensitiveOperationStatus",
-    "SkinBuildSidebar": "PDP\\PDPHooks::onSkinBuildSidebar"
+    "SkinBuildSidebar": "PDP\\PDPHooks::onSkinBuildSidebar",
+    "LoadExtensionSchemaUpdates": "PDP\\PDPHooks::onLoadExtensionSchemaUpdates",
+    "BeforeInitialize": "PDP\\PDPHooks::onBeforeInitialize"
   },
   "SpecialPages": {
     "Permissions": "PDP\\Special\\SpecialPermissions"
@@ -44,6 +46,17 @@
   "ResourceModules": {
     "ext.pdp.SpecialPermissions": {
       "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.SpecialPermissions.css"
+    },
+    "ext.pdp.SpecialPermissionsSuccess": {
+      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.SpecialPermissionsSuccess.js",
+      "position": "bottom",
+      "messages": [
+        "pdp-permissions-saved-successfully"
+      ],
+      "dependencies": [
+        "mediawiki.util",
+        "mediawiki.api"
+      ]
     },
     "ext.pdp.Global": {
       "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Global.css"
@@ -64,7 +77,7 @@
       "value": []
     },
     "PDPValidNamespaces": {
-      "value": ["Main", "Media", "Special", "User", "Project", "File", "MediaWiki", "Template", "Help", "Category"]
+      "value": ["Main", "Media", "User", "Project", "File", "MediaWiki", "Template", "Help", "Category"]
     }
   },
   "manifest_version": 2
