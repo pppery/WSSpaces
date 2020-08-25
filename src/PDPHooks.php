@@ -110,4 +110,19 @@ abstract class PDPHooks {
         $handler = new LockdownHandler();
         $handler->setLockdownConstraints();
     }
+
+    /**
+     * For extensions adding their own namespaces or altering the defaults.
+     *
+     * @see https://www.mediawiki.org/wiki/Manual:Hooks/CanonicalNamespaces
+     *
+     * @param array $namespaces
+     * @throws \ConfigException
+     */
+    public static function onCanonicalNamespaces( array &$namespaces ) {
+        $namespace_repository = new NamespaceRepository();
+        $spaces = $namespace_repository->getSpaces();
+
+        $namespaces = $namespaces + $spaces;
+    }
 }

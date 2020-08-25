@@ -65,6 +65,7 @@ class Space {
             throw new \InvalidArgumentException( "A namespace name can only consist of letters, therefore $namespace_name is invalid." );
         }
 
+        $namespace_name = ucfirst( $namespace_name );
 
         $this->namespace_name  = $namespace_name;
         $this->namespace_id    = $namespace_id;

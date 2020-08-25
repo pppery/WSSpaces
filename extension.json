@@ -30,7 +30,8 @@
     "SecuritySensitiveOperationStatus": "PDP\\PDPHooks::onSecuritySensitiveOperationStatus",
     "SkinBuildSidebar": "PDP\\PDPHooks::onSkinBuildSidebar",
     "LoadExtensionSchemaUpdates": "PDP\\PDPHooks::onLoadExtensionSchemaUpdates",
-    "BeforeInitialize": "PDP\\PDPHooks::onBeforeInitialize"
+    "BeforeInitialize": "PDP\\PDPHooks::onBeforeInitialize",
+    "CanonicalNamespaces": "PDP\\PDPHooks::onCanonicalNamespaces"
   },
   "SpecialPages": {
     "Permissions": "PDP\\Special\\SpecialPermissions",
