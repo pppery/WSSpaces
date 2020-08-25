@@ -6,11 +6,11 @@ use HTMLForm;
 use OutputPage;
 use PDP\SubmitCallback\SubmitCallback;
 use PDP\Validation\FakeValidationCallback;
-use PDP\Validation\ValidationCallback;
+use PDP\Validation\AbstractValidationCallback;
 
 abstract class AbstractForm {
     /**
-     * @var ValidationCallback
+     * @var AbstractValidationCallback
      */
     private $validation_callback;
 
@@ -29,9 +29,9 @@ abstract class AbstractForm {
      *
      * @param OutputPage $page
      * @param SubmitCallback $submit_callback
-     * @param ValidationCallback|null $validation_callback
+     * @param AbstractValidationCallback|null $validation_callback
      */
-    public function __construct( OutputPage $page, SubmitCallback $submit_callback, ValidationCallback $validation_callback = null ) {
+    public function __construct(OutputPage $page, SubmitCallback $submit_callback, AbstractValidationCallback $validation_callback = null ) {
         $this->page = $page;
 
         $this->setSubmitCallback( $submit_callback );
@@ -50,9 +50,9 @@ abstract class AbstractForm {
     /**
      * Sets this form's validation callback.
      *
-     * @param ValidationCallback $callback
+     * @param AbstractValidationCallback $callback
      */
-    public function setValidationCallback( ValidationCallback $callback ) {
+    public function setValidationCallback(AbstractValidationCallback $callback ) {
         $this->validation_callback = $callback;
     }
 
@@ -68,10 +68,29 @@ abstract class AbstractForm {
     /**
      * Returns the validation callback for this form.
      *
-     * @return ValidationCallback
+     * @return AbstractValidationCallback
      */
-    public function getValidationCallback(): ValidationCallback {
+    public function getValidationCallback(): AbstractValidationCallback {
         return $this->validation_callback;
+    }
+
+    /**
+     * Returns whether or not to show a cancel button.
+     *
+     * @return bool
+     */
+    public function showCancel(): bool {
+        return false;
+    }
+
+    /**
+     * Returns the Title to redirect to when the user presses 'cancel'.
+     *
+     * @return \Title
+     */
+    public function cancelTarget(): \Title {
+        // Main page
+        return \Title::newFromID( 1 );
     }
 
     /**
@@ -89,6 +108,9 @@ abstract class AbstractForm {
         if ( $this->isDestructive() ) {
             $form->setSubmitDestructive();
         }
+
+        $form->setCancelTarget( $this->cancelTarget() );
+        $form->showCancel( $this->showCancel() );
 
         return $form;
     }

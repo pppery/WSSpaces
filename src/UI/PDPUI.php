@@ -124,6 +124,7 @@ abstract class PDPUI {
      * Executed before the main render() method is run.
      */
     private function preRender() {
+        $this->getOutput()->clearHTML();
         $this->getOutput()->preventClickjacking();
     }
 

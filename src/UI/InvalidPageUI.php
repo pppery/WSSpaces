@@ -40,7 +40,8 @@ class InvalidPageUI extends PDPUI {
      */
     function getNavigationItems(): array {
         return [
-            'Permissions' => 'Special:Permissions'
+            'Manage permissions' => 'Special:Permissions',
+            'Create space' => 'Special:AddSpace'
         ];
     }
 }

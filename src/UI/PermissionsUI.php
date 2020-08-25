@@ -1,10 +1,10 @@
 <?php
 
-
 namespace PDP\UI;
 
-use MediaWiki\MediaWikiServices;
 use PDP\Form\PermissionsMatrixForm;
+use PDP\NamespaceRepository;
+use PDP\Space;
 use PDP\SubmitCallback\PermissionsMatrixSubmitCallback;
 use PDP\Validation\PermissionsMatrixValidationCallback;
 
@@ -16,6 +16,7 @@ use PDP\Validation\PermissionsMatrixValidationCallback;
 class PermissionsUI extends PDPUI {
     /**
      * @inheritDoc
+     * @throws \ConfigException
      */
     public function render() {
         $this->getOutput()->addWikiMsg( 'pdp-permissions-intro' );
@@ -33,7 +34,11 @@ class PermissionsUI extends PDPUI {
      * @inheritDoc
      */
     public function getHeader(): string {
-        return wfMessage( 'pdp-permissions-header', $this->getParameter() )->plain();
+        $namespace = $this->getParameter();
+        $space = Space::newFromName( $namespace );
+        $display_name = $space ? $space->getDisplayName() : $namespace;
+
+        return wfMessage( 'pdp-permissions-header', $display_name )->plain();
     }
 
     /**
@@ -52,13 +57,17 @@ class PermissionsUI extends PDPUI {
 
     /**
      * @inheritDoc
+     * @throws \Exception
      */
     public function getNavigationItems(): array {
-       $namespaces = PermissionsMatrixValidationCallback::getValidSpaces();
+       $namespaces = ( new NamespaceRepository() )->getNamespaces();
        $result = [];
 
        foreach ($namespaces as $namespace) {
-           $result[$namespace] = "Special:Permissions/$namespace";
+           $space = Space::newFromName( $namespace );
+           $display_name = $space ? $space->getDisplayName() : $namespace;
+
+           $result[$display_name] = "Special:Permissions/$namespace";
        }
 
        return $result;
@@ -66,9 +75,17 @@ class PermissionsUI extends PDPUI {
 
     /**
      * Shows the PermissionsMatrix form.
+     * @throws \InvalidArgumentException
+     * @throws \ConfigException
      */
     private function showPermissionsMatrixForm() {
-        $namespace_constant = self::getNamespaces()[$this->getParameter()] ?? 0;
+        $namespaces = ( new NamespaceRepository() )->getNamespaces( true );
+
+        if ( !isset( $namespaces[$this->getParameter()] ) ) {
+            throw new \InvalidArgumentException( "The namespace '{$this->getParameter()}' is invalid." );
+        }
+
+        $namespace_constant = $namespaces[$this->getParameter()];
 
         $form = new PermissionsMatrixForm(
             $namespace_constant,
@@ -78,26 +95,5 @@ class PermissionsUI extends PDPUI {
         );
 
         $form->show();
-    }
-
-    /**
-     * Returns a key-value pair of namespace constants and their associated name.
-     *
-     * @return array|mixed
-     */
-    private static function getNamespaces() {
-        try {
-            $config = MediaWikiServices::getInstance()->getMainConfig();
-            $namespaces = [ NS_MAIN => 'Main' ] + $config->get( 'CanonicalNamespaceNames' );
-            $namespaces += \ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
-
-            if ( is_array( $config->get( 'ExtraNamespaces' ) ) ) {
-                $namespaces += $config->get( 'ExtraNamespaces' );
-            }
-        } catch(\Exception $e) {
-            return [];
-        }
-
-        return array_flip( $namespaces );
     }
 }

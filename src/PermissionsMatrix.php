@@ -221,18 +221,15 @@ class PermissionsMatrix implements \Iterator, \Countable {
      * Returns an array of namespace constants.
      *
      * @return array|mixed
+     * @throws \ConfigException
      */
     private static function getNamespaces() {
-        try {
-            $config = MediaWikiServices::getInstance()->getMainConfig();
-            $namespaces = [ NS_MAIN => 'Main' ] + $config->get( 'CanonicalNamespaceNames' );
-            $namespaces += \ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
+        $config = MediaWikiServices::getInstance()->getMainConfig();
+        $namespaces = [ NS_MAIN => 'Main' ] + $config->get( 'CanonicalNamespaceNames' );
+        $namespaces += \ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
 
-            if ( is_array( $config->get( 'ExtraNamespaces' ) ) ) {
-                $namespaces += $config->get( 'ExtraNamespaces' );
-            }
-        } catch(\Exception $e) {
-            return [];
+        if ( is_array( $config->get( 'ExtraNamespaces' ) ) ) {
+            $namespaces += $config->get( 'ExtraNamespaces' );
         }
 
         return array_flip( $namespaces );

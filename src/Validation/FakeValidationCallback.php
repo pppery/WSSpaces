@@ -7,7 +7,7 @@ namespace PDP\Validation;
  *
  * @package PDP\Validation
  */
-class FakeValidationCallback implements ValidationCallback {
+class FakeValidationCallback extends AbstractValidationCallback {
     /**
      * Validates whether the given value is allowed for the given field.
      *

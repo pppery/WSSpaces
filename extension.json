@@ -33,7 +33,8 @@
     "BeforeInitialize": "PDP\\PDPHooks::onBeforeInitialize"
   },
   "SpecialPages": {
-    "Permissions": "PDP\\Special\\SpecialPermissions"
+    "Permissions": "PDP\\Special\\SpecialPermissions",
+    "AddSpace": "PDP\\Special\\SpecialAddSpace"
   },
   "AvailableRights": [
     "pdp-manage"
@@ -47,6 +48,12 @@
     "ext.pdp.SpecialPermissions": {
       "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.SpecialPermissions.css"
     },
+    "ext.pdp.Global": {
+      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Global.css"
+    },
+    "ext.pdp.Exception": {
+      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Exception.css"
+    },
     "ext.pdp.SpecialPermissionsSuccess": {
       "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.SpecialPermissionsSuccess.js",
       "position": "bottom",
@@ -58,8 +65,16 @@
         "mediawiki.api"
       ]
     },
-    "ext.pdp.Global": {
-      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Global.css"
+    "ext.pdp.SpecialAddSpaceSuccess": {
+      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.SpecialAddSpaceSuccess.js",
+      "position": "bottom",
+      "messages": [
+        "pdp-add-space-saved-successfully"
+      ],
+      "dependencies": [
+        "mediawiki.util",
+        "mediawiki.api"
+      ]
     }
   },
   "config": {

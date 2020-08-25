@@ -6,13 +6,6 @@ abstract class SpecialPage extends \SpecialPage {
     /**
      * @inheritDoc
      */
-    public function getDescription() {
-        return $this->msg( 'pdp-special-title' )->plain();
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function execute( $parameter ) {
         $result = $this->preExecute();
 

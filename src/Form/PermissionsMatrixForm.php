@@ -6,7 +6,7 @@ use OutputPage;
 use PDP\SubmitCallback\SubmitCallback;
 use PDP\PermissionsMatrix;
 use PDP\Validation\PermissionsMatrixValidationCallback;
-use PDP\Validation\ValidationCallback;
+use PDP\Validation\AbstractValidationCallback;
 
 class PermissionsMatrixForm extends AbstractForm {
     /**
@@ -19,13 +19,13 @@ class PermissionsMatrixForm extends AbstractForm {
      * @param string $namespace_constant
      * @param OutputPage $page
      * @param SubmitCallback $submit_callback
-     * @param ValidationCallback|null $validation_callback
+     * @param AbstractValidationCallback|null $validation_callback
      */
     public function __construct(
         string $namespace_constant,
         OutputPage $page,
         SubmitCallback $submit_callback,
-        ValidationCallback $validation_callback = null
+        AbstractValidationCallback $validation_callback = null
     ) {
         $this->namespace_constant = $namespace_constant;
 
@@ -44,7 +44,7 @@ class PermissionsMatrixForm extends AbstractForm {
                 'columns' => $this->getColumns(), // TODO
                 'rows' => $this->getRows(),
                 'default' => $this->getDefault(),
-                'validation-callback' => function($field, $data) {
+                'validation-callback' => function( $field, $data ) {
                     return $this->getValidationCallback()->validateField('checkmatrix', $field, $data);
                 }
             ]

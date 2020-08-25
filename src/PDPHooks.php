@@ -22,7 +22,7 @@ abstract class PDPHooks {
      * @return bool
      */
     public static function onSecuritySensitiveOperationStatus( string &$status, string $operation, Session $session, int $timeSinceAuth ): bool {
-        if ( $operation === "pega-change-permissions" && $timeSinceAuth > self::TIMEOUT ) {
+        if ( ( $operation === "pega-change-permissions" || $operation === "pega-change-namespaces" ) && $timeSinceAuth > self::TIMEOUT ) {
             $status = AuthManager::SEC_REAUTH;
         }
 
@@ -44,9 +44,16 @@ abstract class PDPHooks {
         }
 
         $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
-            'text' => wfMessage( 'pdp-special-title' ),
+            'text' => wfMessage( 'pdp-special-permissions-title' ),
             'href' => \Title::newFromText( "Permissions", NS_SPECIAL )->getFullUrlForRedirect(),
             'id'   => 'pdp-permissions-special',
+            'active' => ''
+        ];
+
+        $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
+            'text' => wfMessage( 'pdp-special-add-space-title' ),
+            'href' => \Title::newFromText( "AddSpace", NS_SPECIAL )->getFullUrlForRedirect(),
+            'id'   => 'pdp-add-space-special',
             'active' => ''
         ];
 
@@ -64,13 +71,19 @@ abstract class PDPHooks {
     public static function onLoadExtensionSchemaUpdates( \DatabaseUpdater $updater ) {
         $directory = $GLOBALS['wgExtensionDirectory'] . '/PegaDepartmentalPermissions/sql';
         $type = $updater->getDB()->getType();
-        $sql_file = sprintf( "%s/%s/pdp_permissions_table.sql", $directory, $type );
 
-        if ( !file_exists( $sql_file ) ) {
+        $pdp_permissions_table = sprintf( "%s/%s/pdp_permissions_table.sql", $directory, $type );
+        if ( !file_exists( $pdp_permissions_table ) ) {
             throw new MWException( "PDP does not support database type `$type`." );
         }
 
-        $updater->addExtensionTable( 'pdp_permissions', $sql_file );
+        $pdp_namespaces_table = sprintf( "%s/%s/pdp_namespaces_table.sql", $directory, $type );
+        if ( !file_exists( $pdp_namespaces_table ) ) {
+            throw new MWException( "PDP does not support database type `$type`." );
+        }
+
+        $updater->addExtensionTable( 'pdp_permissions', $pdp_permissions_table );
+        $updater->addExtensionTable( 'pdp_namespaces', $pdp_namespaces_table );
     }
 
     /**

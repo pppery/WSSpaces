@@ -4,18 +4,17 @@ namespace PDP\Special;
 
 use ErrorPageError;
 use Exception;
-use PDP\NamespaceRepository;
 use PDP\SpecialPage;
+use PDP\UI\AddSpaceUI;
 use PDP\UI\ExceptionUI;
 use PDP\UI\InvalidPageUI;
-use PDP\UI\PermissionsUI;
 use PermissionsError;
 
 /**
- * Class SpecialPermissions
+ * Class SpecialNamespaces
  * @package PDP\Special
  */
-class SpecialPermissions extends SpecialPage {
+class SpecialAddSpace extends SpecialPage {
     /**
      * SpecialPermissions constructor.
      *
@@ -30,7 +29,7 @@ class SpecialPermissions extends SpecialPage {
      * @inheritDoc
      */
     public function getName() {
-        return "Permissions";
+        return "AddSpace";
     }
 
     /**
@@ -51,7 +50,7 @@ class SpecialPermissions extends SpecialPage {
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'pdp-special-permissions-title' )->plain();
+        return wfMessage( 'pdp-special-add-space-title' )->plain();
     }
 
     /**
@@ -63,29 +62,22 @@ class SpecialPermissions extends SpecialPage {
         $this->setHeaders();
         $this->checkPermissions();
 
-        return $this->checkLoginSecurityLevel( 'pega-change-permissions' );
+        return $this->checkLoginSecurityLevel( 'pega-create-namespaces' );
     }
 
     /**
      * @inheritDoc
      */
     public function doExecute( string $parameter ) {
-        $parameter = $parameter ? $parameter : 'Main';
-
         try {
-            $namespace_repository = new NamespaceRepository();
-            $namespaces = $namespace_repository->getNamespaces();
-
-            if (!in_array($parameter, $namespaces)) {
+            if ( !empty( $parameter ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 
                 return;
             }
 
-            $ui = new PermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
-            $ui->setParameter( $parameter );
-
+            $ui = new AddSpaceUI( $this->getOutput(), $this->getLinkRenderer() );
             $ui->execute();
         } catch( Exception $e ) {
             $ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );
