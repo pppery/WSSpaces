@@ -40,8 +40,10 @@ class InvalidPageUI extends PDPUI {
      */
     function getNavigationItems(): array {
         return [
-            'Manage permissions' => 'Special:Permissions',
-            'Create space' => 'Special:AddSpace'
+            wfMessage( 'pdp-special-permissions-title' )->plain() => 'Special:Permissions',
+            wfMessage( 'pdp-add-space-header' )->plain() => 'Special:AddSpace',
+            wfMessage( 'pdp-manage-space-header' )->plain() => 'Special:ManageSpace',
+            wfMessage( 'pdp-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
         ];
     }
 }

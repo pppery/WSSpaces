@@ -28,9 +28,16 @@ abstract class SpacesUI extends PDPUI {
      */
     public function getNavigationItems(): array {
         return [
-            'Active spaces' => 'Special:ManageSpace',
-            'Archived spaces' => 'Special:ArchivedSpaces',
-            'Create space' => 'Special:AddSpace'
+            wfMessage( 'pdp-add-space-header' )->plain() => 'Special:AddSpace',
+            wfMessage( 'pdp-manage-space-header' )->plain() => 'Special:ManageSpace',
+            wfMessage( 'pdp-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
         ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getModules(): array {
+        return [ 'ext.pdp.Spaces' ];
     }
 }

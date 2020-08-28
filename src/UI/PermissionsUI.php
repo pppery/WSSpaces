@@ -2,6 +2,8 @@
 
 namespace PDP\UI;
 
+use MediaWiki\Linker\LinkRenderer;
+use OutputPage;
 use PDP\Form\PermissionsMatrixForm;
 use PDP\NamespaceRepository;
 use PDP\Space;
@@ -15,10 +17,25 @@ use PDP\Validation\PermissionsMatrixValidationCallback;
  */
 class PermissionsUI extends PDPUI {
     /**
+     * @var NamespaceRepository
+     */
+    private $namespaces;
+
+    public function __construct( OutputPage $page, LinkRenderer $link_renderer ) {
+        $this->namespaces = new NamespaceRepository();
+
+        parent::__construct($page, $link_renderer);
+    }
+
+    /**
      * @inheritDoc
      * @throws \ConfigException
      */
     public function render() {
+        if ( !in_array( $this->getParameter(), $this->namespaces->getSpaces() ) ) {
+            $this->getOutput()->addWikiMsg( 'pdp-permissions-core-namespace' );
+        }
+
         $this->getOutput()->addWikiMsg( 'pdp-permissions-intro' );
         $this->showPermissionsMatrixForm();
     }
@@ -79,7 +96,7 @@ class PermissionsUI extends PDPUI {
      * @throws \ConfigException
      */
     private function showPermissionsMatrixForm() {
-        $namespaces = ( new NamespaceRepository() )->getNamespaces( true );
+        $namespaces = $this->namespaces->getNamespaces( true );
 
         if ( !isset( $namespaces[$this->getParameter()] ) ) {
             throw new \InvalidArgumentException( "The namespace '{$this->getParameter()}' is invalid." );

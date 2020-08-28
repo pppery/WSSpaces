@@ -56,7 +56,6 @@ class LockdownHandler {
      */
     private function setLockdownConstraintsForPermissionsMatrix( PermissionsMatrix $permissions ) {
         $namespace_constant = $permissions->getNamespaceConstant();
-
         $namespace_lockdown =& $this->getNamespaceLockdownPointer();
         $namespace_lockdown =& $namespace_lockdown[$namespace_constant];
 

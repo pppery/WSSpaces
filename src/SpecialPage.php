@@ -2,32 +2,54 @@
 
 namespace PDP;
 
+use ErrorPageError;
+use PermissionsError;
+
 abstract class SpecialPage extends \SpecialPage {
     /**
      * @inheritDoc
+     * @throws PermissionsError
+     * @throws ErrorPageError
      */
     public function execute( $parameter ) {
-        $result = $this->preExecute();
+        $this->setHeaders();
+        $this->checkPermissions();
 
-        if ( $result === false ) {
-            return false;
+        $security_level = $this->getLoginSecurityLevel();
+
+        if ( $security_level ) {
+            $proceed = $this->checkLoginSecurityLevel( $security_level );
+
+            if ( !$proceed ) {
+                return;
+            }
         }
+
+        $this->preExecute();
 
         $parameter = $parameter ?? '';
 
         $this->doExecute( $parameter );
         $this->postExecuteCleanup();
+    }
 
-        return true;
+    /**
+     * Cleans up the special page after the main execute method. Can for instance be used to set headers or commit
+     * some database transactions.
+     *
+     * @return void
+     */
+    public function postExecuteCleanup() {
     }
 
     /**
      * Does some checks before the special page is even shown. Return false to abort the execution of the
      * special page.
      *
-     * @return bool
+     * @return void
      */
-    abstract function preExecute(): bool;
+    public function preExecute() {
+    }
 
     /**
      * The main method that gets invoked upon successfully loading the special page, after preExecuteChecks have
@@ -37,12 +59,4 @@ abstract class SpecialPage extends \SpecialPage {
      * @return void
      */
     abstract function doExecute( string $parameter );
-
-    /**
-     * Cleans up the special page after the main execute method. Can for instance be used to set headers or commit
-     * some database transactions.
-     *
-     * @return void
-     */
-    abstract function postExecuteCleanup();
 }

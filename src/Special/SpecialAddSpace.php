@@ -50,19 +50,14 @@ class SpecialAddSpace extends SpecialPage {
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'pdp-special-add-space-title' )->plain();
+        return wfMessage( 'pdp-add-space-header' )->plain();
     }
 
     /**
      * @inheritDoc
-     * @throws ErrorPageError
-     * @throws PermissionsError
      */
-    public function preExecute(): bool {
-        $this->setHeaders();
-        $this->checkPermissions();
-
-        return $this->checkLoginSecurityLevel( 'pega-create-namespaces' );
+    public function getLoginSecurityLevel() {
+        return 'pega-create-namespaces';
     }
 
     /**
@@ -83,13 +78,6 @@ class SpecialAddSpace extends SpecialPage {
             $ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );
             $ui->execute();
         }
-
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function postExecuteCleanup() {
 
     }
 }

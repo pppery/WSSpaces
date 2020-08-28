@@ -55,15 +55,10 @@ class SpecialPermissions extends SpecialPage {
     }
 
     /**
-     * @inheritDoc
-     * @throws ErrorPageError
-     * @throws PermissionsError
+     * @return bool|string
      */
-    public function preExecute(): bool {
-        $this->setHeaders();
-        $this->checkPermissions();
-
-        return $this->checkLoginSecurityLevel( 'pega-change-permissions' );
+    public function getLoginSecurityLevel() {
+        return 'pega-change-permissions';
     }
 
     /**
@@ -91,13 +86,5 @@ class SpecialPermissions extends SpecialPage {
             $ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );
             $ui->execute();
         }
-
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function postExecuteCleanup() {
-
     }
 }

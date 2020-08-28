@@ -4,7 +4,10 @@ namespace PDP\UI;
 
 use HtmlArmor;
 use MediaWiki\Linker\LinkRenderer;
+use MWException;
 use OutputPage;
+use PDP\NamespaceRepository;
+use PDP\Space;
 
 /**
  * Class PDPUI
@@ -18,7 +21,20 @@ abstract class PDPUI {
         "ext.pdp.Global"
     ];
 
+    /**
+     * @var bool
+     */
     private static $queued = false;
+
+    /**
+     * @var string
+     */
+    private static $parameter = '';
+
+    /**
+     * @var PDPUI
+     */
+    private static $ui;
 
     /**
      * @var OutputPage
@@ -31,17 +47,12 @@ abstract class PDPUI {
     private $link_renderer;
 
     /**
-     * @var string
-     */
-    private $parameter = '';
-
-    /**
      * @var array
      */
     private $modules = [];
 
     /**
-     * Returns true if and only if PDPUI is queued to be rendered.
+     * Returns true if and only if a PDPUI is queued to be rendered.
      *
      * @return bool
      */
@@ -54,9 +65,12 @@ abstract class PDPUI {
      *
      * @param OutputPage $page
      * @param LinkRenderer $link_renderer
+     * @throws MWException
      */
     public function __construct( OutputPage $page, LinkRenderer $link_renderer ) {
-        self::$queued = true;
+        self::$ui = $this;
+
+        $this->queue();
 
         $this->page = $page;
         $this->link_renderer = $link_renderer;
@@ -65,12 +79,72 @@ abstract class PDPUI {
     }
 
     /**
+     * PHPUI destructor.
+     */
+    public function __destruct() {
+        $this->unqueue();
+    }
+
+    /**
+     * Sets the sidebar.
+     *
+     * @param $bar
+     * @throws \ConfigException
+     */
+    public static function setSidebar( &$bar ) {
+        $bar = $bar + self::$ui->getSidebarItems();
+    }
+
+    /**
+     * Returns the items that will be added to the sidebar.
+     *
+     * @return mixed
+     * @throws \ConfigException
+     */
+    public function getSidebarItems(): array {
+        $space = $this->getParameter();
+        $spaces = ( new NamespaceRepository() )->getSpaces();
+
+        if ( !in_array( $space, $spaces ) ) {
+            // We cannot edit regular namespaces.
+            return [];
+        }
+
+        $display_name = ucfirst( Space::newFromName( $space )->getDisplayName() );
+
+        $bar[wfMessage( 'pdp-space-administration-sidebar-header', $display_name )->plain()][] = [
+            'text' => wfMessage( 'pdp-edit-space-details' ),
+            'href' => \Title::newFromText( "ManageSpace/$space", NS_SPECIAL )->getFullUrlForRedirect(),
+            'id'   => 'pdp-permissions-special',
+            'active' => ''
+        ];
+
+        $bar[wfMessage( 'pdp-space-administration-sidebar-header', $display_name )->plain()][] = [
+            'text' => wfMessage( 'pdp-edit-space-permissions' ),
+            'href' => \Title::newFromText( "Permissions/$space", NS_SPECIAL )->getFullUrlForRedirect(),
+            'id'   => 'pdp-permissions-special',
+            'active' => ''
+        ];
+
+        return $bar;
+    }
+
+    /**
+     * Returns the parameter (or subpage name) from this page.
+     *
+     * @return string
+     */
+    public static function getParameter(): string {
+        return str_replace("_", " ", self::$parameter);
+    }
+
+    /**
      * Sets the parameter (or subpage name) for this page.
      *
      * @param string $parameter
      */
     public function setParameter( string $parameter ) {
-        $this->parameter = $parameter;
+        self::$parameter = $parameter;
     }
 
     /**
@@ -89,15 +163,6 @@ abstract class PDPUI {
      */
     public function getOutput(): OutputPage {
         return $this->page;
-    }
-
-    /**
-     * Returns the parameter (or subpage name) from this page.
-     *
-     * @return string
-     */
-    public function getParameter(): string {
-        return str_replace("_", " ", $this->parameter);
     }
 
     /**
@@ -167,22 +232,41 @@ abstract class PDPUI {
             return;
         }
 
-        $links = array_map(function($key, $value) {
-            $title = \Title::newFromText($value);
+        $links = array_map( function( $key, $value ) {
+            $title = \Title::newFromText( $value );
 
-            if ($this->getParameter() === $key) {
-                return \Xml::tags('strong', null, $key);
+            $page_title = $this->getOutput()->getTitle()->getFullText();
+            $page_name  = $this->ignoreParameterInNavigationHighlight() ?
+                explode( '/', $page_title )[0] :
+                $page_title;
+
+            if ( $page_name === $value || $this->getParameter() === $key ) {
+                return \Xml::tags( 'strong', null, $key );
             }
 
-            return $this->getLinkRenderer()->makeLink($title, new HtmlArmor($key));
-        }, array_keys($link_definitions), array_values($link_definitions));
+            return $this->getLinkRenderer()->makeLink( $title, new HtmlArmor( $key ) );
+        }, array_keys( $link_definitions ), array_values( $link_definitions ) );
 
         $nav = wfMessage( 'parentheses' )
-            ->rawParams($this->getOutput()->getLanguage()->pipeList($links))
+            ->rawParams($this->getOutput()->getLanguage()->pipeList( $links ) )
             ->text();
         $nav = $this->getNavigationPrefix() . " $nav";
-        $nav = \Xml::tags('div', ['class' => 'mw-pdp-topnav'], $nav);
-        $this->getOutput()->setSubtitle($nav);
+        $nav = \Xml::tags( 'div', ['class' => 'mw-pdp-topnav'], $nav );
+        $this->getOutput()->setSubtitle( $nav );
+    }
+
+    /**
+     * Locks out other classes from creating a PDPUI object.
+     */
+    private function queue() {
+        self::$queued = true;
+    }
+
+    /**
+     * Enables other classes to create a PDPUI object.
+     */
+    private function unqueue() {
+        self::$queued = false;
     }
 
     /**
@@ -212,6 +296,15 @@ abstract class PDPUI {
      */
     public function getNavigationItems(): array {
         return [];
+    }
+
+    /**
+     * Returns whether or not to ignore the parameter when highlighting navigation items (to show you are on a page).
+     *
+     * @return bool
+     */
+    public function ignoreParameterInNavigationHighlight(): bool {
+        return false;
     }
 
     /**

@@ -19,6 +19,7 @@ class ExceptionUI extends PDPUI {
      * @param \Exception $exception
      * @param OutputPage $page
      * @param LinkRenderer $link_renderer
+     * @throws \MWException
      */
     public function __construct( \Exception $exception, OutputPage $page, LinkRenderer $link_renderer ) {
         $this->exception = $exception;
@@ -76,8 +77,10 @@ class ExceptionUI extends PDPUI {
      */
     public function getNavigationItems(): array {
         return [
-            'Manage permissions' => 'Special:Permissions',
-            'Create space' => 'Special:AddSpace'
+            wfMessage( 'pdp-special-permissions-title' )->plain() => 'Special:Permissions',
+            wfMessage( 'pdp-add-space-header' )->plain() => 'Special:AddSpace',
+            wfMessage( 'pdp-manage-space-header' )->plain() => 'Special:ManageSpace',
+            wfMessage( 'pdp-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
         ];
     }
 

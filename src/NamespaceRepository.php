@@ -171,7 +171,8 @@ class NamespaceRepository {
             'namespace_name' => $space->getName(),
             'display_name' => $space->getDisplayName(),
             'description' => $space->getDescription(),
-            'owner_id' => $space->getOwner()->getId()
+            'creator_id' => $space->getOwner()->getId(),
+            'created_on' => time()
         ] );
     }
 
@@ -190,7 +191,7 @@ class NamespaceRepository {
             'pdp_namespaces',  [
             'display_name' => $space->getDisplayName(),
             'description' => $space->getDescription(),
-            'owner_id' => $space->getOwner()->getId()
+            'creator_id' => $space->getOwner()->getId()
         ], [
             'namespace_id' => $space->getId()
         ] );

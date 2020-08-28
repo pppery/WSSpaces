@@ -22,7 +22,13 @@ abstract class PDPHooks {
      * @return bool
      */
     public static function onSecuritySensitiveOperationStatus( string &$status, string $operation, Session $session, int $timeSinceAuth ): bool {
-        if ( ( $operation === "pega-change-permissions" || $operation === "pega-change-namespaces" ) && $timeSinceAuth > self::TIMEOUT ) {
+        $security_sensitive_operations = [
+            "pega-manage-namespaces",
+            "pega-create-namespaces",
+            "pega-change-permissions"
+        ];
+
+        if ( in_array( $operation, $security_sensitive_operations ) && $timeSinceAuth > self::TIMEOUT ) {
             $status = AuthManager::SEC_REAUTH;
         }
 
@@ -39,7 +45,7 @@ abstract class PDPHooks {
      * @return bool
      */
     public static function onSkinBuildSidebar( \Skin $skin, &$bar ) {
-        if (!PDPUI::isQueued()) {
+        if ( !PDPUI::isQueued() ) {
             return true;
         }
 
@@ -51,11 +57,27 @@ abstract class PDPHooks {
         ];
 
         $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
-            'text' => wfMessage( 'pdp-special-add-space-title' ),
+            'text' => wfMessage( 'pdp-add-space-header' ),
             'href' => \Title::newFromText( "AddSpace", NS_SPECIAL )->getFullUrlForRedirect(),
             'id'   => 'pdp-add-space-special',
             'active' => ''
         ];
+
+        $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
+            'text' => wfMessage( 'pdp-manage-space-header' ),
+            'href' => \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(),
+            'id'   => 'pdp-manage-space-special',
+            'active' => ''
+        ];
+
+        $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
+            'text' => wfMessage( 'pdp-archived-spaces-header' ),
+            'href' => \Title::newFromText( "ArchivedSpaces", NS_SPECIAL )->getFullUrlForRedirect(),
+            'id'   => 'pdp-archived-spaces-special',
+            'active' => ''
+        ];
+
+        PDPUI::setSidebar( $bar );
 
         return true;
     }

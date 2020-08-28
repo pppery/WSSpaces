@@ -84,6 +84,15 @@ abstract class AbstractForm {
     }
 
     /**
+     * Returns an array of buttons to be added.
+     *
+     * @return array
+     */
+    public function getButtons(): array {
+        return [];
+    }
+
+    /**
      * Returns the Title to redirect to when the user presses 'cancel'.
      *
      * @return \Title
@@ -109,8 +118,13 @@ abstract class AbstractForm {
             $form->setSubmitDestructive();
         }
 
+        foreach ( $this->getButtons() as $button ) {
+            $form->addButton( $button );
+        }
+
         $form->setCancelTarget( $this->cancelTarget() );
         $form->showCancel( $this->showCancel() );
+        $form->setTokenSalt( "pdp" );
 
         return $form;
     }

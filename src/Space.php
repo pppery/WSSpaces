@@ -86,7 +86,7 @@ class Space {
         $database = wfGetDB( DB_REPLICA );
         $namespace = $database->select(
             'pdp_namespaces',
-            [ 'namespace_id', 'display_name', 'description', 'owner_id' ],
+            [ 'namespace_id', 'display_name', 'description', 'creator_id' ],
             [ 'namespace_name' => $namespace_name ]
         );
 
@@ -95,10 +95,10 @@ class Space {
         }
 
         $namespace = $namespace->current();
-        $user = User::newFromId( $namespace->owner_id );
+        $user = User::newFromId( $namespace->creator_id );
 
         if ( !$user instanceof User ) {
-            throw new \InvalidArgumentException( "Invalid owner_id '{$namespace->owner_id}'" );
+            throw new \InvalidArgumentException( "Invalid creator_id '{$namespace->creator_id}'" );
         }
 
         return new Space(
@@ -146,7 +146,7 @@ class Space {
      * @return string
      */
     public function getName(): string {
-        return $this->namespace_name;
+        return ucfirst( $this->namespace_name );
     }
 
     /**
@@ -181,7 +181,7 @@ class Space {
      * @return string
      */
     public function getDisplayName(): string {
-        return $this->display_name;
+        return ucfirst( $this->display_name );
     }
 
     /**

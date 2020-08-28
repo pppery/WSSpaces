@@ -92,9 +92,12 @@ class PermissionsMatrix implements \Iterator, \Countable {
      * Returns an array of PermissionsMatrix objects for every namespace.
      *
      * @return PermissionsMatrix[]
+     * @throws \ConfigException
      */
     public static function getAll(): array {
-        return array_map( "self::newFromNamespaceConstant", self::getNamespaces() );
+        $namespaces = ( new NamespaceRepository() )->getAllNamespaces( true );
+
+        return array_map( "self::newFromNamespaceConstant", $namespaces );
     }
 
     /**
@@ -215,23 +218,5 @@ class PermissionsMatrix implements \Iterator, \Countable {
         $right = $array['right'];
 
         return "$right-$group";
-    }
-
-    /**
-     * Returns an array of namespace constants.
-     *
-     * @return array|mixed
-     * @throws \ConfigException
-     */
-    private static function getNamespaces() {
-        $config = MediaWikiServices::getInstance()->getMainConfig();
-        $namespaces = [ NS_MAIN => 'Main' ] + $config->get( 'CanonicalNamespaceNames' );
-        $namespaces += \ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
-
-        if ( is_array( $config->get( 'ExtraNamespaces' ) ) ) {
-            $namespaces += $config->get( 'ExtraNamespaces' );
-        }
-
-        return array_flip( $namespaces );
     }
 }

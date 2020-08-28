@@ -35,7 +35,9 @@
   },
   "SpecialPages": {
     "Permissions": "PDP\\Special\\SpecialPermissions",
-    "AddSpace": "PDP\\Special\\SpecialAddSpace"
+    "AddSpace": "PDP\\Special\\SpecialAddSpace",
+    "ManageSpace": "PDP\\Special\\SpecialManageSpace",
+    "ArchivedSpaces": "PDP\\Special\\SpecialArchivedSpaces"
   },
   "AvailableRights": [
     "pdp-manage"
@@ -48,6 +50,9 @@
   "ResourceModules": {
     "ext.pdp.SpecialPermissions": {
       "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.SpecialPermissions.css"
+    },
+    "ext.pdp.Spaces": {
+      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Spaces.css"
     },
     "ext.pdp.Global": {
       "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Global.css"
@@ -76,6 +81,17 @@
         "mediawiki.util",
         "mediawiki.api"
       ]
+    },
+    "ext.pdp.SpecialManageSpaceSuccess": {
+      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.SpecialManageSpaceSuccess.js",
+      "position": "bottom",
+      "messages": [
+        "pdp-manage-space-saved-successfully"
+      ],
+      "dependencies": [
+        "mediawiki.util",
+        "mediawiki.api"
+      ]
     }
   },
   "config": {
@@ -84,7 +100,6 @@
         "read",
         "edit",
         "delete",
-        "createpage",
         "move",
         "protect"
       ]
