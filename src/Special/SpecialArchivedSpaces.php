@@ -1,21 +1,25 @@
 <?php
 
+
 namespace PDP\Special;
 
 use ErrorPageError;
 use Exception;
 use PDP\NamespaceRepository;
 use PDP\SpecialPage;
+use PDP\UI\AddSpaceUI;
+use PDP\UI\ArchivedSpacesUI;
 use PDP\UI\ExceptionUI;
 use PDP\UI\InvalidPageUI;
-use PDP\UI\PermissionsUI;
+use PDP\UI\UnarchiveSpaceUI;
 use PermissionsError;
 
 /**
- * Class SpecialPermissions
+ * Class SpecialArchivedSpaces
+ *
  * @package PDP\Special
  */
-class SpecialPermissions extends SpecialPage {
+class SpecialArchivedSpaces extends SpecialPage {
     /**
      * SpecialPermissions constructor.
      *
@@ -30,7 +34,7 @@ class SpecialPermissions extends SpecialPage {
      * @inheritDoc
      */
     public function getName() {
-        return "Permissions";
+        return "ArchivedSpaces";
     }
 
     /**
@@ -51,14 +55,14 @@ class SpecialPermissions extends SpecialPage {
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'pdp-special-permissions-title' )->plain();
+        return wfMessage( 'pdp-archived-spaces-title' )->plain();
     }
 
     /**
-     * @return bool|string
+     * @inheritDoc
      */
     public function getLoginSecurityLevel() {
-        return 'pega-change-permissions';
+        return 'pega-manage-namespaces';
     }
 
     /**
@@ -66,22 +70,24 @@ class SpecialPermissions extends SpecialPage {
      * @throws \MWException
      */
     public function doExecute( string $parameter ) {
-        $parameter = $parameter ? $parameter : 'Main';
-
         try {
             $namespace_repository = new NamespaceRepository();
-            $namespaces = $namespace_repository->getNamespaces();
 
-            if (!in_array($parameter, $namespaces)) {
+            if ( !empty( $parameter ) && !in_array( $parameter, $namespace_repository->getArchivedSpaces() ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 
                 return;
             }
 
-            $ui = new PermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
-            $ui->setParameter( $parameter );
+            $output   = $this->getOutput();
+            $renderer = $this->getLinkRenderer();
 
+            $ui = empty( $parameter ) ?
+                new ArchivedSpacesUI( $output, $renderer ) :
+                new UnarchiveSpaceUI( $output, $renderer );
+
+            $ui->setParameter( $parameter );
             $ui->execute();
         } catch( Exception $e ) {
             $ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );

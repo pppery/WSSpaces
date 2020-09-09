@@ -76,8 +76,16 @@ class PermissionsMatrix implements \Iterator, \Countable {
             [ 'namespace' => $namespace_constant ]
         );
 
-        $result = [];
+        $space = Space::newFromConstant( $namespace_constant );
+        if ( $space !== false && $space->isArchived() ) {
+            // If a space is archived, it shouldn't be available for anyone.
+            $matrix = PermissionsMatrix::newEmpty();
+            $matrix->setNamespaceConstant( $namespace_constant );
 
+            return $matrix;
+        }
+
+        $result = [];
         foreach ( $rows as $row ) {
             $right = $row->user_right;
             $group = $row->user_group;
@@ -86,6 +94,15 @@ class PermissionsMatrix implements \Iterator, \Countable {
         }
 
         return new PermissionsMatrix( $result, $namespace_constant );
+    }
+
+    /**
+     * Returns a new empty PermissionsMatrix.
+     *
+     * @return PermissionsMatrix
+     */
+    public static function newEmpty(): PermissionsMatrix {
+        return new PermissionsMatrix( [] );
     }
 
     /**

@@ -28,9 +28,7 @@ class ExceptionUI extends PDPUI {
     }
 
     /**
-     * Renders the UI.
-     *
-     * @return void
+     * @inheritDoc
      */
     function render() {
         $this->getOutput()->addWikiMsg( 'pdp-internal-exception-intro' );
@@ -50,12 +48,10 @@ class ExceptionUI extends PDPUI {
     }
 
     /**
-     * Returns the header text shown in the UI.
-     *
-     * @return string
+     * @inheritDoc
      */
-    function getHeader(): string {
-        return wfMessage( "pdp-internal-exception" )->plain();
+    function getIdentifier(): string {
+        return 'internal-exception';
     }
 
     /**
@@ -84,6 +80,9 @@ class ExceptionUI extends PDPUI {
         ];
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getModules(): array {
         return [ 'ext.pdp.Exception' ];
     }

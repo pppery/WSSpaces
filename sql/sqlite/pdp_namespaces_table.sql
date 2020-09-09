@@ -4,5 +4,6 @@ CREATE TABLE /*_*/pdp_namespaces (
       display_name VARCHAR(24) NOT NULL,
       description VARCHAR(1024) NOT NULL,
       creator_id INT NOT NULL,
-      created_on BIGINT NOT NULL
+      created_on BIGINT NOT NULL,
+      archived BOOLEAN NOT NULL DEFAULT FALSE
 ) /*$wgDBTableOptions*/;

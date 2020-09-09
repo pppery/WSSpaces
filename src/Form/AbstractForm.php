@@ -25,6 +25,11 @@ abstract class AbstractForm {
     private $page;
 
     /**
+     * @var HTMLForm
+     */
+    private $form;
+
+    /**
      * AbstractForm constructor.
      *
      * @param OutputPage $page
@@ -108,25 +113,29 @@ abstract class AbstractForm {
      * @return HTMLForm
      */
     public function getForm(): HTMLForm {
-        $form = HTMLForm::factory( 'ooui', $this->getDescriptor(), $this->page->getContext() );
+        if ( isset( $this->form ) ) {
+            return $this->form;
+        }
 
-        $form->setMessagePrefix( $this->getName() );
-        $form->setSubmitText( $this->getSubmitText() );
-        $form->setSubmitCallback( [ $this->getSubmitCallback(), 'onSubmit' ] );
+        $this->form = HTMLForm::factory( 'ooui', $this->getDescriptor(), $this->page->getContext() );
+
+        $this->form->setMessagePrefix( $this->getName() );
+        $this->form->setSubmitText( $this->getSubmitText() );
+        $this->form->setSubmitCallback( [ $this->getSubmitCallback(), 'onSubmit' ] );
 
         if ( $this->isDestructive() ) {
-            $form->setSubmitDestructive();
+            $this->form->setSubmitDestructive();
         }
 
         foreach ( $this->getButtons() as $button ) {
-            $form->addButton( $button );
+            $this->form->addButton( $button );
         }
 
-        $form->setCancelTarget( $this->cancelTarget() );
-        $form->showCancel( $this->showCancel() );
-        $form->setTokenSalt( "pdp" );
+        $this->form->setCancelTarget( $this->cancelTarget() );
+        $this->form->showCancel( $this->showCancel() );
+        $this->form->setTokenSalt( "pdp" );
 
-        return $form;
+        return $this->form;
     }
 
     /**

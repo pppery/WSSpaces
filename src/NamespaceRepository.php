@@ -88,11 +88,37 @@ class NamespaceRepository {
     public function getAllNamespaces( $flip = false ): array {
         $canonical_namespaces = $this->getCanonicalNamespaces();
         $extension_namespaces = $this->getExtensionNamespaces();
-        $spaces               = $this->getSpaces();
+        $spaces               = $this->getAllSpaces();
 
         $namespaces = $canonical_namespaces + $extension_namespaces + $spaces;
 
         return $flip ? array_flip( $namespaces ) : $namespaces;
+    }
+
+    /**
+     * Returns the list of all (archived and unarchived) dynamic spaces defined by the PDP extension. When the first
+     * parameter is true, the key will be the name of the namespace, and the value the constant, otherwise the key
+     * will be the namespace constant and the value the namespace name.
+     *
+     * @param bool $flip
+     * @return array
+     */
+    public function getAllSpaces( $flip = false ): array {
+        $dbr = wfGetDB( DB_REPLICA );
+        $result = $dbr->select(
+            'pdp_namespaces',
+            [
+                'namespace_id',
+                'namespace_name'
+            ]
+        );
+
+        $buffer = [];
+        foreach ( $result as $item ) {
+            $buffer[$item->namespace_id] = $item->namespace_name;
+        }
+
+        return $flip ? array_flip( $buffer ) : $buffer;
     }
 
     /**
@@ -110,6 +136,38 @@ class NamespaceRepository {
             [
                 'namespace_id',
                 'namespace_name'
+            ],
+            [
+                'archived' => false
+            ]
+        );
+
+        $buffer = [];
+        foreach ( $result as $item ) {
+            $buffer[$item->namespace_id] = $item->namespace_name;
+        }
+
+        return $flip ? array_flip( $buffer ) : $buffer;
+    }
+
+    /**
+     * Returns the list of archived dynamic spaces defined by the PDP extension. When the first parameter is true,
+     * the key will be the name of the namespace, and the value the constant, otherwise the key will be the namespace
+     * constant and the value the namespace name.
+     *
+     * @param bool $flip
+     * @return array
+     */
+    public function getArchivedSpaces( $flip = false ): array {
+        $dbr = wfGetDB( DB_REPLICA );
+        $result = $dbr->select(
+            'pdp_namespaces',
+            [
+                'namespace_id',
+                'namespace_name'
+            ],
+            [
+                'archived' => true
             ]
         );
 
@@ -171,6 +229,7 @@ class NamespaceRepository {
             'namespace_name' => $space->getName(),
             'display_name' => $space->getDisplayName(),
             'description' => $space->getDescription(),
+            'archived' => $space->isArchived(),
             'creator_id' => $space->getOwner()->getId(),
             'created_on' => time()
         ] );
@@ -191,10 +250,33 @@ class NamespaceRepository {
             'pdp_namespaces',  [
             'display_name' => $space->getDisplayName(),
             'description' => $space->getDescription(),
-            'creator_id' => $space->getOwner()->getId()
+            'creator_id' => $space->getOwner()->getId(),
+            'archived' => $space->isArchived()
         ], [
             'namespace_id' => $space->getId()
         ] );
+
+        // TODO: Store space administrators
+    }
+
+    /**
+     * Helper function to archive a namespace.
+     *
+     * @param Space $space
+     */
+    public function archiveSpace( Space $space ) {
+        $space->setArchived();
+        $this->updateSpace( $space );
+    }
+
+    /**
+     * Helper function to unarchive a namespace.
+     *
+     * @param Space $space
+     */
+    public function unarchiveSpace( Space $space ) {
+        $space->setArchived( false );
+        $this->updateSpace( $space );
     }
 
     /**

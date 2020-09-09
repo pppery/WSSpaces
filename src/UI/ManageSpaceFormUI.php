@@ -37,6 +37,15 @@ class ManageSpaceFormUI extends ManageSpaceUI {
             new AddSpaceValidationCallback()
         );
 
+        $form->getForm()->addButton([
+            'name' => 'archive',
+            'value' => 'archive',
+            'label-message' => 'pdp-archive-space',
+            'id' => 'pdp-archive-space',
+            'flags' => 'destructive',
+            'framed' => false
+        ]);
+
         $form->show();
     }
 }

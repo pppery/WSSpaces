@@ -10,9 +10,7 @@ use PDP\SpacePager;
  */
 class ManageSpaceBaseUI extends ManageSpaceUI {
     /**
-     * Renders the UI.
-     *
-     * @return void
+     * @inheritDoc
      */
     function render() {
         $pager = new SpacePager();

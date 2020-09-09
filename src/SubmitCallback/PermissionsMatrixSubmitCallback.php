@@ -2,6 +2,7 @@
 
 namespace PDP\SubmitCallback;
 
+use PDP\PermissionsHandler;
 use PDP\PermissionsMatrix;
 use PDP\UI\PDPUI;
 use Wikimedia\Rdbms\Database;
@@ -39,53 +40,11 @@ class PermissionsMatrixSubmitCallback implements SubmitCallback {
 
         $database = wfGetDB( DB_MASTER );
 
-        $this->storePermissionsMatrix( $permissions_matrix, $database );
+        PermissionsHandler::storePermissionsMatrix( $permissions_matrix, $database );
 
         $this->ui->addModule("ext.pdp.SpecialPermissionsSuccess");
 
         // We want the form to still appear.
         return false;
-    }
-
-    /**
-     * Stores the given PermissionsMatrix into the given Database.
-     *
-     * @param PermissionsMatrix $permissions_matrix
-     * @param Database $database
-     */
-    private function storePermissionsMatrix( PermissionsMatrix $permissions_matrix, Database $database ) {
-        $namespace_constant = $permissions_matrix->getNamespaceConstant();
-
-        $this->deleteRecordsWithNamespaceConstant( $namespace_constant, $database );
-
-        if ( count( $permissions_matrix ) === 0 ) {
-            return;
-        }
-
-        foreach ( $permissions_matrix as $permission ) {
-            $group = $permission['group'];
-            $right = $permission['right'];
-
-            $database->insert( 'pdp_permissions',
-                [
-                    'namespace'  => $namespace_constant,
-                    'user_group' => $group,
-                    'user_right' => $right
-                ]
-            );
-        }
-    }
-
-    /**
-     * Deletes all records associated with the given namespace constant from the given Database.
-     *
-     * @param int $namespace_constant
-     * @param Database $database
-     */
-    private function deleteRecordsWithNamespaceConstant( int $namespace_constant, Database $database ) {
-        $database->delete(
-            'pdp_permissions',
-            [ 'namespace' => $namespace_constant ]
-        );
     }
 }

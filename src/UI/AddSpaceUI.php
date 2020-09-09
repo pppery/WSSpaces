@@ -13,28 +13,11 @@ use PDP\Validation\AddSpaceValidationCallback;
  */
 class AddSpaceUI extends SpacesUI {
     /**
-     * Renders the UI.
-     *
-     * @return void
+     * @inheritDoc
      */
     public function render() {
         $this->getOutput()->addWikiMsg( 'pdp-add-space-intro' );
-        $this->showForm();
-    }
 
-    /**
-     * Returns the header text shown in the UI.
-     *
-     * @return string
-     */
-    public function getHeader(): string {
-        return wfMessage( 'pdp-add-space-header' )->plain();
-    }
-
-    /**
-     * Shows the "Create new space" form.
-     */
-    private function showForm() {
         $form = new AddSpaceForm(
             $this->getOutput(),
             new AddSpaceSubmitCallback( $this ),
@@ -42,5 +25,12 @@ class AddSpaceUI extends SpacesUI {
         );
 
         $form->show();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIdentifier(): string {
+        return "add-space";
     }
 }

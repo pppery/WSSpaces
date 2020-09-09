@@ -68,6 +68,13 @@ class EditSpaceForm extends AbstractForm {
                 'validation-callback' => function( $field, $data ) {
                     return $this->getValidationCallback()->validateRequired( $field );
                 }
+            ],
+            'administrators' => [
+                'label-message' => 'pdp-manage-space-form-administrators-label',
+                'type' => 'usersmultiselect',
+                'required' => false,
+                'default' => implode( "\n", $this->space->getSpaceAdministrators() ),
+                'exists' => true
             ]
         ];
     }

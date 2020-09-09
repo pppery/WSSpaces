@@ -18,7 +18,7 @@ abstract class ManageSpaceUI extends SpacesUI {
     /**
      * @inheritDoc
      */
-    public function getHeader(): string {
-        return wfMessage( 'pdp-manage-space-header' )->plain();
+    public function getIdentifier(): string {
+        return 'manage-space';
     }
 }

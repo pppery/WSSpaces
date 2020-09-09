@@ -61,6 +61,13 @@ class PermissionsUI extends PDPUI {
     /**
      * @inheritDoc
      */
+    public function getIdentifier(): string {
+        return 'permissions';
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getHeaderPrefix(): string {
         return "\u{1F680}";
     }

@@ -38,6 +38,48 @@ abstract class SpacesUI extends PDPUI {
      * @inheritDoc
      */
     public function getModules(): array {
-        return [ 'ext.pdp.Spaces' ];
+        return array_merge( [ 'ext.pdp.Spaces' ], $this->getConditionalModules() );
+    }
+
+    /**
+     * Sets a flag to allow for a pdp_callback query parameter.
+     */
+    public function setAllowCallback() {
+        $this->getOutput()->getRequest()->getSession()->set( "callback-allowed", true );
+    }
+
+    /**
+     * Returns an array of modules that are conditional.
+     *
+     * @return array
+     */
+    public function getConditionalModules(): array {
+        $request = $this->getOutput()->getRequest();
+
+        $session = $request->getSession();
+        $callback_allowed = $session->exists( "callback-allowed" );
+
+        if ( !$callback_allowed ) {
+            return [];
+        }
+
+        $callback = $request->getVal( 'pdp_callback' );
+
+        if ( $callback === null ) {
+            return [];
+        }
+
+        $session->remove( "callback-allowed" );
+
+        switch( $callback ) {
+            case "created":
+                return [ "ext.pdp.AddSpaceSuccess" ];
+            case "archived":
+                return [ "ext.pdp.ArchiveSpaceSuccess" ];
+            case "unarchived":
+                return [ "ext.pdp.UnarchiveSpaceSuccess" ];
+            default:
+                return [];
+        }
     }
 }

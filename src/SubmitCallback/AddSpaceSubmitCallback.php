@@ -5,6 +5,7 @@ namespace PDP\SubmitCallback;
 use PDP\NamespaceRepository;
 use PDP\Space;
 use PDP\UI\PDPUI;
+use PDP\UI\SpacesUI;
 
 /**
  * Class AddSpaceSubmitCallback
@@ -20,9 +21,9 @@ class AddSpaceSubmitCallback implements SubmitCallback {
     /**
      * SubmitCallback constructor.
      *
-     * @param PDPUI $ui
+     * @param SpacesUI $ui
      */
-    public function __construct( PDPUI $ui ) {
+    public function __construct( SpacesUI $ui ) {
         $this->ui = $ui;
     }
 
@@ -55,8 +56,14 @@ class AddSpaceSubmitCallback implements SubmitCallback {
         $namespace_repository = new NamespaceRepository();
         $namespace_repository->addSpace( $space );
 
-        $this->ui->addModule("ext.pdp.SpecialAddSpaceSuccess");
+        $this->ui->setAllowCallback();
 
-        return false;
+        \RequestContext::getMain()->getOutput()->redirect(
+            \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
+                [ 'pdp_callback' => 'created' ]
+            )
+        );
+
+        return true;
     }
 }

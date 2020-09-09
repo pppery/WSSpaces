@@ -38,6 +38,16 @@ class Space {
     private $namespace_name;
 
     /**
+     * @var bool
+     */
+    private $is_archived;
+
+    /**
+     * @var array
+     */
+    private $namespace_administrators;
+
+    /**
      * Space constructor.
      *
      * @param string $namespace_name The canonical name of the namespace.
@@ -45,13 +55,17 @@ class Space {
      * @param string $display_name The display name of the namespace. Currently unused.
      * @param string $description The description of the namespace.
      * @param User $namespace_owner The owner of the namespace.
+     * @param bool $is_archived Whether or not the space is archived.
+     * @param array $namespace_administrators The administrators of this namespace.
      */
     private function __construct(
         string $namespace_name,
         int $namespace_id,
         string $display_name,
         string $description,
-        User $namespace_owner
+        User $namespace_owner,
+        bool $is_archived = false,
+        array $namespace_administrators = []
     ) {
         if ( $namespace_id % 2 !== 0 ) {
             throw new \InvalidArgumentException( "Namespace ID must be an even number; '$namespace_id' is not even'" );
@@ -70,10 +84,12 @@ class Space {
         $this->namespace_name  = $namespace_name;
         $this->namespace_id    = $namespace_id;
         $this->talkspace_id    = $namespace_id + 1;
+        $this->is_archived     = $is_archived;
 
         $this->setDisplayName( $display_name );
         $this->setDescription( $description );
         $this->setOwner( $namespace_owner );
+        $this->setSpaceAdministrators( $namespace_administrators );
     }
 
     /**
@@ -86,7 +102,7 @@ class Space {
         $database = wfGetDB( DB_REPLICA );
         $namespace = $database->select(
             'pdp_namespaces',
-            [ 'namespace_id', 'display_name', 'description', 'creator_id' ],
+            [ 'namespace_id', 'display_name', 'description', 'creator_id', 'archived' ],
             [ 'namespace_name' => $namespace_name ]
         );
 
@@ -106,7 +122,8 @@ class Space {
             $namespace->namespace_id,
             $namespace->display_name,
             $namespace->description,
-            $user
+            $user,
+            $namespace->archived
         );
     }
 
@@ -137,6 +154,41 @@ class Space {
             $display_name,
             $description,
             $user
+        );
+    }
+
+    /**
+     * Returns a new space object from the given namespace constant.
+     *
+     * @param int $namespace_constant
+     * @return bool|Space
+     */
+    public static function newFromConstant( int $namespace_constant ) {
+        $database = wfGetDB( DB_REPLICA );
+        $namespace = $database->select(
+            'pdp_namespaces',
+            [ 'namespace_name', 'display_name', 'description', 'creator_id', 'archived' ],
+            [ 'namespace_id' => $namespace_constant ]
+        );
+
+        if ( $namespace->numRows() === 0 ) {
+            return false;
+        }
+
+        $namespace = $namespace->current();
+        $user = User::newFromId( $namespace->creator_id );
+
+        if ( !$user instanceof User ) {
+            throw new \InvalidArgumentException( "Invalid creator_id '{$namespace->creator_id}'" );
+        }
+
+        return new Space(
+            $namespace->namespace_name,
+            $namespace_constant,
+            $namespace->display_name,
+            $namespace->description,
+            $user,
+            $namespace->archived
         );
     }
 
@@ -176,6 +228,24 @@ class Space {
     }
 
     /**
+     * Returns an array of administrators of this space.
+     *
+     * @return array
+     */
+    public function getSpaceAdministrators(): array {
+        return [ $this->getOwner()->getName() ] + $this->namespace_administrators;
+    }
+
+    /**
+     * Returns true if and only if the Space is archived.
+     *
+     * @return bool
+     */
+    public function isArchived(): bool {
+        return $this->is_archived;
+    }
+
+    /**
      * Returns the display name of this space.
      *
      * @return string
@@ -212,10 +282,6 @@ class Space {
             throw new \InvalidArgumentException( "Display name must not be empty." );
         }
 
-        if ( !ctype_alpha( str_replace( ' ', '', $display_name ) ) ) {
-            throw new \InvalidArgumentException( "A namespace display name can only consist of letters and spaces, therefore $display_name is invalid." );
-        }
-
         $this->display_name = $display_name;
     }
 
@@ -246,16 +312,38 @@ class Space {
     }
 
     /**
+     * Sets the administrators of this space.
+     *
+     * @param array $administrators
+     */
+    private function setSpaceAdministrators(array $administrators ) {
+        $administrators = array_filter( $administrators, function ( $name ): bool {
+            return $name !== $this->getOwner();
+        } );
+
+        $this->namespace_administrators = $administrators;
+    }
+
+    /**
+     * Sets the archived status of this Space.
+     *
+     * @param bool $is_archived
+     */
+    public function setArchived( bool $is_archived = true ) {
+        $this->is_archived = $is_archived;
+    }
+
+    /**
      * Returns true if and only if the given space exists.
      *
      * @return bool
      */
     public function exists(): bool {
-        $database = wfGetDB( DB_MASTER );
+        $database = wfGetDB(DB_MASTER);
         $result = $database->select(
             'pdp_namespaces',
-            [ 'namespace_id' ],
-            [ 'namespace_id' => $this->namespace_id ]
+            ['namespace_id'],
+            ['namespace_id' => $this->namespace_id]
         );
 
         return $result->numRows() > 0 && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;

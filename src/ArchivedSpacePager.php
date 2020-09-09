@@ -4,7 +4,7 @@ namespace PDP;
 
 use MediaWiki\MediaWikiServices;
 
-class SpacePager extends \TablePager {
+class ArchivedSpacePager extends \TablePager {
     /**
      * This function should be overridden to provide all parameters
      * needed for the main paged query. It returns an associative
@@ -23,12 +23,10 @@ class SpacePager extends \TablePager {
             'fields' => [
                 'namespace_name',
                 'display_name',
-                'description',
-                'creator_id',
-                'created_on'
+                'description'
             ],
             'conds' => [
-                'archived' => false
+                'archived' => true
             ]
         ];
     }
@@ -44,8 +42,6 @@ class SpacePager extends \TablePager {
         switch ( $field ) {
             case 'namespace_name':
             case 'display_name':
-            case 'created_on':
-            case 'creator_id':
                 return true;
             default:
                 return false;
@@ -75,12 +71,7 @@ class SpacePager extends \TablePager {
 
                 $page = \Title::newFromText( $title->getText() . "/$value", NS_SPECIAL );
 
-               return $link_renderer->makeLink( $page, new \HtmlArmor( $value ) );
-            case 'creator_id':
-                $user = \User::newFromId( $value );
-                return $user->getName();
-            case 'created_on':
-                return date( "F jS, Y h:i:s", $value );
+                return $link_renderer->makeLink( $page, new \HtmlArmor( $value ) );
             default:
                 return $value;
         }
@@ -94,7 +85,7 @@ class SpacePager extends \TablePager {
      * @return string
      */
     public function getDefaultSort() {
-        return 'created_on';
+        return 'namespace_name';
     }
 
     public function getDefaultDirections() {
@@ -112,9 +103,7 @@ class SpacePager extends \TablePager {
         return [
             'namespace_name' => "Namespace",
             'display_name' => "Display Name",
-            'description' => "Description",
-            'creator_id' => "Created by",
-            'created_on' => "Created on"
+            'description' => "Description"
         ];
     }
 

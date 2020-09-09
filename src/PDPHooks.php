@@ -43,6 +43,7 @@ abstract class PDPHooks {
      * @param \Skin $skin
      * @param $bar
      * @return bool
+     * @throws \ConfigException
      */
     public static function onSkinBuildSidebar( \Skin $skin, &$bar ) {
         if ( !PDPUI::isQueued() ) {
@@ -95,11 +96,12 @@ abstract class PDPHooks {
         $type = $updater->getDB()->getType();
 
         $pdp_permissions_table = sprintf( "%s/%s/pdp_permissions_table.sql", $directory, $type );
+        $pdp_namespaces_table = sprintf( "%s/%s/pdp_namespaces_table.sql", $directory, $type );
+
         if ( !file_exists( $pdp_permissions_table ) ) {
             throw new MWException( "PDP does not support database type `$type`." );
         }
 
-        $pdp_namespaces_table = sprintf( "%s/%s/pdp_namespaces_table.sql", $directory, $type );
         if ( !file_exists( $pdp_namespaces_table ) ) {
             throw new MWException( "PDP does not support database type `$type`." );
         }

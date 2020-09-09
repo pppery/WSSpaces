@@ -5,6 +5,7 @@ namespace PDP\SubmitCallback;
 use PDP\NamespaceRepository;
 use PDP\Space;
 use PDP\UI\PDPUI;
+use PDP\UI\SpacesUI;
 
 class EditSpaceSubmitCallback implements SubmitCallback {
     /**
@@ -15,9 +16,9 @@ class EditSpaceSubmitCallback implements SubmitCallback {
     /**
      * EditSpaceSubmitCallback constructor.
      *
-     * @param PDPUI $ui
+     * @param SpacesUI $ui
      */
-    public function __construct( PDPUI $ui ) {
+    public function __construct( SpacesUI $ui ) {
         $this->ui = $ui;
     }
 
@@ -29,18 +30,28 @@ class EditSpaceSubmitCallback implements SubmitCallback {
      * @throws \ConfigException
      */
     public function onSubmit( array $form_data ) {
-        $name = $form_data['namespacename'];
-        $space = Space::newFromName( $name );
+        $archive = \RequestContext::getMain()->getRequest()->getVal( 'archive' );
 
-        $space->setDescription(
-            $form_data['description']
-        );
-
-        $space->setDisplayName(
-            $form_data['displayname']
-        );
-
+        $space = Space::newFromName( $form_data['namespacename'] );
         $namespace_repository = new NamespaceRepository();
+
+        if ( $archive === "archive" ) {
+            $namespace_repository->archiveSpace( $space );
+
+            $this->ui->setAllowCallback();
+
+            \RequestContext::getMain()->getOutput()->redirect(
+                \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
+                    [ 'pdp_callback' => 'archived' ]
+                )
+            );
+
+            return true;
+        }
+
+        $space->setDescription( $form_data['description'] );
+        $space->setDisplayName( $form_data['displayname'] );
+
         $namespace_repository->updateSpace( $space );
 
         $this->ui->addModule("ext.pdp.SpecialManageSpaceSuccess");

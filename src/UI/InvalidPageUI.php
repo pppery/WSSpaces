@@ -13,12 +13,10 @@ class InvalidPageUI extends PDPUI {
     }
 
     /**
-     * Returns the header text shown in the UI.
-     *
-     * @return string
+     * @inheritDoc
      */
-    function getHeader(): string {
-        return wfMessage( "pdp-invalid-page-header" )->plain();
+    function getIdentifier(): string {
+        return 'invalid-page';
     }
 
     /**

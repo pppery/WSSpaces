@@ -33,7 +33,7 @@ class PermissionsMatrixValidationCallback extends AbstractValidationCallback {
             ->getMainConfig()
             ->get( 'PDPValidUserGroups' );
 
-        return empty( $valid_groups ) ? $groups : array_intersect($groups, $valid_groups);
+        return [ "*" ] + ( empty( $valid_groups ) ? $groups : array_intersect($groups, $valid_groups) );
     }
 
     /**

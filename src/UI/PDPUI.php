@@ -135,7 +135,7 @@ abstract class PDPUI {
      * @return string
      */
     public static function getParameter(): string {
-        return str_replace("_", " ", self::$parameter);
+        return str_replace( "_", " ", self::$parameter );
     }
 
     /**
@@ -240,11 +240,13 @@ abstract class PDPUI {
                 explode( '/', $page_title )[0] :
                 $page_title;
 
-            if ( $page_name === $value || $this->getParameter() === $key ) {
-                return \Xml::tags( 'strong', null, $key );
+            $link_text = htmlspecialchars( $key );
+
+            if ( $page_name === $value || $this->getParameter() === $link_text ) {
+                return \Xml::tags( 'strong', null, $link_text );
             }
 
-            return $this->getLinkRenderer()->makeLink( $title, new HtmlArmor( $key ) );
+            return $this->getLinkRenderer()->makeLink( $title, new HtmlArmor( $link_text ) );
         }, array_keys( $link_definitions ), array_values( $link_definitions ) );
 
         $nav = wfMessage( 'parentheses' )
@@ -317,6 +319,15 @@ abstract class PDPUI {
     }
 
     /**
+     * Returns the header text shown in the UI.
+     *
+     * @return string
+     */
+    public function getHeader(): string {
+        return wfMessage( 'pdp-' . $this->getIdentifier() . '-header' )->plain();
+    }
+
+    /**
      * Renders the UI.
      *
      * @return void
@@ -324,9 +335,9 @@ abstract class PDPUI {
     abstract function render();
 
     /**
-     * Returns the header text shown in the UI.
+     * Returns the identifier used in some system messages.
      *
      * @return string
      */
-    abstract function getHeader(): string;
+    abstract function getIdentifier(): string;
 }

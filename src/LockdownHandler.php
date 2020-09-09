@@ -17,6 +17,7 @@ class LockdownHandler {
 
     /**
      * LockdownHandler constructor.
+     * @throws \ConfigException
      */
     public function __construct() {
         $this->matrices = PermissionsMatrix::getAll();

@@ -71,11 +71,33 @@
         "mediawiki.api"
       ]
     },
-    "ext.pdp.SpecialAddSpaceSuccess": {
-      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.SpecialAddSpaceSuccess.js",
+    "ext.pdp.AddSpaceSuccess": {
+      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.AddSpaceSuccess.js",
       "position": "bottom",
       "messages": [
         "pdp-add-space-saved-successfully"
+      ],
+      "dependencies": [
+        "mediawiki.util",
+        "mediawiki.api"
+      ]
+    },
+    "ext.pdp.ArchiveSpaceSuccess": {
+      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.ArchiveSpaceSuccess.js",
+      "position": "bottom",
+      "messages": [
+        "pdp-archive-space-saved-successfully"
+      ],
+      "dependencies": [
+        "mediawiki.util",
+        "mediawiki.api"
+      ]
+    },
+    "ext.pdp.UnarchiveSpaceSuccess": {
+      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.UnarchiveSpaceSuccess.js",
+      "position": "bottom",
+      "messages": [
+        "pdp-unarchive-space-saved-successfully"
       ],
       "dependencies": [
         "mediawiki.util",

@@ -37,9 +37,9 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
      * @return bool|string
      */
     private function validateDisplayName( $value, array $form_data ) {
-        $valid = ctype_alpha( str_replace( ' ', '', $value ) ) && !empty( $value );
+        $valid = !empty( $value );
 
-        return $valid ? true : "A display name may only consist of letters and spaces";
+        return $valid ? true : "A display name must not be empty.";
     }
 
     /**
@@ -52,15 +52,20 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
         $valid = ctype_alpha( $value ) && !empty( $value );
 
         if ( !$valid ) {
-            return "A namespace may only consist of letters";
+            return "A namespace may only consist of letters.";
         }
 
         $namespace_repository = new NamespaceRepository();
+
         $namespaces = $namespace_repository->getAllNamespaces();
+        $namespaces = array_map( 'strtolower', $namespaces );
+        $namespaces = array_map( 'trim', $namespaces );
 
         $space = Space::newFromName( $value );
 
-        if ( in_array( $value, $namespaces ) || $space !== false ) {
+        $namespace = trim( strtolower( $value ) );
+
+        if ( in_array( $namespace, $namespaces ) || $space !== false ) {
             return "This namespace is already in use. Please choose a different name.";
         }
 
