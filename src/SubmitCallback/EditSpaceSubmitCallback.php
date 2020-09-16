@@ -51,6 +51,7 @@ class EditSpaceSubmitCallback implements SubmitCallback {
 
         $space->setDescription( $form_data['description'] );
         $space->setDisplayName( $form_data['displayname'] );
+        $space->setSpaceAdministrators( explode("\n", $form_data['administrators']) );
 
         $namespace_repository->updateSpace( $space );
 

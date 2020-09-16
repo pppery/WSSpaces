@@ -97,17 +97,19 @@ abstract class PDPHooks {
 
         $pdp_permissions_table = sprintf( "%s/%s/pdp_permissions_table.sql", $directory, $type );
         $pdp_namespaces_table = sprintf( "%s/%s/pdp_namespaces_table.sql", $directory, $type );
+        $pdp_namespace_admins_table = sprintf( "%s/%s/pdp_namespace_admins_table.sql", $directory, $type );
 
-        if ( !file_exists( $pdp_permissions_table ) ) {
-            throw new MWException( "PDP does not support database type `$type`." );
-        }
-
-        if ( !file_exists( $pdp_namespaces_table ) ) {
+        if (
+            !file_exists( $pdp_permissions_table ) ||
+            !file_exists( $pdp_namespaces_table )  ||
+            !file_exists( $pdp_namespace_admins_table )
+        ) {
             throw new MWException( "PDP does not support database type `$type`." );
         }
 
         $updater->addExtensionTable( 'pdp_permissions', $pdp_permissions_table );
         $updater->addExtensionTable( 'pdp_namespaces', $pdp_namespaces_table );
+        $updater->addExtensionTable( 'pdp_namespace_admins', $pdp_namespace_admins_table );
     }
 
     /**

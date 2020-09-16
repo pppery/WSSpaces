@@ -117,13 +117,22 @@ class Space {
             throw new \InvalidArgumentException( "Invalid creator_id '{$namespace->creator_id}'" );
         }
 
+        $namespace_administrators = array_map( function( $row ): string {
+            return User::newFromId( $row->admin_user_id )->getName();
+        }, iterator_to_array( $database->select(
+            'pdp_namespace_admins',
+            [ 'admin_user_id' ],
+            [ 'namespace_id' => $namespace->namespace_id ]
+        ) ) );
+
         return new Space(
             $namespace_name,
             $namespace->namespace_id,
             $namespace->display_name,
             $namespace->description,
             $user,
-            $namespace->archived
+            $namespace->archived,
+            $namespace_administrators
         );
     }
 
@@ -316,7 +325,7 @@ class Space {
      *
      * @param array $administrators
      */
-    private function setSpaceAdministrators(array $administrators ) {
+    public function setSpaceAdministrators( array $administrators ) {
         $administrators = array_filter( $administrators, function ( $name ): bool {
             return $name !== $this->getOwner();
         } );

@@ -246,8 +246,7 @@ class NamespaceRepository {
         }
 
         $database = wfGetDB( DB_MASTER );
-        $database->update(
-            'pdp_namespaces',  [
+        $database->update('pdp_namespaces', [
             'display_name' => $space->getDisplayName(),
             'description' => $space->getDescription(),
             'creator_id' => $space->getOwner()->getId(),
@@ -256,7 +255,7 @@ class NamespaceRepository {
             'namespace_id' => $space->getId()
         ] );
 
-        // TODO: Store space administrators
+        $this->updateSpaceAdministrators( $database, $space );
     }
 
     /**
@@ -286,5 +285,41 @@ class NamespaceRepository {
      */
     private function getConfig(): Config {
         return MediaWikiServices::getInstance()->getMainConfig();
+    }
+
+    /**
+     * Updates the space administrators for the given space. Should only be called by self::updateSpace().
+     *
+     * @param \Database $database
+     * @param Space $space
+     */
+    private function updateSpaceAdministrators( \Database $database, Space $space ) {
+        $namespace_id = $space->getId();
+
+        $rows = array_map(
+            function ( int $admin_id ) use ( $namespace_id ): array {
+                return [
+                    "namespace_id" => $namespace_id,
+                    "admin_user_id" => $admin_id
+                ];
+            },
+            array_filter(
+                array_map(
+                    function ( string $admin ): int {
+                        // This function returns the ID of the given administrator, or 0 if they dont exist.
+                        $user = \User::newFromName( $admin );
+                        return $user->isAnon() ? 0 : $user->getId();
+                    }, $space->getSpaceAdministrators()
+                ),
+                function ( int $id ): bool {
+                    return $id !== 0;
+                }
+            )
+        );
+
+        $database->delete('pdp_namespace_admins', [
+            "namespace_id" => $namespace_id
+        ] );
+        $database->insert( 'pdp_namespace_admins', $rows );
     }
 }
