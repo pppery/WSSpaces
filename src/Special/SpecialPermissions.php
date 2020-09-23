@@ -5,9 +5,11 @@ namespace PDP\Special;
 use ErrorPageError;
 use Exception;
 use PDP\NamespaceRepository;
+use PDP\Space;
 use PDP\SpecialPage;
 use PDP\UI\ExceptionUI;
 use PDP\UI\InvalidPageUI;
+use PDP\UI\MissingPermissionsUI;
 use PDP\UI\PermissionsUI;
 use PermissionsError;
 
@@ -72,8 +74,18 @@ class SpecialPermissions extends SpecialPage {
             $namespace_repository = new NamespaceRepository();
             $namespaces = $namespace_repository->getNamespaces();
 
-            if (!in_array($parameter, $namespaces)) {
+            if ( !in_array( $parameter, $namespaces ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+                $ui->execute();
+
+                return;
+            }
+
+            $rights = \RequestContext::getMain()->getUser()->getRights();
+            $space = Space::newFromName( $parameter );
+            $can_edit_core = in_array( 'pdp-edit-core-namespaces', $rights );
+            if ( ( !$space && !$can_edit_core ) || ( $space && !$space->canEdit() ) ) {
+                $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 
                 return;

@@ -2,35 +2,42 @@
 
 namespace PDP\UI;
 
-class InvalidPageUI extends PDPUI {
+use MediaWiki\Linker\LinkRenderer;
+use OutputPage;
+
+class MissingPermissionsUI extends PDPUI {
+    public function __construct(OutputPage $page, LinkRenderer $link_renderer) {
+        parent::__construct($page, $link_renderer);
+    }
+
     /**
      * Renders the UI.
      *
      * @return void
      */
     function render() {
-        $this->getOutput()->addWikiMsg( 'pdp-invalid-page-description' );
+        $this->getOutput()->addWikiMsg( 'pdp-missing-permissions-description' );
     }
 
     /**
      * @inheritDoc
      */
     function getIdentifier(): string {
-        return 'invalid-page';
+        return 'missing-permissions';
     }
 
     /**
      * @inheritDoc
      */
     public function getHeaderPrefix(): string {
-        return "\u{274C}";
+        return "\u{1f512}";
     }
 
     /**
      * @inheritDoc
      */
     function getNavigationPrefix(): string {
-        return wfMessage('pdp-invalidpage-topnav')->plain();
+        return wfMessage('pdp-missing-permissions-topnav')->plain();
     }
 
     /**

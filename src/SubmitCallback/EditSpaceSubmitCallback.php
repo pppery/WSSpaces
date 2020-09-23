@@ -39,7 +39,6 @@ class EditSpaceSubmitCallback implements SubmitCallback {
             $namespace_repository->archiveSpace( $space );
 
             $this->ui->setAllowCallback();
-
             \RequestContext::getMain()->getOutput()->redirect(
                 \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
                     [ 'pdp_callback' => 'archived' ]
@@ -53,7 +52,11 @@ class EditSpaceSubmitCallback implements SubmitCallback {
         $space->setDisplayName( $form_data['displayname'] );
         $space->setSpaceAdministrators( explode("\n", $form_data['administrators']) );
 
-        $namespace_repository->updateSpace( $space );
+        try {
+            $namespace_repository->updateSpace( $space );
+        } catch( \PermissionsError $e ) {
+            return "pdp-cannot-remove-self";
+        }
 
         $this->ui->addModule("ext.pdp.SpecialManageSpaceSuccess");
 

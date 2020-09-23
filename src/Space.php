@@ -242,7 +242,7 @@ class Space {
      * @return array
      */
     public function getSpaceAdministrators(): array {
-        return [ $this->getOwner()->getName() ] + $this->namespace_administrators;
+        return $this->namespace_administrators;
     }
 
     /**
@@ -326,10 +326,6 @@ class Space {
      * @param array $administrators
      */
     public function setSpaceAdministrators( array $administrators ) {
-        $administrators = array_filter( $administrators, function ( $name ): bool {
-            return $name !== $this->getOwner();
-        } );
-
         $this->namespace_administrators = $administrators;
     }
 
@@ -356,5 +352,15 @@ class Space {
         );
 
         return $result->numRows() > 0 && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
+    }
+
+    /**
+     * Returns true if and only if the current logged in user can edit this space.
+     *
+     * @return bool
+     */
+    public function canEdit(): bool {
+        return in_array( \RequestContext::getMain()->getUser()->getName(), $this->namespace_administrators ) ||
+            in_array( 'pdp-edit-all-spaces', \RequestContext::getMain()->getUser()->getRights() );
     }
 }

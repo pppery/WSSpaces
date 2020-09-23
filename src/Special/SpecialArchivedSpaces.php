@@ -6,11 +6,13 @@ namespace PDP\Special;
 use ErrorPageError;
 use Exception;
 use PDP\NamespaceRepository;
+use PDP\Space;
 use PDP\SpecialPage;
 use PDP\UI\AddSpaceUI;
 use PDP\UI\ArchivedSpacesUI;
 use PDP\UI\ExceptionUI;
 use PDP\UI\InvalidPageUI;
+use PDP\UI\MissingPermissionsUI;
 use PDP\UI\UnarchiveSpaceUI;
 use PermissionsError;
 
@@ -73,11 +75,21 @@ class SpecialArchivedSpaces extends SpecialPage {
         try {
             $namespace_repository = new NamespaceRepository();
 
-            if ( !empty( $parameter ) && !in_array( $parameter, $namespace_repository->getArchivedSpaces() ) ) {
-                $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
-                $ui->execute();
+            if ( !empty( $parameter ) ) {
+                if ( !in_array( $parameter, $namespace_repository->getArchivedSpaces() ) ) {
+                    $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+                    $ui->execute();
 
-                return;
+                    return;
+                }
+
+                $space = Space::newFromName( $parameter );
+                if ( !$space->canEdit() ) {
+                    $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+                    $ui->execute();
+
+                    return;
+                }
             }
 
             $output   = $this->getOutput();

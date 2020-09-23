@@ -73,7 +73,6 @@ class ExceptionUI extends PDPUI {
      */
     public function getNavigationItems(): array {
         return [
-            wfMessage( 'pdp-special-permissions-title' )->plain() => 'Special:Permissions',
             wfMessage( 'pdp-add-space-header' )->plain() => 'Special:AddSpace',
             wfMessage( 'pdp-manage-space-header' )->plain() => 'Special:ManageSpace',
             wfMessage( 'pdp-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'

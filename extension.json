@@ -40,11 +40,19 @@
     "ArchivedSpaces": "PDP\\Special\\SpecialArchivedSpaces"
   },
   "AvailableRights": [
-    "pdp-manage"
+    "pdp-manage",
+    "pdp-edit-core-namespaces",
+    "pdp-edit-all-spaces"
   ],
   "GroupPermissions": {
     "sysop": {
-      "pdp-manage": true
+      "pdp-manage": true,
+      "pdp-edit-core-namespaces": true,
+      "pdp-edit-all-spaces": false
+    },
+    "spacemaster": {
+      "pdp-manage": true,
+      "pdp-edit-all-spaces": true
     }
   },
   "ResourceModules": {

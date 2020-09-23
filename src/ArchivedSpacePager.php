@@ -4,7 +4,7 @@ namespace PDP;
 
 use MediaWiki\MediaWikiServices;
 
-class ArchivedSpacePager extends \TablePager {
+class ArchivedSpacePager extends PDPPager {
     /**
      * This function should be overridden to provide all parameters
      * needed for the main paged query. It returns an associative

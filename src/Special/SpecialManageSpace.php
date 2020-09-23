@@ -5,11 +5,13 @@ namespace PDP\Special;
 
 use Exception;
 use PDP\NamespaceRepository;
+use PDP\Space;
 use PDP\SpecialPage;
 use PDP\UI\ExceptionUI;
 use PDP\UI\InvalidPageUI;
 use PDP\UI\ManageSpaceBaseUI;
 use PDP\UI\ManageSpaceFormUI;
+use PDP\UI\MissingPermissionsUI;
 
 /**
  * Class SpecialManageSpace
@@ -74,11 +76,21 @@ class SpecialManageSpace extends SpecialPage {
         try {
             $namespace_repository = new NamespaceRepository();
 
-            if ( !empty( $parameter ) && !in_array( $parameter, $namespace_repository->getSpaces() ) ) {
-                $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
-                $ui->execute();
+            if ( !empty( $parameter ) ) {
+                if ( !in_array( $parameter, $namespace_repository->getSpaces() ) ) {
+                    $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+                    $ui->execute();
 
-                return;
+                    return;
+                }
+
+                $space = Space::newFromName( $parameter );
+                if ( !$space->canEdit() ) {
+                    $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+                    $ui->execute();
+
+                    return;
+                }
             }
 
             $output = $this->getOutput();

@@ -50,12 +50,14 @@ abstract class PDPHooks {
             return true;
         }
 
-        $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
-            'text' => wfMessage( 'pdp-special-permissions-title' ),
-            'href' => \Title::newFromText( "Permissions", NS_SPECIAL )->getFullUrlForRedirect(),
-            'id'   => 'pdp-permissions-special',
-            'active' => ''
-        ];
+        if ( in_array( 'pdp-edit-core-namespaces', \RequestContext::getMain()->getUser()->getRights() ) ) {
+            $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
+                'text' => wfMessage( 'pdp-special-permissions-title' ),
+                'href' => \Title::newFromText( "Permissions", NS_SPECIAL )->getFullUrlForRedirect(),
+                'id'   => 'pdp-permissions-special',
+                'active' => ''
+            ];
+        }
 
         $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
             'text' => wfMessage( 'pdp-add-space-header' ),

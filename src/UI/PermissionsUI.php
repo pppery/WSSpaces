@@ -84,17 +84,21 @@ class PermissionsUI extends PDPUI {
      * @throws \Exception
      */
     public function getNavigationItems(): array {
-       $namespaces = ( new NamespaceRepository() )->getNamespaces();
-       $result = [];
+        if ( ( Space::newFromName( $this->getParameter() ) ) ) {
+            return [];
+        }
 
-       foreach ($namespaces as $namespace) {
+        $namespaces = ( new NamespaceRepository() )->getCoreNamespaces();
+
+        $result = [];
+        foreach ($namespaces as $namespace) {
            $space = Space::newFromName( $namespace );
            $display_name = $space ? $space->getDisplayName() : $namespace;
 
            $result[$display_name] = "Special:Permissions/$namespace";
-       }
+        }
 
-       return $result;
+        return $result;
     }
 
     /**
