@@ -141,5 +141,11 @@
       "value": ["Main", "Media", "User", "Project", "File", "MediaWiki", "Template", "Help", "Category"]
     }
   },
+  "LogTypes": [
+    "space"
+  ],
+  "LogActionsHandlers": {
+    "space/create": "LogFormatter"
+  },
   "manifest_version": 2
 }

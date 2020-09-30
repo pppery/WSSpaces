@@ -55,8 +55,11 @@
   "pdp-edit-space-details": "Edit space details",
   "pdp-edit-space-permissions": "Edit space permissions",
   "pdp-permissions-core-namespace": "<div class='warningbox'><span style=\"color:#fc3\"><b>Notice:</b></span> You are changing the permissions of a MediaWiki core namespace. A core namespace cannot be renamed or archived and does not have an owner.</div>",
-  "pdp-cannot-remove-self": "You cannot remove yourself as an administrator of this space",
+  "pdp-cannot-remove-self": "You cannot revoke your own administrator privileges. Please ask another administrator to revoke your privileges.",
   "specialpages-group-pdp-spaces": "Space management",
   "right-pdp-manage": "Manage permissions",
-  "action-pdp-manage": "manage permissions"
+  "action-pdp-manage": "manage permissions",
+  "log-name-space": "Space log",
+  "log-description-space": "This page lists all transactions to spaces and space permissions, and spaces that were created.",
+  "logentry-space-create": "$1 created the space $4"
 }

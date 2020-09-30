@@ -219,6 +219,26 @@ class NamespaceRepository {
         // Create a new space from the name, go get the latest details from the database.
         $space = $space::newFromName( $space->getName() );
 
+        {
+            $rc = \RequestContext::getMain();
+
+            $log = new \ManualLogEntry('space', 'create' );
+            $log->setPerformer( $rc->getUser() );
+            $log->setTarget( \Title::newFromText( $space->getName() ) );
+            $log->setComment( '' );
+            $log->setParameters( [
+                '4::namespace' => $space->getName()
+            ] );
+
+            try {
+                $log_id = $log->insert();
+            } catch( \MWException $e ) {
+                throw new \LogicException( "Unable to log creation of space; the space was not published." );
+            }
+
+            $log->publish( $log_id );
+        }
+
         $space->setSpaceAdministrators( [ $space->getOwner()->getName() ] );
         $this->updateSpaceAdministrators( $database, $space );
     }

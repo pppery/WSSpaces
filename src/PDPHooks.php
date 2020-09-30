@@ -28,8 +28,12 @@ abstract class PDPHooks {
             "pega-change-permissions"
         ];
 
-        if ( in_array( $operation, $security_sensitive_operations ) && $timeSinceAuth > self::TIMEOUT ) {
+        if ( $session->getLoggedOutTimestamp() > 0 ) {
+            $status = AuthManager::SEC_FAIL;
+        } else if ( in_array( $operation, $security_sensitive_operations ) && $timeSinceAuth > self::TIMEOUT ) {
             $status = AuthManager::SEC_REAUTH;
+        } else {
+            $status = AuthManager::SEC_OK;
         }
 
         return true;
