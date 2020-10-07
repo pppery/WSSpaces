@@ -16,12 +16,17 @@ class PermissionsHandler {
      */
     public static function storePermissionsMatrix( PermissionsMatrix $permissions_matrix, Database $database ) {
         $namespace_constant = $permissions_matrix->getNamespaceConstant();
+
+        // TODO: Move retrieving old version of object to caller
         $old_matrix = PermissionsMatrix::newFromNamespaceConstant( $namespace_constant );
 
         $log = new UpdatePermissionsLog( $old_matrix, $permissions_matrix );
         $log->insert();
 
-        self::deleteRecordsWithNamespaceConstant( $namespace_constant, $database );
+        $database->delete(
+            'wss_permissions',
+            [ 'namespace' => $namespace_constant ]
+        );
 
         if ( count( $permissions_matrix ) === 0 ) {
             return;
@@ -41,18 +46,5 @@ class PermissionsHandler {
         }
 
         $log->publish();
-    }
-
-    /**
-     * Deletes all records associated with the given namespace constant from the given Database.
-     *
-     * @param int $namespace_constant
-     * @param Database $database
-     */
-    private static function deleteRecordsWithNamespaceConstant( int $namespace_constant, Database $database ) {
-        $database->delete(
-            'wss_permissions',
-            [ 'namespace' => $namespace_constant ]
-        );
     }
 }

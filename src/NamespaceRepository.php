@@ -257,6 +257,7 @@ class NamespaceRepository {
         }
 
         if ( $log ) {
+            // TODO: Move retrieving old version of object to caller
             $old_space = Space::newFromConstant( $space->getId() );
 
             if ( $old_space === false ) {
