@@ -1,11 +1,11 @@
 <?php
 
-namespace PDP\Form;
+namespace WSS\Form;
 
 use OutputPage;
-use PDP\Space;
-use PDP\SubmitCallback\SubmitCallback;
-use PDP\Validation\AbstractValidationCallback;
+use WSS\Space;
+use WSS\SubmitCallback\SubmitCallback;
+use WSS\Validation\AbstractValidationCallback;
 
 class EditSpaceForm extends AbstractForm {
     /**
@@ -31,25 +31,25 @@ class EditSpaceForm extends AbstractForm {
     public function getDescriptor(): array {
         return [
             'namespaceid' => [
-                'label-message' => 'pdp-manage-space-form-namespaceid-label',
+                'label-message' => 'wss-manage-space-form-namespaceid-label',
                 'type' => 'text',
                 'disabled' => true,
                 'default' => $this->space->getId()
             ],
             'namespacename' => [
-                'label-message' => 'pdp-manage-space-form-namespacename-label',
+                'label-message' => 'wss-manage-space-form-namespacename-label',
                 'type' => 'text',
                 'disabled' => true,
                 'default' => $this->space->getName()
             ],
             'createdby' => [
-                'label-message' => 'pdp-manage-space-form-createdby-label',
+                'label-message' => 'wss-manage-space-form-createdby-label',
                 'type' => 'text',
                 'disabled' => true,
                 'default' => $this->space->getOwner()->getName()
             ],
             'displayname' => [
-                'label-message' => 'pdp-add-space-form-displayname-label',
+                'label-message' => 'wss-add-space-form-displayname-label',
                 'type' => 'text',
                 'size' => 32,
                 'maxlength' => 64,
@@ -60,7 +60,7 @@ class EditSpaceForm extends AbstractForm {
                 }
             ],
             'description' => [
-                'label-message' => 'pdp-add-space-form-description-label',
+                'label-message' => 'wss-add-space-form-description-label',
                 'type' => 'textarea',
                 'rows' => 4,
                 'required' => true,
@@ -70,7 +70,7 @@ class EditSpaceForm extends AbstractForm {
                 }
             ],
             'administrators' => [
-                'label-message' => 'pdp-manage-space-form-administrators-label',
+                'label-message' => 'wss-manage-space-form-administrators-label',
                 'type' => 'usersmultiselect',
                 'required' => false,
                 'default' => implode( "\n", $this->space->getSpaceAdministrators() ),
@@ -85,7 +85,7 @@ class EditSpaceForm extends AbstractForm {
      * @return string
      */
     public function getName(): string {
-        return 'pdp_manage_space';
+        return 'wss_manage_space';
     }
 
     /**
@@ -94,7 +94,7 @@ class EditSpaceForm extends AbstractForm {
      * @return string
      */
     public function getSubmitText(): string {
-        return wfMessage( 'pdp-manage-space-form-submit-text' )->plain();
+        return wfMessage( 'wss-manage-space-form-submit-text' )->plain();
     }
 
     /**

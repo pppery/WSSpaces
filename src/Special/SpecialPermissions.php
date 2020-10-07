@@ -1,21 +1,21 @@
 <?php
 
-namespace PDP\Special;
+namespace WSS\Special;
 
 use ErrorPageError;
 use Exception;
-use PDP\NamespaceRepository;
-use PDP\Space;
-use PDP\SpecialPage;
-use PDP\UI\ExceptionUI;
-use PDP\UI\InvalidPageUI;
-use PDP\UI\MissingPermissionsUI;
-use PDP\UI\PermissionsUI;
+use WSS\NamespaceRepository;
+use WSS\Space;
+use WSS\SpecialPage;
+use WSS\UI\ExceptionUI;
+use WSS\UI\InvalidPageUI;
+use WSS\UI\MissingPermissionsUI;
+use WSS\UI\PermissionsUI;
 use PermissionsError;
 
 /**
  * Class SpecialPermissions
- * @package PDP\Special
+ * @package WSS\Special
  */
 class SpecialPermissions extends SpecialPage {
     /**
@@ -39,28 +39,28 @@ class SpecialPermissions extends SpecialPage {
      * @inheritDoc
      */
     public function getRestriction() {
-        return 'pdp-manage';
+        return 'wss-manage';
     }
 
     /**
      * @inheritDoc
      */
     public function getGroupName() {
-        return 'pdp-spaces';
+        return 'wss-spaces';
     }
 
     /**
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'pdp-special-permissions-title' )->plain();
+        return wfMessage( 'wss-special-permissions-title' )->plain();
     }
 
     /**
      * @return bool|string
      */
     public function getLoginSecurityLevel() {
-        return 'pega-change-permissions';
+        return 'ws-change-permissions';
     }
 
     /**
@@ -83,7 +83,7 @@ class SpecialPermissions extends SpecialPage {
 
             $rights = \RequestContext::getMain()->getUser()->getRights();
             $space = Space::newFromName( $parameter );
-            $can_edit_core = in_array( 'pdp-edit-core-namespaces', $rights );
+            $can_edit_core = in_array( 'wss-edit-core-namespaces', $rights );
             if ( ( !$space && !$can_edit_core ) || ( $space && !$space->canEdit() ) ) {
                 $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();

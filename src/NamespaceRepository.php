@@ -1,11 +1,17 @@
 <?php
 
-namespace PDP;
+namespace WSS;
 
 use Config;
 use ConfigException;
 use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
+use MWException;
+use PermissionsError;
+use WSS\Log\AddSpaceLog;
+use WSS\Log\ArchiveSpaceLog;
+use WSS\Log\UnarchiveSpaceLog;
+use WSS\Log\UpdateSpaceLog;
 
 class NamespaceRepository {
     // Lowest allowed ID for a space.
@@ -34,7 +40,7 @@ class NamespaceRepository {
     public function __construct() {
         $this->canonical_namespaces         = [ NS_MAIN => 'Main' ] + $this->getConfig()->get( 'CanonicalNamespaceNames' );
         $this->extension_namespaces         = ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
-        $this->valid_canonical_namespaces   = $this->getConfig()->get( 'PDPValidNamespaces' );
+        $this->valid_canonical_namespaces   = $this->getConfig()->get( 'WSSValidNamespaces' );
     }
 
     /**
@@ -43,7 +49,7 @@ class NamespaceRepository {
     public static function getNextAvailableNamespaceId(): int {
         $dbr = wfGetDB( DB_MASTER );
         $result = $dbr->select(
-              'pdp_namespaces',
+              'wss_namespaces',
             [ 'namespace_id' ],
             '',
             __METHOD__,
@@ -110,7 +116,7 @@ class NamespaceRepository {
     }
 
     /**
-     * Returns the list of all (archived and unarchived) dynamic spaces defined by the PDP extension. When the first
+     * Returns the list of all (archived and unarchived) dynamic spaces defined by the WSS extension. When the first
      * parameter is true, the key will be the name of the namespace, and the value the
      * constant, otherwise the key will be the namespace constant and the value the namespace name.
      *
@@ -120,7 +126,7 @@ class NamespaceRepository {
     public function getAllSpaces( $flip = false ): array {
         $dbr = wfGetDB( DB_REPLICA );
         $result = $dbr->select(
-            'pdp_namespaces',
+            'wss_namespaces',
             [
                 'namespace_id',
                 'namespace_name'
@@ -136,7 +142,7 @@ class NamespaceRepository {
     }
 
     /**
-     * Returns the list of unarchived dynamic spaces defined by the PDP extension. When the first parameter is true,
+     * Returns the list of unarchived dynamic spaces defined by the WSS extension. When the first parameter is true,
      * the key will be the name of the namespace, and the value the constant, otherwise
      * the key will be the namespace constant and the value the namespace name.
      *
@@ -149,7 +155,7 @@ class NamespaceRepository {
     }
 
     /**
-     * Returns the list of archived dynamic spaces defined by the PDP extension. When
+     * Returns the list of archived dynamic spaces defined by the WSS extension. When
      * the first parameter is true, the key will be the name of the namespace, and the value the constant,
      * otherwise the key will be the namespace constant and the value the namespace name.
      *
@@ -186,7 +192,7 @@ class NamespaceRepository {
     }
 
     /**
-     * Returns the list of valid canonical namespaces as defined by $wgPDPValidNamespaces.
+     * Returns the list of valid canonical namespaces as defined by $wgWSSValidNamespaces.
      *
      * @return array
      */
@@ -198,15 +204,20 @@ class NamespaceRepository {
      * Adds the given Space to the database.
      *
      * @param Space $space
+     * @throws MWException
      */
     public function addSpace( Space $space ) {
         if ( $space->exists() ) {
             throw new \InvalidArgumentException( "Cannot add existing space to database, use NamespaceRepository::updateSpace() instead." );
         }
 
+        // We publish the log first, since we
+        $log = new AddSpaceLog( $space );
+        $log->insert();
+
         $database = wfGetDB( DB_MASTER );
         $database->insert(
-        'pdp_namespaces',  [
+        'wss_namespaces',  [
             'namespace_id' => self::getNextAvailableNamespaceId(),
             'namespace_name' => $space->getName(),
             'display_name' => $space->getDisplayName(),
@@ -219,28 +230,10 @@ class NamespaceRepository {
         // Create a new space from the name, go get the latest details from the database.
         $space = $space::newFromName( $space->getName() );
 
-        {
-            $rc = \RequestContext::getMain();
-
-            $log = new \ManualLogEntry('space', 'create' );
-            $log->setPerformer( $rc->getUser() );
-            $log->setTarget( \Title::newFromText( $space->getName() ) );
-            $log->setComment( '' );
-            $log->setParameters( [
-                '4::namespace' => $space->getName()
-            ] );
-
-            try {
-                $log_id = $log->insert();
-            } catch( \MWException $e ) {
-                throw new \LogicException( "Unable to log creation of space; the space was not published." );
-            }
-
-            $log->publish( $log_id );
-        }
-
         $space->setSpaceAdministrators( [ $space->getOwner()->getName() ] );
         $this->updateSpaceAdministrators( $database, $space );
+
+        $log->publish();
     }
 
     /**
@@ -248,20 +241,34 @@ class NamespaceRepository {
      *
      * @param Space $space
      * @param bool $force True to force the creation of the space and skip the permission check
-     * @throws \PermissionsError
+     * @param bool $log Whether or not to log this update (true by default)
+     *
+     * @throws PermissionsError
+     * @throws MWException
      */
-    public function updateSpace( Space $space, bool $force = false ) {
+    public function updateSpace( Space $space, bool $force = false, bool $log = true ) {
         if ( !$space->exists() ) {
             throw new \InvalidArgumentException( "Cannot update non-existing space in database, use NamespaceRepository::addSpace() instead." );
         }
 
         // Last minute check to see if the user actually does have enough permissions to edit this space.
         if ( !$space->canEdit() && !$force ) {
-            throw new \PermissionsError( "Not enough permissions to edit this space." );
+            throw new PermissionsError( "Not enough permissions to edit this space." );
+        }
+
+        if ( $log ) {
+            $old_space = Space::newFromConstant( $space->getId() );
+
+            if ( $old_space === false ) {
+                throw new MWException( "Space constant `{$space->getId()}` does not exist." );
+            }
+
+            $log = new UpdateSpaceLog( $old_space, $space );
+            $log->insert();
         }
 
         $database = wfGetDB( DB_MASTER );
-        $database->update('pdp_namespaces', [
+        $database->update('wss_namespaces', [
             'display_name' => $space->getDisplayName(),
             'description' => $space->getDescription(),
             'creator_id' => $space->getOwner()->getId(),
@@ -271,28 +278,44 @@ class NamespaceRepository {
         ] );
 
         $this->updateSpaceAdministrators( $database, $space );
+
+        if ( $log ) {
+            $log->publish();
+        }
     }
 
     /**
      * Helper function to archive a namespace.
      *
      * @param Space $space
-     * @throws \PermissionsError
+     * @throws PermissionsError
+     * @throws MWException
      */
     public function archiveSpace( Space $space ) {
+        $log = new ArchiveSpaceLog( $space );
+        $log->insert();
+
         $space->setArchived();
-        $this->updateSpace( $space );
+        $this->updateSpace( $space, false, false );
+
+        $log->publish();
     }
 
     /**
      * Helper function to unarchive a namespace.
      *
      * @param Space $space
-     * @throws \PermissionsError
+     * @throws PermissionsError
+     * @throws MWException
      */
     public function unarchiveSpace( Space $space ) {
+        $log = new UnarchiveSpaceLog( $space );
+        $log->insert();
+
         $space->setArchived( false );
-        $this->updateSpace( $space );
+        $this->updateSpace( $space, false, false );
+
+        $log->publish();
     }
 
     /**
@@ -312,35 +335,13 @@ class NamespaceRepository {
      */
     private function updateSpaceAdministrators( \Database $database, Space $space ) {
         $namespace_id = $space->getId();
+        $rows = $this->createRowsFromSpaceAdministrators( $space->getSpaceAdministrators(), $namespace_id );
 
-        $rows = array_map(
-            function ( int $admin_id ) use ( $namespace_id ): array {
-                return [
-                    "namespace_id" => $namespace_id,
-                    "admin_user_id" => $admin_id
-                ];
-            },
-            array_filter(
-                array_map(
-                    function ( string $admin ): int {
-                        // This function returns the ID of the given administrator, or 0 if they dont exist.
-                        $user = \User::newFromName( $admin );
-                        return $user->isAnon() ? 0 : $user->getId();
-                    }, $space->getSpaceAdministrators()
-                ),
-                function ( int $id ): bool {
-                    return $id !== 0;
-                }
-            )
-        );
-
-        $rows = array_values( $rows );
-
-        $database->delete('pdp_namespace_admins', [
+        $database->delete('wss_namespace_admins', [
             "namespace_id" => $namespace_id
         ] );
 
-        $database->insert( 'pdp_namespace_admins', $rows );
+        $database->insert( 'wss_namespace_admins', $rows );
     }
 
     /**
@@ -353,7 +354,7 @@ class NamespaceRepository {
     private function getSpacesOnArchived(bool $archived ): array {
         $dbr = wfGetDB( DB_REPLICA );
         $result = $dbr->select(
-            'pdp_namespaces',
+            'wss_namespaces',
             [
                 'namespace_id',
                 'namespace_name'
@@ -369,5 +370,30 @@ class NamespaceRepository {
         }
 
         return $buffer;
+    }
+
+    private function createRowsFromSpaceAdministrators( array $administrators, $namespace_id ) {
+        $rows = array_map(
+            function ( int $admin_id ) use ( $namespace_id ): array {
+                return [
+                    "namespace_id" => $namespace_id,
+                    "admin_user_id" => $admin_id
+                ];
+            },
+            array_filter(
+                array_map(
+                    function ( string $admin ): int {
+                        // This function returns the ID of the given administrator, or 0 if they dont exist.
+                        $user = \User::newFromName( $admin );
+                        return $user->isAnon() ? 0 : $user->getId();
+                    }, $administrators
+                ),
+                function ( int $id ): bool {
+                    return $id !== 0;
+                }
+            )
+        );
+
+        return array_values( $rows );
     }
 }

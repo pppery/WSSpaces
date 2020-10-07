@@ -1,11 +1,11 @@
 <?php
 
-namespace PDP\UI;
+namespace WSS\UI;
 
 use MediaWiki\Linker\LinkRenderer;
 use OutputPage;
 
-class MissingPermissionsUI extends PDPUI {
+class MissingPermissionsUI extends WSSUI {
     public function __construct(OutputPage $page, LinkRenderer $link_renderer) {
         parent::__construct($page, $link_renderer);
     }
@@ -16,7 +16,7 @@ class MissingPermissionsUI extends PDPUI {
      * @return void
      */
     function render() {
-        $this->getOutput()->addWikiMsg( 'pdp-missing-permissions-description' );
+        $this->getOutput()->addWikiMsg( 'wss-missing-permissions-description' );
     }
 
     /**
@@ -37,7 +37,7 @@ class MissingPermissionsUI extends PDPUI {
      * @inheritDoc
      */
     function getNavigationPrefix(): string {
-        return wfMessage('pdp-missing-permissions-topnav')->plain();
+        return wfMessage('wss-missing-permissions-topnav')->plain();
     }
 
     /**
@@ -45,9 +45,9 @@ class MissingPermissionsUI extends PDPUI {
      */
     function getNavigationItems(): array {
         return [
-            wfMessage( 'pdp-add-space-header' )->plain() => 'Special:AddSpace',
-            wfMessage( 'pdp-manage-space-header' )->plain() => 'Special:ManageSpace',
-            wfMessage( 'pdp-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
+            wfMessage( 'wss-add-space-header' )->plain() => 'Special:AddSpace',
+            wfMessage( 'wss-manage-space-header' )->plain() => 'Special:ManageSpace',
+            wfMessage( 'wss-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
         ];
     }
 }

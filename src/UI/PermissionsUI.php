@@ -1,21 +1,21 @@
 <?php
 
-namespace PDP\UI;
+namespace WSS\UI;
 
 use MediaWiki\Linker\LinkRenderer;
 use OutputPage;
-use PDP\Form\PermissionsMatrixForm;
-use PDP\NamespaceRepository;
-use PDP\Space;
-use PDP\SubmitCallback\PermissionsMatrixSubmitCallback;
-use PDP\Validation\PermissionsMatrixValidationCallback;
+use WSS\Form\PermissionsMatrixForm;
+use WSS\NamespaceRepository;
+use WSS\Space;
+use WSS\SubmitCallback\PermissionsMatrixSubmitCallback;
+use WSS\Validation\PermissionsMatrixValidationCallback;
 
 /**
  * Class PermissionsUI
  *
- * @package PDP\UI
+ * @package WSS\UI
  */
-class PermissionsUI extends PDPUI {
+class PermissionsUI extends WSSUI {
     /**
      * @var NamespaceRepository
      */
@@ -33,10 +33,10 @@ class PermissionsUI extends PDPUI {
      */
     public function render() {
         if ( !in_array( $this->getParameter(), $this->namespaces->getSpaces() ) ) {
-            $this->getOutput()->addWikiMsg( 'pdp-permissions-core-namespace' );
+            $this->getOutput()->addWikiMsg( 'wss-permissions-core-namespace' );
         }
 
-        $this->getOutput()->addWikiMsg( 'pdp-permissions-intro' );
+        $this->getOutput()->addWikiMsg( 'wss-permissions-intro' );
         $this->showPermissionsMatrixForm();
     }
 
@@ -44,7 +44,7 @@ class PermissionsUI extends PDPUI {
      * @inheritDoc
      */
     public function getModules(): array {
-        return [ "ext.pdp.SpecialPermissions" ];
+        return [ "ext.wss.SpecialPermissions" ];
     }
 
     /**
@@ -55,7 +55,7 @@ class PermissionsUI extends PDPUI {
         $space = Space::newFromName( $namespace );
         $display_name = $space ? $space->getDisplayName() : $namespace;
 
-        return wfMessage( 'pdp-permissions-header', $display_name )->plain();
+        return wfMessage( 'wss-permissions-header', $display_name )->plain();
     }
 
     /**
@@ -76,7 +76,7 @@ class PermissionsUI extends PDPUI {
      * @inheritDoc
      */
     public function getNavigationPrefix(): string {
-        return wfMessage( 'pdp-permissions-topnav' )->plain();
+        return wfMessage( 'wss-permissions-topnav' )->plain();
     }
 
     /**

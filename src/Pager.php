@@ -1,14 +1,14 @@
 <?php
 
 
-namespace PDP;
+namespace WSS;
 
 use Wikimedia\Rdbms\ResultWrapper;
 
 /**
- * Class PDPPager
+ * Class WSSPager
  *
- * @package PDP
+ * @package WSS
  */
 abstract class Pager extends \TablePager {
     /**

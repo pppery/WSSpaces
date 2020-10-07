@@ -1,10 +1,10 @@
 <?php
 
-namespace PDP\SubmitCallback;
+namespace WSS\SubmitCallback;
 
-use PDP\PermissionsHandler;
-use PDP\PermissionsMatrix;
-use PDP\UI\PDPUI;
+use WSS\PermissionsHandler;
+use WSS\PermissionsMatrix;
+use WSS\UI\WSSUI;
 use Wikimedia\Rdbms\Database;
 
 class PermissionsMatrixSubmitCallback implements SubmitCallback {
@@ -14,16 +14,16 @@ class PermissionsMatrixSubmitCallback implements SubmitCallback {
     private $namespace_constant;
 
     /**
-     * @var PDPUI
+     * @var WSSUI
      */
     private $ui;
 
     /**
      * SubmitCallback constructor.
-     * @param PDPUI $ui
+     * @param WSSUI $ui
      * @param int $namespace_constant
      */
-    public function __construct( PDPUI $ui, int $namespace_constant ) {
+    public function __construct( WSSUI $ui, int $namespace_constant ) {
         $this->ui = $ui;
         $this->namespace_constant = $namespace_constant;
     }
@@ -42,7 +42,7 @@ class PermissionsMatrixSubmitCallback implements SubmitCallback {
 
         PermissionsHandler::storePermissionsMatrix( $permissions_matrix, $database );
 
-        $this->ui->addModule("ext.pdp.SpecialPermissionsSuccess");
+        $this->ui->addModule("ext.wss.SpecialPermissionsSuccess");
 
         // We want the form to still appear.
         return false;

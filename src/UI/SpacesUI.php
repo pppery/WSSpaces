@@ -1,14 +1,14 @@
 <?php
 
 
-namespace PDP\UI;
+namespace WSS\UI;
 
 /**
  * Class SpacesUI
  *
- * @package PDP\UI
+ * @package WSS\UI
  */
-abstract class SpacesUI extends PDPUI {
+abstract class SpacesUI extends WSSUI {
     /**
      * @inheritDoc
      */
@@ -20,7 +20,7 @@ abstract class SpacesUI extends PDPUI {
      * @inheritDoc
      */
     public function getNavigationPrefix(): string {
-        return wfMessage( 'pdp-space-topnav-prefix' )->plain();
+        return wfMessage( 'wss-space-topnav-prefix' )->plain();
     }
 
     /**
@@ -28,9 +28,9 @@ abstract class SpacesUI extends PDPUI {
      */
     public function getNavigationItems(): array {
         return [
-            wfMessage( 'pdp-add-space-header' )->plain() => 'Special:AddSpace',
-            wfMessage( 'pdp-manage-space-header' )->plain() => 'Special:ManageSpace',
-            wfMessage( 'pdp-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
+            wfMessage( 'wss-add-space-header' )->plain() => 'Special:AddSpace',
+            wfMessage( 'wss-manage-space-header' )->plain() => 'Special:ManageSpace',
+            wfMessage( 'wss-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
         ];
     }
 
@@ -38,11 +38,11 @@ abstract class SpacesUI extends PDPUI {
      * @inheritDoc
      */
     public function getModules(): array {
-        return array_merge( [ 'ext.pdp.Spaces' ], $this->getConditionalModules() );
+        return array_merge( [ 'ext.wss.Spaces' ], $this->getConditionalModules() );
     }
 
     /**
-     * Sets a flag to allow for a pdp_callback query parameter.
+     * Sets a flag to allow for a wss_callback query parameter.
      */
     public function setAllowCallback() {
         $this->getOutput()->getRequest()->getSession()->set( "callback-allowed", true );
@@ -63,7 +63,7 @@ abstract class SpacesUI extends PDPUI {
             return [];
         }
 
-        $callback = $request->getVal( 'pdp_callback' );
+        $callback = $request->getVal( 'wss_callback' );
 
         if ( $callback === null ) {
             return [];
@@ -73,11 +73,11 @@ abstract class SpacesUI extends PDPUI {
 
         switch( $callback ) {
             case "created":
-                return [ "ext.pdp.AddSpaceSuccess" ];
+                return [ "ext.wss.AddSpaceSuccess" ];
             case "archived":
-                return [ "ext.pdp.ArchiveSpaceSuccess" ];
+                return [ "ext.wss.ArchiveSpaceSuccess" ];
             case "unarchived":
-                return [ "ext.pdp.UnarchiveSpaceSuccess" ];
+                return [ "ext.wss.UnarchiveSpaceSuccess" ];
             default:
                 return [];
         }

@@ -1,12 +1,12 @@
 <?php
 
-namespace PDP\Form;
+namespace WSS\Form;
 
 use HTMLForm;
 use OutputPage;
-use PDP\SubmitCallback\SubmitCallback;
-use PDP\Validation\FakeValidationCallback;
-use PDP\Validation\AbstractValidationCallback;
+use WSS\SubmitCallback\SubmitCallback;
+use WSS\Validation\FakeValidationCallback;
+use WSS\Validation\AbstractValidationCallback;
 
 abstract class AbstractForm {
     /**
@@ -133,7 +133,7 @@ abstract class AbstractForm {
 
         $this->form->setCancelTarget( $this->cancelTarget() );
         $this->form->showCancel( $this->showCancel() );
-        $this->form->setTokenSalt( "pdp" );
+        $this->form->setTokenSalt( "wss" );
 
         return $this->form;
     }

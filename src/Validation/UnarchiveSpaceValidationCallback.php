@@ -1,10 +1,10 @@
 <?php
 
 
-namespace PDP\Validation;
+namespace WSS\Validation;
 
 
-use PDP\NamespaceRepository;
+use WSS\NamespaceRepository;
 
 class UnarchiveSpaceValidationCallback extends AbstractValidationCallback {
     /**

@@ -1,22 +1,22 @@
 <?php
 
 
-namespace PDP\Special;
+namespace WSS\Special;
 
 use Exception;
-use PDP\NamespaceRepository;
-use PDP\Space;
-use PDP\SpecialPage;
-use PDP\UI\ExceptionUI;
-use PDP\UI\InvalidPageUI;
-use PDP\UI\ManageSpaceBaseUI;
-use PDP\UI\ManageSpaceFormUI;
-use PDP\UI\MissingPermissionsUI;
+use WSS\NamespaceRepository;
+use WSS\Space;
+use WSS\SpecialPage;
+use WSS\UI\ExceptionUI;
+use WSS\UI\InvalidPageUI;
+use WSS\UI\ManageSpaceBaseUI;
+use WSS\UI\ManageSpaceFormUI;
+use WSS\UI\MissingPermissionsUI;
 
 /**
  * Class SpecialManageSpace
  *
- * @package PDP\Special
+ * @package WSS\Special
  */
 class SpecialManageSpace extends SpecialPage {
     /**
@@ -40,28 +40,28 @@ class SpecialManageSpace extends SpecialPage {
      * @inheritDoc
      */
     public function getRestriction() {
-        return 'pdp-manage';
+        return 'wss-manage';
     }
 
     /**
      * @inheritDoc
      */
     public function getGroupName() {
-        return 'pdp-spaces';
+        return 'wss-spaces';
     }
 
     /**
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'pdp-manage-space-title' )->plain();
+        return wfMessage( 'wss-manage-space-title' )->plain();
     }
 
     /**
      * @inheritDoc
      */
     public function getLoginSecurityLevel() {
-        return 'pega-manage-namespaces';
+        return 'ws-manage-namespaces';
     }
 
     /**

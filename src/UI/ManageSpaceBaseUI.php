@@ -1,12 +1,12 @@
 <?php
 
-namespace PDP\UI;
+namespace WSS\UI;
 
-use PDP\SpacePager;
+use WSS\SpacePager;
 
 /**
  * Class ManageSpaceBaseUI
- * @package PDP\UI
+ * @package WSS\UI
  */
 class ManageSpaceBaseUI extends ManageSpaceUI {
     /**

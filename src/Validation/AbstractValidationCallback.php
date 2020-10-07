@@ -1,6 +1,6 @@
 <?php
 
-namespace PDP\Validation;
+namespace WSS\Validation;
 
 abstract class AbstractValidationCallback {
     /**

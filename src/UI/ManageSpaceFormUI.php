@@ -1,15 +1,15 @@
 <?php
 
-namespace PDP\UI;
+namespace WSS\UI;
 
-use PDP\Form\EditSpaceForm;
-use PDP\Space;
-use PDP\SubmitCallback\EditSpaceSubmitCallback;
-use PDP\Validation\AddSpaceValidationCallback;
+use WSS\Form\EditSpaceForm;
+use WSS\Space;
+use WSS\SubmitCallback\EditSpaceSubmitCallback;
+use WSS\Validation\AddSpaceValidationCallback;
 
 /**
  * Class ManageSpaceBaseUI
- * @package PDP\UI
+ * @package WSS\UI
  */
 class ManageSpaceFormUI extends ManageSpaceUI {
     /**
@@ -20,7 +20,7 @@ class ManageSpaceFormUI extends ManageSpaceUI {
         $space = Space::newFromName( $namespace );
         $display_name = $space ? $space->getDisplayName() : $namespace;
 
-        return wfMessage( "pdp-manage-space-form-header", $display_name )->plain();
+        return wfMessage( "wss-manage-space-form-header", $display_name )->plain();
     }
 
     /**
@@ -40,8 +40,8 @@ class ManageSpaceFormUI extends ManageSpaceUI {
         $form->getForm()->addButton([
             'name' => 'archive',
             'value' => 'archive',
-            'label-message' => 'pdp-archive-space',
-            'id' => 'pdp-archive-space',
+            'label-message' => 'wss-archive-space',
+            'id' => 'wss-archive-space',
             'flags' => 'destructive',
             'framed' => false
         ]);

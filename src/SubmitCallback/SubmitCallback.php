@@ -1,6 +1,6 @@
 <?php
 
-namespace PDP\SubmitCallback;
+namespace WSS\SubmitCallback;
 
 interface SubmitCallback {
     /**

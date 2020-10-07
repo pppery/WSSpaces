@@ -1,6 +1,6 @@
 <?php
 
-namespace PDP;
+namespace WSS;
 
 use MediaWiki\MediaWikiServices;
 
@@ -71,7 +71,7 @@ class PermissionsMatrix implements \Iterator, \Countable {
     public static function newFromNamespaceConstant( $namespace_constant ): PermissionsMatrix {
         $database = wfGetDB( DB_REPLICA );
         $rows = $database->select(
-            'pdp_permissions',
+            'wss_permissions',
             [ 'user_group', 'user_right' ],
             [ 'namespace' => $namespace_constant ]
         );

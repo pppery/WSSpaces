@@ -1,11 +1,11 @@
 <?php
 
-namespace PDP\Validation;
+namespace WSS\Validation;
 
 /**
  * Class FakeValidationCallback
  *
- * @package PDP\Validation
+ * @package WSS\Validation
  */
 class FakeValidationCallback extends AbstractValidationCallback {
     /**

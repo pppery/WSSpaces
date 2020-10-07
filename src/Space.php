@@ -1,6 +1,6 @@
 <?php
 
-namespace PDP;
+namespace WSS;
 
 use User;
 
@@ -101,7 +101,7 @@ class Space {
     public static function newFromName( string $namespace_name ) {
         $database = wfGetDB( DB_REPLICA );
         $namespace = $database->select(
-            'pdp_namespaces',
+            'wss_namespaces',
             [ 'namespace_id', 'display_name', 'description', 'creator_id', 'archived' ],
             [ 'namespace_name' => $namespace_name ]
         );
@@ -120,7 +120,7 @@ class Space {
         $namespace_administrators = array_map( function( $row ): string {
             return User::newFromId( $row->admin_user_id )->getName();
         }, iterator_to_array( $database->select(
-            'pdp_namespace_admins',
+            'wss_namespace_admins',
             [ 'admin_user_id' ],
             [ 'namespace_id' => $namespace->namespace_id ]
         ) ) );
@@ -175,7 +175,7 @@ class Space {
     public static function newFromConstant( int $namespace_constant ) {
         $database = wfGetDB( DB_REPLICA );
         $namespace = $database->select(
-            'pdp_namespaces',
+            'wss_namespaces',
             [ 'namespace_name', 'display_name', 'description', 'creator_id', 'archived' ],
             [ 'namespace_id' => $namespace_constant ]
         );
@@ -191,13 +191,22 @@ class Space {
             throw new \InvalidArgumentException( "Invalid creator_id '{$namespace->creator_id}'" );
         }
 
+        $namespace_administrators = array_map( function( $row ): string {
+            return User::newFromId( $row->admin_user_id )->getName();
+        }, iterator_to_array( $database->select(
+            'wss_namespace_admins',
+            [ 'admin_user_id' ],
+            [ 'namespace_id' => $namespace_constant ]
+        ) ) );
+
         return new Space(
             $namespace->namespace_name,
             $namespace_constant,
             $namespace->display_name,
             $namespace->description,
             $user,
-            $namespace->archived
+            $namespace->archived,
+            $namespace_administrators
         );
     }
 
@@ -346,7 +355,7 @@ class Space {
     public function exists(): bool {
         $database = wfGetDB(DB_MASTER);
         $result = $database->select(
-            'pdp_namespaces',
+            'wss_namespaces',
             ['namespace_id'],
             ['namespace_id' => $this->namespace_id]
         );
@@ -361,6 +370,6 @@ class Space {
      */
     public function canEdit(): bool {
         return in_array( \RequestContext::getMain()->getUser()->getName(), $this->namespace_administrators ) ||
-            in_array( 'pdp-edit-all-spaces', \RequestContext::getMain()->getUser()->getRights() );
+            in_array( 'wss-edit-all-spaces', \RequestContext::getMain()->getUser()->getRights() );
     }
 }

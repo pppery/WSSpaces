@@ -1,15 +1,15 @@
 <?php
 
-namespace PDP\SubmitCallback;
+namespace WSS\SubmitCallback;
 
-use PDP\NamespaceRepository;
-use PDP\Space;
-use PDP\UI\PDPUI;
-use PDP\UI\SpacesUI;
+use WSS\NamespaceRepository;
+use WSS\Space;
+use WSS\UI\WSSUI;
+use WSS\UI\SpacesUI;
 
 class EditSpaceSubmitCallback implements SubmitCallback {
     /**
-     * @var PDPUI
+     * @var WSSUI
      */
     private $ui;
 
@@ -41,7 +41,7 @@ class EditSpaceSubmitCallback implements SubmitCallback {
             $this->ui->setAllowCallback();
             \RequestContext::getMain()->getOutput()->redirect(
                 \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
-                    [ 'pdp_callback' => 'archived' ]
+                    [ 'wss_callback' => 'archived' ]
                 )
             );
 
@@ -55,10 +55,10 @@ class EditSpaceSubmitCallback implements SubmitCallback {
         try {
             $namespace_repository->updateSpace( $space );
         } catch( \PermissionsError $e ) {
-            return "pdp-cannot-remove-self";
+            return "wss-cannot-remove-self";
         }
 
-        $this->ui->addModule("ext.pdp.SpecialManageSpaceSuccess");
+        $this->ui->addModule("ext.wss.SpecialManageSpaceSuccess");
 
         return false;
     }

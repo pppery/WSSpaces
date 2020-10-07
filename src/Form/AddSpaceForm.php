@@ -1,10 +1,10 @@
 <?php
 
-namespace PDP\Form;
+namespace WSS\Form;
 
 /**
  * Class AddSpaceForm
- * @package PDP\Form
+ * @package WSS\Form
  */
 class AddSpaceForm extends AbstractForm {
     /**
@@ -13,7 +13,7 @@ class AddSpaceForm extends AbstractForm {
     public function getDescriptor(): array {
         return [
             'displayname' => [
-                'label-message' => 'pdp-add-space-form-displayname-label',
+                'label-message' => 'wss-add-space-form-displayname-label',
                 'type' => 'text',
                 'size' => 32,
                 'maxlength' => 64,
@@ -23,7 +23,7 @@ class AddSpaceForm extends AbstractForm {
                 }
             ],
             'description' => [
-                'label-message' => 'pdp-add-space-form-description-label',
+                'label-message' => 'wss-add-space-form-description-label',
                 'type' => 'textarea',
                 'rows' => 4,
                 'required' => true,
@@ -32,8 +32,8 @@ class AddSpaceForm extends AbstractForm {
                 }
             ],
             'namespace' => [
-                'label-message' => 'pdp-add-space-form-namespace-label',
-                'help-message' => 'pdp-add-space-form-namespace-help',
+                'label-message' => 'wss-add-space-form-namespace-label',
+                'help-message' => 'wss-add-space-form-namespace-help',
                 'type' => 'text',
                 'size' => 32,
                 'maxlength' => 24,
@@ -56,7 +56,7 @@ class AddSpaceForm extends AbstractForm {
      * @inheritDoc
      */
     public function getSubmitText(): string {
-        return wfMessage( 'pdp-add-space-form-submit-text' )->plain();
+        return wfMessage( 'wss-add-space-form-submit-text' )->plain();
     }
 
     /**

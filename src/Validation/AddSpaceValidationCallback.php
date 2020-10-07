@@ -1,14 +1,14 @@
 <?php
 
 
-namespace PDP\Validation;
+namespace WSS\Validation;
 
-use PDP\NamespaceRepository;
-use PDP\Space;
+use WSS\NamespaceRepository;
+use WSS\Space;
 
 /**
  * Class AddSpaceValidationCallback
- * @package PDP\Validation
+ * @package WSS\Validation
  */
 class AddSpaceValidationCallback extends AbstractValidationCallback {
     /**

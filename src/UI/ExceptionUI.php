@@ -1,13 +1,13 @@
 <?php
 
 
-namespace PDP\UI;
+namespace WSS\UI;
 
 use MediaWiki\Linker\LinkRenderer;
 use OutputPage;
 use Xml;
 
-class ExceptionUI extends PDPUI {
+class ExceptionUI extends WSSUI {
     /**
      * @var \Exception
      */
@@ -31,20 +31,20 @@ class ExceptionUI extends PDPUI {
      * @inheritDoc
      */
     function render() {
-        $this->getOutput()->addWikiMsg( 'pdp-internal-exception-intro' );
-        $this->getOutput()->addHTML( Xml::tags( 'h1', [], wfMessage( 'pdp-debug-information' ) ) );
-        $this->getOutput()->addWikiMsg( 'pdp-debug-information-intro' );
+        $this->getOutput()->addWikiMsg( 'wss-internal-exception-intro' );
+        $this->getOutput()->addHTML( Xml::tags( 'h1', [], wfMessage( 'wss-debug-information' ) ) );
+        $this->getOutput()->addWikiMsg( 'wss-debug-information-intro' );
 
         $debug_information = $this->exception->getMessage() .
             Xml::tags( 'br', [], '' ) .
             nl2br( $this->exception->getTraceAsString() );
 
         $this->getOutput()->addHTML(
-            Xml::tags( 'div', [ 'class' => 'pdp-exception-notice' ], $debug_information )
+            Xml::tags( 'div', [ 'class' => 'wss-exception-notice' ], $debug_information )
         );
 
-        $this->getOutput()->addHTML( Xml::tags( 'h1', [], wfMessage( 'pdp-how-to-get-help' ) ) );
-        $this->getOutput()->addWikiMsg( 'pdp-how-to-get-help-intro' );
+        $this->getOutput()->addHTML( Xml::tags( 'h1', [], wfMessage( 'wss-how-to-get-help' ) ) );
+        $this->getOutput()->addWikiMsg( 'wss-how-to-get-help-intro' );
     }
 
     /**
@@ -65,7 +65,7 @@ class ExceptionUI extends PDPUI {
      * @inheritDoc
      */
     public function getNavigationPrefix(): string {
-        return wfMessage('pdp-invalidpage-topnav')->plain();
+        return wfMessage('wss-invalidpage-topnav')->plain();
     }
 
     /**
@@ -73,9 +73,9 @@ class ExceptionUI extends PDPUI {
      */
     public function getNavigationItems(): array {
         return [
-            wfMessage( 'pdp-add-space-header' )->plain() => 'Special:AddSpace',
-            wfMessage( 'pdp-manage-space-header' )->plain() => 'Special:ManageSpace',
-            wfMessage( 'pdp-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
+            wfMessage( 'wss-add-space-header' )->plain() => 'Special:AddSpace',
+            wfMessage( 'wss-manage-space-header' )->plain() => 'Special:ManageSpace',
+            wfMessage( 'wss-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
         ];
     }
 
@@ -83,6 +83,6 @@ class ExceptionUI extends PDPUI {
      * @inheritDoc
      */
     public function getModules(): array {
-        return [ 'ext.pdp.Exception' ];
+        return [ 'ext.wss.Exception' ];
     }
 }

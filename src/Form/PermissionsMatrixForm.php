@@ -1,12 +1,12 @@
 <?php
 
-namespace PDP\Form;
+namespace WSS\Form;
 
 use OutputPage;
-use PDP\SubmitCallback\SubmitCallback;
-use PDP\PermissionsMatrix;
-use PDP\Validation\PermissionsMatrixValidationCallback;
-use PDP\Validation\AbstractValidationCallback;
+use WSS\SubmitCallback\SubmitCallback;
+use WSS\PermissionsMatrix;
+use WSS\Validation\PermissionsMatrixValidationCallback;
+use WSS\Validation\AbstractValidationCallback;
 
 class PermissionsMatrixForm extends AbstractForm {
     /**
@@ -66,7 +66,7 @@ class PermissionsMatrixForm extends AbstractForm {
      * @return string
      */
     public function getSubmitText(): string {
-        return wfMessage( 'pdp-permissions-matrix-submit-text' );
+        return wfMessage( 'wss-permissions-matrix-submit-text' );
     }
 
     /**

@@ -1,13 +1,13 @@
 <?php
 
-namespace PDP;
+namespace WSS;
 
 use MediaWiki\Auth\AuthManager;
 use MediaWiki\Session\Session;
 use MWException;
-use PDP\UI\PDPUI;
+use WSS\UI\WSSUI;
 
-abstract class PDPHooks {
+abstract class WSSHooks {
     const TIMEOUT = 12000;
 
     /**
@@ -23,9 +23,9 @@ abstract class PDPHooks {
      */
     public static function onSecuritySensitiveOperationStatus( string &$status, string $operation, Session $session, int $timeSinceAuth ): bool {
         $security_sensitive_operations = [
-            "pega-manage-namespaces",
-            "pega-create-namespaces",
-            "pega-change-permissions"
+            "ws-manage-namespaces",
+            "ws-create-namespaces",
+            "ws-change-permissions"
         ];
 
         if ( $session->getLoggedOutTimestamp() > 0 ) {
@@ -50,41 +50,41 @@ abstract class PDPHooks {
      * @throws \ConfigException
      */
     public static function onSkinBuildSidebar( \Skin $skin, &$bar ) {
-        if ( !PDPUI::isQueued() ) {
+        if ( !WSSUI::isQueued() ) {
             return true;
         }
 
-        if ( in_array( 'pdp-edit-core-namespaces', \RequestContext::getMain()->getUser()->getRights() ) ) {
-            $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
-                'text' => wfMessage( 'pdp-special-permissions-title' ),
+        if ( in_array( 'wss-edit-core-namespaces', \RequestContext::getMain()->getUser()->getRights() ) ) {
+            $bar[wfMessage('wss-sidebar-header')->plain()][] = [
+                'text' => wfMessage( 'wss-special-permissions-title' ),
                 'href' => \Title::newFromText( "Permissions", NS_SPECIAL )->getFullUrlForRedirect(),
-                'id'   => 'pdp-permissions-special',
+                'id'   => 'wss-permissions-special',
                 'active' => ''
             ];
         }
 
-        $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
-            'text' => wfMessage( 'pdp-add-space-header' ),
+        $bar[wfMessage('wss-sidebar-header')->plain()][] = [
+            'text' => wfMessage( 'wss-add-space-header' ),
             'href' => \Title::newFromText( "AddSpace", NS_SPECIAL )->getFullUrlForRedirect(),
-            'id'   => 'pdp-add-space-special',
+            'id'   => 'wss-add-space-special',
             'active' => ''
         ];
 
-        $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
-            'text' => wfMessage( 'pdp-manage-space-header' ),
+        $bar[wfMessage('wss-sidebar-header')->plain()][] = [
+            'text' => wfMessage( 'wss-manage-space-header' ),
             'href' => \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(),
-            'id'   => 'pdp-manage-space-special',
+            'id'   => 'wss-manage-space-special',
             'active' => ''
         ];
 
-        $bar[wfMessage('pdp-sidebar-header')->plain()][] = [
-            'text' => wfMessage( 'pdp-archived-spaces-header' ),
+        $bar[wfMessage('wss-sidebar-header')->plain()][] = [
+            'text' => wfMessage( 'wss-archived-spaces-header' ),
             'href' => \Title::newFromText( "ArchivedSpaces", NS_SPECIAL )->getFullUrlForRedirect(),
-            'id'   => 'pdp-archived-spaces-special',
+            'id'   => 'wss-archived-spaces-special',
             'active' => ''
         ];
 
-        PDPUI::setSidebar( $bar );
+        WSSUI::setSidebar( $bar );
 
         return true;
     }
@@ -98,24 +98,24 @@ abstract class PDPHooks {
      * @throws MWException
      */
     public static function onLoadExtensionSchemaUpdates( \DatabaseUpdater $updater ) {
-        $directory = $GLOBALS['wgExtensionDirectory'] . '/PegaDepartmentalPermissions/sql';
+        $directory = $GLOBALS['wgExtensionDirectory'] . '/WSSpaces/sql';
         $type = $updater->getDB()->getType();
 
-        $pdp_permissions_table = sprintf( "%s/%s/pdp_permissions_table.sql", $directory, $type );
-        $pdp_namespaces_table = sprintf( "%s/%s/pdp_namespaces_table.sql", $directory, $type );
-        $pdp_namespace_admins_table = sprintf( "%s/%s/pdp_namespace_admins_table.sql", $directory, $type );
+        $wss_permissions_table = sprintf( "%s/%s/wss_permissions_table.sql", $directory, $type );
+        $wss_namespaces_table = sprintf( "%s/%s/wss_namespaces_table.sql", $directory, $type );
+        $wss_namespace_admins_table = sprintf( "%s/%s/wss_namespace_admins_table.sql", $directory, $type );
 
         if (
-            !file_exists( $pdp_permissions_table ) ||
-            !file_exists( $pdp_namespaces_table )  ||
-            !file_exists( $pdp_namespace_admins_table )
+            !file_exists( $wss_permissions_table ) ||
+            !file_exists( $wss_namespaces_table )  ||
+            !file_exists( $wss_namespace_admins_table )
         ) {
-            throw new MWException( "PDP does not support database type `$type`." );
+            throw new MWException( "WSS does not support database type `$type`." );
         }
 
-        $updater->addExtensionTable( 'pdp_permissions', $pdp_permissions_table );
-        $updater->addExtensionTable( 'pdp_namespaces', $pdp_namespaces_table );
-        $updater->addExtensionTable( 'pdp_namespace_admins', $pdp_namespace_admins_table );
+        $updater->addExtensionTable( 'wss_permissions', $wss_permissions_table );
+        $updater->addExtensionTable( 'wss_namespaces', $wss_namespaces_table );
+        $updater->addExtensionTable( 'wss_namespace_admins', $wss_namespace_admins_table );
     }
 
     /**

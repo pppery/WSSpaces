@@ -1,14 +1,14 @@
 <?php
 
 
-namespace PDP\UI;
+namespace WSS\UI;
 
-use PDP\ArchivedSpacePager;
+use WSS\ArchivedSpacePager;
 
 /**
  * Class ArchivedSpacesUI
  *
- * @package PDP\UI
+ * @package WSS\UI
  */
 class ArchivedSpacesUI extends SpacesUI {
     /**

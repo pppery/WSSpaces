@@ -1,15 +1,15 @@
 <?php
 
-namespace PDP\UI;
+namespace WSS\UI;
 
-class InvalidPageUI extends PDPUI {
+class InvalidPageUI extends WSSUI {
     /**
      * Renders the UI.
      *
      * @return void
      */
     function render() {
-        $this->getOutput()->addWikiMsg( 'pdp-invalid-page-description' );
+        $this->getOutput()->addWikiMsg( 'wss-invalid-page-description' );
     }
 
     /**
@@ -30,7 +30,7 @@ class InvalidPageUI extends PDPUI {
      * @inheritDoc
      */
     function getNavigationPrefix(): string {
-        return wfMessage('pdp-invalidpage-topnav')->plain();
+        return wfMessage('wss-invalidpage-topnav')->plain();
     }
 
     /**
@@ -38,9 +38,9 @@ class InvalidPageUI extends PDPUI {
      */
     function getNavigationItems(): array {
         return [
-            wfMessage( 'pdp-add-space-header' )->plain() => 'Special:AddSpace',
-            wfMessage( 'pdp-manage-space-header' )->plain() => 'Special:ManageSpace',
-            wfMessage( 'pdp-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
+            wfMessage( 'wss-add-space-header' )->plain() => 'Special:AddSpace',
+            wfMessage( 'wss-manage-space-header' )->plain() => 'Special:ManageSpace',
+            wfMessage( 'wss-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
         ];
     }
 }

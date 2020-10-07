@@ -1,6 +1,6 @@
 <?php
 
-namespace PDP;
+namespace WSS;
 
 use MediaWiki\MediaWikiServices;
 
@@ -19,7 +19,7 @@ class SpacePager extends Pager {
      */
     public function getQueryInfo() {
         return [
-            'tables' => 'pdp_namespaces',
+            'tables' => 'wss_namespaces',
             'fields' => [
                 'namespace_name',
                 'display_name',
@@ -122,6 +122,6 @@ class SpacePager extends Pager {
      * @return string
      */
     public function getTableClass() {
-        return 'pdp-table TablePager';
+        return 'wss-table TablePager';
     }
 }

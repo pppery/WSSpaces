@@ -1,17 +1,17 @@
 <?php
 
-namespace PDP\SubmitCallback;
+namespace WSS\SubmitCallback;
 
-use PDP\NamespaceRepository;
-use PDP\PermissionsHandler;
-use PDP\PermissionsMatrix;
-use PDP\Space;
-use PDP\UI\PDPUI;
-use PDP\UI\SpacesUI;
+use WSS\NamespaceRepository;
+use WSS\PermissionsHandler;
+use WSS\PermissionsMatrix;
+use WSS\Space;
+use WSS\UI\WSSUI;
+use WSS\UI\SpacesUI;
 
 class UnarchiveSpaceSubmitCallback implements SubmitCallback {
     /**
-     * @var PDPUI
+     * @var WSSUI
      */
     private $ui;
 
@@ -41,7 +41,7 @@ class UnarchiveSpaceSubmitCallback implements SubmitCallback {
 
         \RequestContext::getMain()->getOutput()->redirect(
             \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
-                [ 'pdp_callback' => 'unarchived' ]
+                [ 'wss_callback' => 'unarchived' ]
             )
         );
 

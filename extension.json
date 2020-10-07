@@ -1,13 +1,13 @@
 {
-  "name": "Pega Departmental Permissions",
+  "name": "WSSpaces",
   "version": "1.0",
-  "namemsg": "pdp-extensionname",
-  "url": "https://pega.com",
+  "namemsg": "wss-extensionname",
+  "url": "https://wikibase-solutions.com",
   "type": "other",
   "author": [
     "[https://mediawiki.org/wiki/User:Xxmarijnw Marijn van Wezel]"
   ],
-  "descriptionmsg": "pdp-desc",
+  "descriptionmsg": "wss-desc",
   "license-name": "MIT",
   "requires": {
     "MediaWiki": ">= 1.31.0",
@@ -16,107 +16,107 @@
     }
   },
   "MessagesDirs": {
-    "PegaDepartmentalPermissions": [
+    "WSSpaces": [
       "i18n"
     ]
   },
   "ExtensionMessagesFiles": {
-    "PegaDepartmentalPermissionsMagic": "i18n/PegaDepartmentalPermissions.i18n.php"
+    "WSSpacesMagic": "i18n/WSSpaces.i18n.php"
   },
   "AutoloadNamespaces": {
-    "PDP\\": "src/"
+    "WSS\\": "src/"
   },
   "Hooks": {
-    "SecuritySensitiveOperationStatus": "PDP\\PDPHooks::onSecuritySensitiveOperationStatus",
-    "SkinBuildSidebar": "PDP\\PDPHooks::onSkinBuildSidebar",
-    "LoadExtensionSchemaUpdates": "PDP\\PDPHooks::onLoadExtensionSchemaUpdates",
-    "BeforeInitialize": "PDP\\PDPHooks::onBeforeInitialize",
-    "CanonicalNamespaces": "PDP\\PDPHooks::onCanonicalNamespaces"
+    "SecuritySensitiveOperationStatus": "WSS\\WSSHooks::onSecuritySensitiveOperationStatus",
+    "SkinBuildSidebar": "WSS\\WSSHooks::onSkinBuildSidebar",
+    "LoadExtensionSchemaUpdates": "WSS\\WSSHooks::onLoadExtensionSchemaUpdates",
+    "BeforeInitialize": "WSS\\WSSHooks::onBeforeInitialize",
+    "CanonicalNamespaces": "WSS\\WSSHooks::onCanonicalNamespaces"
   },
   "SpecialPages": {
-    "Permissions": "PDP\\Special\\SpecialPermissions",
-    "AddSpace": "PDP\\Special\\SpecialAddSpace",
-    "ManageSpace": "PDP\\Special\\SpecialManageSpace",
-    "ArchivedSpaces": "PDP\\Special\\SpecialArchivedSpaces"
+    "Permissions": "WSS\\Special\\SpecialPermissions",
+    "AddSpace": "WSS\\Special\\SpecialAddSpace",
+    "ManageSpace": "WSS\\Special\\SpecialManageSpace",
+    "ArchivedSpaces": "WSS\\Special\\SpecialArchivedSpaces"
   },
   "AvailableRights": [
-    "pdp-manage",
-    "pdp-edit-core-namespaces",
-    "pdp-edit-all-spaces"
+    "wss-manage",
+    "wss-edit-core-namespaces",
+    "wss-edit-all-spaces"
   ],
   "GroupPermissions": {
     "sysop": {
-      "pdp-manage": true,
-      "pdp-edit-core-namespaces": true,
-      "pdp-edit-all-spaces": false
+      "wss-manage": true,
+      "wss-edit-core-namespaces": true,
+      "wss-edit-all-spaces": false
     },
     "spacemaster": {
-      "pdp-manage": true,
-      "pdp-edit-all-spaces": true
+      "wss-manage": true,
+      "wss-edit-all-spaces": true
     }
   },
   "ResourceModules": {
-    "ext.pdp.SpecialPermissions": {
-      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.SpecialPermissions.css"
+    "ext.wss.SpecialPermissions": {
+      "styles": "extensions/WSSpaces/resources/styles/ext.wss.SpecialPermissions.css"
     },
-    "ext.pdp.Spaces": {
-      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Spaces.css"
+    "ext.wss.Spaces": {
+      "styles": "extensions/WSSpaces/resources/styles/ext.wss.Spaces.css"
     },
-    "ext.pdp.Global": {
-      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Global.css"
+    "ext.wss.Global": {
+      "styles": "extensions/WSSpaces/resources/styles/ext.wss.Global.css"
     },
-    "ext.pdp.Exception": {
-      "styles": "extensions/PegaDepartmentalPermissions/resources/styles/ext.pdp.Exception.css"
+    "ext.wss.Exception": {
+      "styles": "extensions/WSSpaces/resources/styles/ext.wss.Exception.css"
     },
-    "ext.pdp.SpecialPermissionsSuccess": {
-      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.SpecialPermissionsSuccess.js",
+    "ext.wss.SpecialPermissionsSuccess": {
+      "scripts": "extensions/WSSpaces/resources/scripts/ext.wss.SpecialPermissionsSuccess.js",
       "position": "bottom",
       "messages": [
-        "pdp-permissions-saved-successfully"
+        "wss-permissions-saved-successfully"
       ],
       "dependencies": [
         "mediawiki.util",
         "mediawiki.api"
       ]
     },
-    "ext.pdp.AddSpaceSuccess": {
-      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.AddSpaceSuccess.js",
+    "ext.wss.AddSpaceSuccess": {
+      "scripts": "extensions/WSSpaces/resources/scripts/ext.wss.AddSpaceSuccess.js",
       "position": "bottom",
       "messages": [
-        "pdp-add-space-saved-successfully"
+        "wss-add-space-saved-successfully"
       ],
       "dependencies": [
         "mediawiki.util",
         "mediawiki.api"
       ]
     },
-    "ext.pdp.ArchiveSpaceSuccess": {
-      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.ArchiveSpaceSuccess.js",
+    "ext.wss.ArchiveSpaceSuccess": {
+      "scripts": "extensions/WSSpaces/resources/scripts/ext.wss.ArchiveSpaceSuccess.js",
       "position": "bottom",
       "messages": [
-        "pdp-archive-space-saved-successfully"
+        "wss-archive-space-saved-successfully"
       ],
       "dependencies": [
         "mediawiki.util",
         "mediawiki.api"
       ]
     },
-    "ext.pdp.UnarchiveSpaceSuccess": {
-      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.UnarchiveSpaceSuccess.js",
+    "ext.wss.UnarchiveSpaceSuccess": {
+      "scripts": "extensions/WSSpaces/resources/scripts/ext.wss.UnarchiveSpaceSuccess.js",
       "position": "bottom",
       "messages": [
-        "pdp-unarchive-space-saved-successfully"
+        "wss-unarchive-space-saved-successfully"
       ],
       "dependencies": [
         "mediawiki.util",
         "mediawiki.api"
       ]
     },
-    "ext.pdp.SpecialManageSpaceSuccess": {
-      "scripts": "extensions/PegaDepartmentalPermissions/resources/scripts/ext.pdp.SpecialManageSpaceSuccess.js",
+    "ext.wss.SpecialManageSpaceSuccess": {
+      "scripts": "extensions/WSSpaces/resources/scripts/ext.wss.SpecialManageSpaceSuccess.js",
       "position": "bottom",
       "messages": [
-        "pdp-manage-space-saved-successfully"
+        "wss-manage-space-saved-successfully"
       ],
       "dependencies": [
         "mediawiki.util",
@@ -125,7 +125,7 @@
     }
   },
   "config": {
-    "PDPValidRights": {
+    "WSSValidRights": {
       "value": [
         "read",
         "edit",
@@ -134,10 +134,10 @@
         "protect"
       ]
     },
-    "PDPValidUserGroups": {
+    "WSSValidUserGroups": {
       "value": []
     },
-    "PDPValidNamespaces": {
+    "WSSValidNamespaces": {
       "value": ["Main", "Media", "User", "Project", "File", "MediaWiki", "Template", "Help", "Category"]
     }
   },
@@ -145,7 +145,7 @@
     "space"
   ],
   "LogActionsHandlers": {
-    "space/create": "LogFormatter"
+    "space/*": "LogFormatter"
   },
   "manifest_version": 2
 }

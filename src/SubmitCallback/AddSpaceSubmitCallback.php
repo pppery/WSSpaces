@@ -1,20 +1,20 @@
 <?php
 
-namespace PDP\SubmitCallback;
+namespace WSS\SubmitCallback;
 
-use PDP\NamespaceRepository;
-use PDP\Space;
-use PDP\UI\PDPUI;
-use PDP\UI\SpacesUI;
+use WSS\NamespaceRepository;
+use WSS\Space;
+use WSS\UI\WSSUI;
+use WSS\UI\SpacesUI;
 
 /**
  * Class AddSpaceSubmitCallback
  *
- * @package PDP\SubmitCallback
+ * @package WSS\SubmitCallback
  */
 class AddSpaceSubmitCallback implements SubmitCallback {
     /**
-     * @var PDPUI
+     * @var WSSUI
      */
     private $ui;
 
@@ -36,15 +36,15 @@ class AddSpaceSubmitCallback implements SubmitCallback {
      */
     public function onSubmit( array $form_data ) {
         if ( !isset( $form_data['displayname'] ) || empty( $form_data['displayname'] ) ) {
-            return "pdp-invalid-input";
+            return "wss-invalid-input";
         }
 
         if ( !isset( $form_data['description'] ) || empty( $form_data['description'] ) ) {
-            return "pdp-invalid-input";
+            return "wss-invalid-input";
         }
 
         if ( !isset( $form_data['namespace'] ) || empty( $form_data['namespace'] ) ) {
-            return "pdp-invalid-input";
+            return "wss-invalid-input";
         }
 
         $display_name = $form_data['displayname'];
@@ -60,7 +60,7 @@ class AddSpaceSubmitCallback implements SubmitCallback {
 
         \RequestContext::getMain()->getOutput()->redirect(
             \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
-                [ 'pdp_callback' => 'created' ]
+                [ 'wss_callback' => 'created' ]
             )
         );
 

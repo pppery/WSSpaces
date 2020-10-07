@@ -1,7 +1,7 @@
 <?php
 
 
-namespace PDP\SubmitCallback;
+namespace WSS\SubmitCallback;
 
 
 class FakeSubmitCallback implements SubmitCallback {

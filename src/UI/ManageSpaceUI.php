@@ -1,11 +1,11 @@
 <?php
 
 
-namespace PDP\UI;
+namespace WSS\UI;
 
 /**
  * Class ManageSpaceUI
- * @package PDP\UI
+ * @package WSS\UI
  */
 abstract class ManageSpaceUI extends SpacesUI {
     /**

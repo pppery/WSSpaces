@@ -1,6 +1,6 @@
 <?php
 
-namespace PDP;
+namespace WSS;
 
 use ErrorPageError;
 use PermissionsError;

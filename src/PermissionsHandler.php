@@ -1,8 +1,9 @@
 <?php
 
-namespace PDP;
+namespace WSS;
 
 use Wikimedia\Rdbms\Database;
+use WSS\Log\UpdatePermissionsLog;
 
 class PermissionsHandler {
     /**
@@ -10,9 +11,15 @@ class PermissionsHandler {
      *
      * @param PermissionsMatrix $permissions_matrix
      * @param Database $database
+     * @throws \MWException
+     * @throws \ConfigException
      */
     public static function storePermissionsMatrix( PermissionsMatrix $permissions_matrix, Database $database ) {
         $namespace_constant = $permissions_matrix->getNamespaceConstant();
+        $old_matrix = PermissionsMatrix::newFromNamespaceConstant( $namespace_constant );
+
+        $log = new UpdatePermissionsLog( $old_matrix, $permissions_matrix );
+        $log->insert();
 
         self::deleteRecordsWithNamespaceConstant( $namespace_constant, $database );
 
@@ -24,7 +31,7 @@ class PermissionsHandler {
             $group = $permission['group'];
             $right = $permission['right'];
 
-            $database->insert( 'pdp_permissions',
+            $database->insert( 'wss_permissions',
                 [
                     'namespace'  => $namespace_constant,
                     'user_group' => $group,
@@ -32,6 +39,8 @@ class PermissionsHandler {
                 ]
             );
         }
+
+        $log->publish();
     }
 
     /**
@@ -42,7 +51,7 @@ class PermissionsHandler {
      */
     private static function deleteRecordsWithNamespaceConstant( int $namespace_constant, Database $database ) {
         $database->delete(
-            'pdp_permissions',
+            'wss_permissions',
             [ 'namespace' => $namespace_constant ]
         );
     }

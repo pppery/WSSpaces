@@ -1,11 +1,11 @@
 <?php
 
-namespace PDP\Form;
+namespace WSS\Form;
 
 use OutputPage;
-use PDP\Space;
-use PDP\SubmitCallback\SubmitCallback;
-use PDP\Validation\AbstractValidationCallback;
+use WSS\Space;
+use WSS\SubmitCallback\SubmitCallback;
+use WSS\Validation\AbstractValidationCallback;
 
 class UnarchiveSpaceForm extends AbstractForm {
     /**
@@ -31,7 +31,7 @@ class UnarchiveSpaceForm extends AbstractForm {
     public function getDescriptor(): array {
         return [
             'namespaceid' => [
-                'label-message' => 'pdp-manage-space-form-namespaceid-label',
+                'label-message' => 'wss-manage-space-form-namespaceid-label',
                 'type' => 'text',
                 'disabled' => true,
                 'default' => $this->space->getId(),
@@ -40,7 +40,7 @@ class UnarchiveSpaceForm extends AbstractForm {
                 }
             ],
             'namespacename' => [
-                'label-message' => 'pdp-manage-space-form-namespacename-label',
+                'label-message' => 'wss-manage-space-form-namespacename-label',
                 'type' => 'text',
                 'disabled' => true,
                 'default' => $this->space->getName(),
@@ -57,7 +57,7 @@ class UnarchiveSpaceForm extends AbstractForm {
      * @return string
      */
     public function getName(): string {
-        return 'pdp_manage_space';
+        return 'wss_manage_space';
     }
 
     /**
@@ -66,7 +66,7 @@ class UnarchiveSpaceForm extends AbstractForm {
      * @return string
      */
     public function getSubmitText(): string {
-        return wfMessage( 'pdp-unarchive-space-form-submit-text' )->plain();
+        return wfMessage( 'wss-unarchive-space-form-submit-text' )->plain();
     }
 
     /**

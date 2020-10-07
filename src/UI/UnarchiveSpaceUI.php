@@ -1,17 +1,17 @@
 <?php
 
 
-namespace PDP\UI;
+namespace WSS\UI;
 
-use PDP\Form\UnarchiveSpaceForm;
-use PDP\Space;
-use PDP\SubmitCallback\UnarchiveSpaceSubmitCallback;
-use PDP\Validation\UnarchiveSpaceValidationCallback;
+use WSS\Form\UnarchiveSpaceForm;
+use WSS\Space;
+use WSS\SubmitCallback\UnarchiveSpaceSubmitCallback;
+use WSS\Validation\UnarchiveSpaceValidationCallback;
 
 /**
  * Class UnarchiveSpaceUI
  *
- * @package PDP\UI
+ * @package WSS\UI
  */
 class UnarchiveSpaceUI extends SpacesUI {
     /**

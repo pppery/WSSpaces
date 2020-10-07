@@ -1,18 +1,18 @@
 <?php
 
-namespace PDP\Special;
+namespace WSS\Special;
 
 use ErrorPageError;
 use Exception;
-use PDP\SpecialPage;
-use PDP\UI\AddSpaceUI;
-use PDP\UI\ExceptionUI;
-use PDP\UI\InvalidPageUI;
+use WSS\SpecialPage;
+use WSS\UI\AddSpaceUI;
+use WSS\UI\ExceptionUI;
+use WSS\UI\InvalidPageUI;
 use PermissionsError;
 
 /**
  * Class SpecialNamespaces
- * @package PDP\Special
+ * @package WSS\Special
  */
 class SpecialAddSpace extends SpecialPage {
     /**
@@ -36,28 +36,28 @@ class SpecialAddSpace extends SpecialPage {
      * @inheritDoc
      */
     public function getRestriction() {
-        return 'pdp-manage';
+        return 'wss-manage';
     }
 
     /**
      * @inheritDoc
      */
     public function getGroupName() {
-        return 'pdp-spaces';
+        return 'wss-spaces';
     }
 
     /**
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'pdp-add-space-header' )->plain();
+        return wfMessage( 'wss-add-space-header' )->plain();
     }
 
     /**
      * @inheritDoc
      */
     public function getLoginSecurityLevel() {
-        return 'pega-create-namespaces';
+        return 'ws-create-namespaces';
     }
 
     /**

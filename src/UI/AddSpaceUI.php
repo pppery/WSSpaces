@@ -1,22 +1,22 @@
 <?php
 
-namespace PDP\UI;
+namespace WSS\UI;
 
-use PDP\Form\AddSpaceForm;
-use PDP\SubmitCallback\AddSpaceSubmitCallback;
-use PDP\Validation\AddSpaceValidationCallback;
+use WSS\Form\AddSpaceForm;
+use WSS\SubmitCallback\AddSpaceSubmitCallback;
+use WSS\Validation\AddSpaceValidationCallback;
 
 /**
  * Class NamespacesUI
  *
- * @package PDP\UI
+ * @package WSS\UI
  */
 class AddSpaceUI extends SpacesUI {
     /**
      * @inheritDoc
      */
     public function render() {
-        $this->getOutput()->addWikiMsg( 'pdp-add-space-intro' );
+        $this->getOutput()->addWikiMsg( 'wss-add-space-intro' );
 
         $form = new AddSpaceForm(
             $this->getOutput(),

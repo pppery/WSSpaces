@@ -1,9 +1,9 @@
 <?php
 
-namespace PDP\Validation;
+namespace WSS\Validation;
 
 use MediaWiki\MediaWikiServices;
-use PDP\NamespaceRepository;
+use WSS\NamespaceRepository;
 
 class PermissionsMatrixValidationCallback extends AbstractValidationCallback {
     /**
@@ -16,7 +16,7 @@ class PermissionsMatrixValidationCallback extends AbstractValidationCallback {
         $rights = \User::getAllRights();
         $valid_rights = MediaWikiServices::getInstance()
             ->getMainConfig()
-            ->get( 'PDPValidRights' );
+            ->get( 'WSSValidRights' );
 
         return empty( $valid_rights ) ? $rights : array_intersect($rights, $valid_rights);
     }
@@ -31,7 +31,7 @@ class PermissionsMatrixValidationCallback extends AbstractValidationCallback {
         $groups = \User::getAllGroups();
         $valid_groups = MediaWikiServices::getInstance()
             ->getMainConfig()
-            ->get( 'PDPValidUserGroups' );
+            ->get( 'WSSValidUserGroups' );
 
         return [ "*" ] + ( empty( $valid_groups ) ? $groups : array_intersect($groups, $valid_groups) );
     }

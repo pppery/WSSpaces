@@ -1,25 +1,25 @@
 <?php
 
 
-namespace PDP\Special;
+namespace WSS\Special;
 
 use ErrorPageError;
 use Exception;
-use PDP\NamespaceRepository;
-use PDP\Space;
-use PDP\SpecialPage;
-use PDP\UI\AddSpaceUI;
-use PDP\UI\ArchivedSpacesUI;
-use PDP\UI\ExceptionUI;
-use PDP\UI\InvalidPageUI;
-use PDP\UI\MissingPermissionsUI;
-use PDP\UI\UnarchiveSpaceUI;
+use WSS\NamespaceRepository;
+use WSS\Space;
+use WSS\SpecialPage;
+use WSS\UI\AddSpaceUI;
+use WSS\UI\ArchivedSpacesUI;
+use WSS\UI\ExceptionUI;
+use WSS\UI\InvalidPageUI;
+use WSS\UI\MissingPermissionsUI;
+use WSS\UI\UnarchiveSpaceUI;
 use PermissionsError;
 
 /**
  * Class SpecialArchivedSpaces
  *
- * @package PDP\Special
+ * @package WSS\Special
  */
 class SpecialArchivedSpaces extends SpecialPage {
     /**
@@ -43,28 +43,28 @@ class SpecialArchivedSpaces extends SpecialPage {
      * @inheritDoc
      */
     public function getRestriction() {
-        return 'pdp-manage';
+        return 'wss-manage';
     }
 
     /**
      * @inheritDoc
      */
     public function getGroupName() {
-        return 'pdp-spaces';
+        return 'wss-spaces';
     }
 
     /**
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'pdp-archived-spaces-title' )->plain();
+        return wfMessage( 'wss-archived-spaces-title' )->plain();
     }
 
     /**
      * @inheritDoc
      */
     public function getLoginSecurityLevel() {
-        return 'pega-manage-namespaces';
+        return 'ws-manage-namespaces';
     }
 
     /**

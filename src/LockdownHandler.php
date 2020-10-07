@@ -1,13 +1,13 @@
 <?php
 
-namespace PDP;
+namespace WSS;
 
-use PDP\Validation\PermissionsMatrixValidationCallback;
+use WSS\Validation\PermissionsMatrixValidationCallback;
 
 /**
  * Class LockdownHandler
  *
- * @package PDP
+ * @package WSS
  */
 class LockdownHandler {
     /**
