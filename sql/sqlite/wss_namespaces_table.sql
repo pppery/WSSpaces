@@ -1,4 +1,4 @@
-CREATE TABLE /*_*/pdp_namespaces (
+CREATE TABLE /*_*/wss_namespaces (
       namespace_id INT NOT NULL PRIMARY KEY,
       namespace_name INT NOT NULL UNIQUE,
       display_name VARCHAR(24) NOT NULL,

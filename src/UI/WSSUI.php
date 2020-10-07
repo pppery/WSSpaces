@@ -1,24 +1,24 @@
 <?php
 
-namespace PDP\UI;
+namespace WSS\UI;
 
 use HtmlArmor;
 use MediaWiki\Linker\LinkRenderer;
 use MWException;
 use OutputPage;
-use PDP\NamespaceRepository;
-use PDP\Space;
+use WSS\NamespaceRepository;
+use WSS\Space;
 
 /**
- * Class PDPUI
+ * Class WSSUI
  *
- * A PDPUI class manipulates the given OutputPage object to create a user interface.
+ * A WSSUI class manipulates the given OutputPage object to create a user interface.
  *
- * @package PDP\UI
+ * @package WSS\UI
  */
-abstract class PDPUI {
+abstract class WSSUI {
     const GLOBAL_MODULES = [
-        "ext.pdp.Global"
+        "ext.wss.Global"
     ];
 
     /**
@@ -32,7 +32,7 @@ abstract class PDPUI {
     private static $parameter = '';
 
     /**
-     * @var PDPUI
+     * @var WSSUI
      */
     private static $ui;
 
@@ -52,7 +52,7 @@ abstract class PDPUI {
     private $modules = [];
 
     /**
-     * Returns true if and only if a PDPUI is queued to be rendered.
+     * Returns true if and only if a WSSUI is queued to be rendered.
      *
      * @return bool
      */
@@ -61,7 +61,7 @@ abstract class PDPUI {
     }
 
     /**
-     * PDPUI constructor.
+     * WSSUI constructor.
      *
      * @param OutputPage $page
      * @param LinkRenderer $link_renderer
@@ -112,17 +112,17 @@ abstract class PDPUI {
 
         $display_name = ucfirst( Space::newFromName( $space )->getDisplayName() );
 
-        $bar[wfMessage( 'pdp-space-administration-sidebar-header', $display_name )->plain()][] = [
-            'text' => wfMessage( 'pdp-edit-space-details' ),
+        $bar[wfMessage( 'wss-space-administration-sidebar-header', $display_name )->plain()][] = [
+            'text' => wfMessage( 'wss-edit-space-details' ),
             'href' => \Title::newFromText( "ManageSpace/$space", NS_SPECIAL )->getFullUrlForRedirect(),
-            'id'   => 'pdp-permissions-special',
+            'id'   => 'wss-permissions-special',
             'active' => ''
         ];
 
-        $bar[wfMessage( 'pdp-space-administration-sidebar-header', $display_name )->plain()][] = [
-            'text' => wfMessage( 'pdp-edit-space-permissions' ),
+        $bar[wfMessage( 'wss-space-administration-sidebar-header', $display_name )->plain()][] = [
+            'text' => wfMessage( 'wss-edit-space-permissions' ),
             'href' => \Title::newFromText( "Permissions/$space", NS_SPECIAL )->getFullUrlForRedirect(),
-            'id'   => 'pdp-permissions-special',
+            'id'   => 'wss-permissions-special',
             'active' => ''
         ];
 
@@ -216,7 +216,7 @@ abstract class PDPUI {
     private function renderHeader() {
         $this->getOutput()->setPageTitle(
             \Xml::element("div",
-                ["class" => "pdp title"],
+                ["class" => "wss title"],
                 $this->getHeaderPrefix() . " " . $this->getHeader()
             )
         );
@@ -253,19 +253,19 @@ abstract class PDPUI {
             ->rawParams($this->getOutput()->getLanguage()->pipeList( $links ) )
             ->text();
         $nav = $this->getNavigationPrefix() . " $nav";
-        $nav = \Xml::tags( 'div', ['class' => 'mw-pdp-topnav'], $nav );
+        $nav = \Xml::tags( 'div', ['class' => 'mw-wss-topnav'], $nav );
         $this->getOutput()->setSubtitle( $nav );
     }
 
     /**
-     * Locks out other classes from creating a PDPUI object.
+     * Locks out other classes from creating a WSSUI object.
      */
     private function queue() {
         self::$queued = true;
     }
 
     /**
-     * Enables other classes to create a PDPUI object.
+     * Enables other classes to create a WSSUI object.
      */
     private function unqueue() {
         self::$queued = false;
@@ -292,7 +292,7 @@ abstract class PDPUI {
     /**
      * Returns the elements in the navigation menu. These elements take the form of a key-value pair,
      * where the key is the system message shown as the hyperlink, and the value is the page name. The
-     * key is prepended with the prefix "pdp-topnav-".
+     * key is prepended with the prefix "wss-topnav-".
      *
      * @return array
      */
@@ -324,7 +324,7 @@ abstract class PDPUI {
      * @return string
      */
     public function getHeader(): string {
-        return wfMessage( 'pdp-' . $this->getIdentifier() . '-header' )->plain();
+        return wfMessage( 'wss-' . $this->getIdentifier() . '-header' )->plain();
     }
 
     /**
