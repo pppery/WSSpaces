@@ -239,46 +239,40 @@ class NamespaceRepository {
     /**
      * Updates an existing space in the database.
      *
-     * @param Space $space
+     * @param Space|false $old_space
+     * @param Space $new_space
      * @param bool $force True to force the creation of the space and skip the permission check
      * @param bool $log Whether or not to log this update (true by default)
      *
-     * @throws PermissionsError
      * @throws MWException
+     * @throws PermissionsError
      */
-    public function updateSpace( Space $space, bool $force = false, bool $log = true ) {
-        if ( !$space->exists() ) {
+    public function updateSpace( $old_space, Space $new_space, bool $force = false, bool $log = true ) {
+        if ( $old_space === false || !$old_space->exists() ) {
             throw new \InvalidArgumentException( "Cannot update non-existing space in database, use NamespaceRepository::addSpace() instead." );
         }
 
         // Last minute check to see if the user actually does have enough permissions to edit this space.
-        if ( !$space->canEdit() && !$force ) {
+        if ( !$new_space->canEdit() && !$force ) {
             throw new PermissionsError( "Not enough permissions to edit this space." );
         }
 
         if ( $log ) {
-            // TODO: Move retrieving old version of object to caller
-            $old_space = Space::newFromConstant( $space->getId() );
-
-            if ( $old_space === false ) {
-                throw new MWException( "Space constant `{$space->getId()}` does not exist." );
-            }
-
-            $log = new UpdateSpaceLog( $old_space, $space );
+            $log = new UpdateSpaceLog( $old_space, $new_space );
             $log->insert();
         }
 
         $database = wfGetDB( DB_MASTER );
         $database->update('wss_namespaces', [
-            'display_name' => $space->getDisplayName(),
-            'description' => $space->getDescription(),
-            'creator_id' => $space->getOwner()->getId(),
-            'archived' => $space->isArchived()
+            'display_name' => $new_space->getDisplayName(),
+            'description' => $new_space->getDescription(),
+            'creator_id' => $new_space->getOwner()->getId(),
+            'archived' => $new_space->isArchived()
         ], [
-            'namespace_id' => $space->getId()
+            'namespace_id' => $old_space->getId()
         ] );
 
-        $this->updateSpaceAdministrators( $database, $space );
+        $this->updateSpaceAdministrators( $database, $new_space );
 
         if ( $log ) {
             $log->publish();

@@ -41,7 +41,7 @@ class PermissionsMatrixForm extends AbstractForm {
         return [
             'checkmatrix' => [
                 'type' => 'checkmatrix',
-                'columns' => $this->getColumns(), // TODO
+                'columns' => $this->getColumns(),
                 'rows' => $this->getRows(),
                 'default' => $this->getDefault(),
                 'validation-callback' => function( $field, $data ) {

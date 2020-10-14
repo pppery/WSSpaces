@@ -35,12 +35,18 @@ class PermissionsMatrixSubmitCallback implements SubmitCallback {
      * @return string|bool
      */
     public function onSubmit( array $form_data ) {
-        $permissions_matrix = PermissionsMatrix::newFromFormData( $form_data, "checkmatrix" );
-        $permissions_matrix->setNamespaceConstant( $this->namespace_constant );
+        $old_matrix = PermissionsMatrix::newFromNamespaceConstant( $this->namespace_constant );
 
-        $database = wfGetDB( DB_MASTER );
+        $new_matrix = PermissionsMatrix::newFromFormData( $form_data, "checkmatrix" );
+        $new_matrix->setNamespaceConstant( $this->namespace_constant );
 
-        PermissionsHandler::storePermissionsMatrix( $permissions_matrix, $database );
+        try {
+            PermissionsHandler::storePermissionsMatrix($old_matrix, $new_matrix, wfGetDB(DB_MASTER));
+        } catch (\ConfigException $e) {
+            return "wss-generic-inline-error";
+        } catch (\MWException $e) {
+            return "wss-generic-inline-error";
+        }
 
         $this->ui->addModule("ext.wss.SpecialPermissionsSuccess");
 

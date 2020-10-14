@@ -43,6 +43,7 @@
   "wss-manage-space-form-administrators-label": "Space administrators",
   "wss-archive-space": "Archive space",
   "wss-invalid-input": "Something went wrong while processing your input",
+  "wss-generic-inline-error": "Something went wrong while trying to process your request, please try again",
   "wss-add-space-saved-successfully": "Space has been successfully added.",
   "wss-archive-space-saved-successfully": "Space has been successfully archived.",
   "wss-unarchive-space-saved-successfully": "Space has been successfully unarchived.",

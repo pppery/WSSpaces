@@ -32,11 +32,13 @@ class EditSpaceSubmitCallback implements SubmitCallback {
     public function onSubmit( array $form_data ) {
         $archive = \RequestContext::getMain()->getRequest()->getVal( 'archive' );
 
-        $space = Space::newFromName( $form_data['namespacename'] );
+        $old_space = Space::newFromName( $form_data['namespacename'] );
+        $new_space = Space::newFromName( $form_data['namespacename'] );
+
         $namespace_repository = new NamespaceRepository();
 
         if ( $archive === "archive" ) {
-            $namespace_repository->archiveSpace( $space );
+            $namespace_repository->archiveSpace( $old_space );
 
             $this->ui->setAllowCallback();
             \RequestContext::getMain()->getOutput()->redirect(
@@ -48,12 +50,12 @@ class EditSpaceSubmitCallback implements SubmitCallback {
             return true;
         }
 
-        $space->setDescription( $form_data['description'] );
-        $space->setDisplayName( $form_data['displayname'] );
-        $space->setSpaceAdministrators( explode("\n", $form_data['administrators']) );
+        $new_space->setDescription( $form_data['description'] );
+        $new_space->setDisplayName( $form_data['displayname'] );
+        $new_space->setSpaceAdministrators( explode("\n", $form_data['administrators']) );
 
         try {
-            $namespace_repository->updateSpace( $space );
+            $namespace_repository->updateSpace( $old_space, $new_space );
         } catch( \PermissionsError $e ) {
             return "wss-cannot-remove-self";
         }
