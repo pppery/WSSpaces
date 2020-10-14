@@ -50,12 +50,12 @@ class PermissionsMatrixValidationCallback extends AbstractValidationCallback {
             return false;
         }
 
-        $space = explode('/', \RequestContext::getMain()->getTitle()->getText())[1] ?? null;
+        $space_constant = (int)explode('/', \RequestContext::getMain()->getTitle()->getText())[1] ?? null;
 
         $namespace_repository = new NamespaceRepository();
-        $namespaces = $namespace_repository->getNamespaces();
+        $namespaces = $namespace_repository->getSpaces( true );
 
-        if ($space !== null && !in_array($space, $namespaces)) {
+        if ($space_constant !== null && !in_array($space_constant, $namespaces)) {
             return false;
         }
 

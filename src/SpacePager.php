@@ -21,8 +21,8 @@ class SpacePager extends Pager {
         return [
             'tables' => 'wss_namespaces',
             'fields' => [
+                'namespace_id',
                 'namespace_name',
-                'display_name',
                 'description',
                 'creator_id',
                 'created_on'
@@ -43,7 +43,6 @@ class SpacePager extends Pager {
     public function isFieldSortable( $field ) {
         switch ( $field ) {
             case 'namespace_name':
-            case 'display_name':
             case 'created_on':
             case 'creator_id':
                 return true;
@@ -73,7 +72,9 @@ class SpacePager extends Pager {
                 $link_renderer = MediaWikiServices::getInstance()->getLinkRenderer();
                 $title = $this->getTitle();
 
-                $page = \Title::newFromText( $title->getText() . "/$value", NS_SPECIAL );
+                $namespace_constant = Space::newFromName( $value )->getId();
+
+                $page = \Title::newFromText( $title->getText() . "/$namespace_constant", NS_SPECIAL );
 
                return $link_renderer->makeLink( $page, new \HtmlArmor( $value ) );
             case 'creator_id':
@@ -111,7 +112,6 @@ class SpacePager extends Pager {
     public function getFieldNames() {
         return [
             'namespace_name' => "Namespace",
-            'display_name' => "Display Name",
             'description' => "Description",
             'creator_id' => "Created by",
             'created_on' => "Created on"

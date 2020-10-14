@@ -17,10 +17,10 @@ class LockdownHandler {
 
     /**
      * LockdownHandler constructor.
-     * @throws \ConfigException
+     * @param PermissionsMatrix[] $matrices
      */
-    public function __construct() {
-        $this->matrices = PermissionsMatrix::getAll();
+    public function __construct( array $matrices ) {
+        $this->matrices = $matrices;
     }
 
     /**
@@ -41,12 +41,14 @@ class LockdownHandler {
      */
     private function setGlobalConstraints() {
         $namespace_lockdown =& $this->getNamespaceLockdownPointer();
-        $namespace_lockdown =& $namespace_lockdown['*'];
 
+        $spaces = ( new NamespaceRepository() )->getSpaces( true );
         $valid_rights = PermissionsMatrixValidationCallback::getValidRights();
 
-        foreach ( $valid_rights as $right ) {
-            $namespace_lockdown[$right] = [];
+        foreach ( $spaces as $space ) {
+            foreach ( $valid_rights as $right ) {
+                $namespace_lockdown[$space][$right] = [];
+            }
         }
     }
 

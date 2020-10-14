@@ -67,37 +67,6 @@ class NamespaceRepository {
     }
 
     /**
-     * Returns an array of all valid core (and extension) namespaces. The key of the array returned is the namespace
-     * constant and the value returned is the namespace name.
-     *
-     * @return array
-     */
-    public function getCoreNamespaces() {
-        $canonical_namespaces = array_intersect( $this->getValidCanonicalNamespaces(), $this->getCanonicalNamespaces() );
-        $extension_namespaces = $this->getExtensionNamespaces();
-
-        return $canonical_namespaces + $extension_namespaces;
-    }
-
-    /**
-     * Gets all applicable namespaces. When the first parameter is true,
-     * the key will be the name of the namespace, and the value the constant, otherwise the key will be the namespace
-     * constant and the value the namespace name.
-     *
-     * @param bool $flip
-     * @return array
-     */
-    public function getNamespaces( $flip = false ): array {
-        $canonical_namespaces = array_intersect( $this->getValidCanonicalNamespaces(), $this->getCanonicalNamespaces() );
-        $extension_namespaces = $this->getExtensionNamespaces();
-        $spaces               = $this->getSpaces();
-
-        $namespaces = $canonical_namespaces + $extension_namespaces + $spaces;
-
-        return $flip ? array_flip( $namespaces ) : $namespaces;
-    }
-
-    /**
      * Gets all namespaces. When the first parameter is true, the key will be the name
      * of the namespace, and the value the constant, otherwise the key will be the namespace constant and
      * the value the namespace name.
@@ -205,6 +174,7 @@ class NamespaceRepository {
      *
      * @param Space $space
      * @throws MWException
+     * @throws ConfigException
      */
     public function addSpace( Space $space ) {
         if ( $space->exists() ) {
@@ -215,12 +185,13 @@ class NamespaceRepository {
         $log = new AddSpaceLog( $space );
         $log->insert();
 
+        $namespace_id = self::getNextAvailableNamespaceId();
+
         $database = wfGetDB( DB_MASTER );
         $database->insert(
         'wss_namespaces',  [
-            'namespace_id' => self::getNextAvailableNamespaceId(),
+            'namespace_id' => $namespace_id,
             'namespace_name' => $space->getName(),
-            'display_name' => $space->getDisplayName(),
             'description' => $space->getDescription(),
             'archived' => $space->isArchived(),
             'creator_id' => $space->getOwner()->getId(),
@@ -228,7 +199,7 @@ class NamespaceRepository {
         ] );
 
         // Create a new space from the name, go get the latest details from the database.
-        $space = $space::newFromName( $space->getName() );
+        $space = Space::newFromConstant( $namespace_id );
 
         $space->setSpaceAdministrators( [ $space->getOwner()->getName() ] );
         $this->updateSpaceAdministrators( $database, $space );
@@ -264,7 +235,7 @@ class NamespaceRepository {
 
         $database = wfGetDB( DB_MASTER );
         $database->update('wss_namespaces', [
-            'display_name' => $new_space->getDisplayName(),
+            'namespace_name' => $new_space->getName(),
             'description' => $new_space->getDescription(),
             'creator_id' => $new_space->getOwner()->getId(),
             'archived' => $new_space->isArchived()
@@ -282,16 +253,17 @@ class NamespaceRepository {
     /**
      * Helper function to archive a namespace.
      *
-     * @param Space $space
-     * @throws PermissionsError
+     * @param $old_space
+     * @param Space $new_space
      * @throws MWException
+     * @throws PermissionsError
      */
-    public function archiveSpace( Space $space ) {
-        $log = new ArchiveSpaceLog( $space );
+    public function archiveSpace( $old_space, Space $new_space ) {
+        $log = new ArchiveSpaceLog( $new_space );
         $log->insert();
 
-        $space->setArchived();
-        $this->updateSpace( $space, false, false );
+        $new_space->setArchived();
+        $this->updateSpace( $old_space, $new_space, false, false );
 
         $log->publish();
     }
@@ -299,16 +271,17 @@ class NamespaceRepository {
     /**
      * Helper function to unarchive a namespace.
      *
-     * @param Space $space
-     * @throws PermissionsError
+     * @param $old_space
+     * @param Space $new_space
      * @throws MWException
+     * @throws PermissionsError
      */
-    public function unarchiveSpace( Space $space ) {
-        $log = new UnarchiveSpaceLog( $space );
+    public function unarchiveSpace( $old_space, Space $new_space ) {
+        $log = new UnarchiveSpaceLog( $new_space );
         $log->insert();
 
-        $space->setArchived( false );
-        $this->updateSpace( $space, false, false );
+        $new_space->setArchived( false );
+        $this->updateSpace( $old_space, $new_space, false, false );
 
         $log->publish();
     }

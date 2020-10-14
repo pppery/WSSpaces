@@ -35,7 +35,7 @@
   "wss-add-space-form-displayname-label": "Display name",
   "wss-add-space-form-description-label": "Description",
   "wss-add-space-form-namespace-label": "Namespace",
-  "wss-add-space-form-namespace-help": "Namespace must be unique. Once saved, it cannot be changed.",
+  "wss-add-space-form-namespace-help": "Namespace must be unique. It will be used as a prefix for the pages in this space.",
   "wss-manage-space-form-submit-text": "Save changes",
   "wss-manage-space-form-namespaceid-label": "Namespace ID",
   "wss-manage-space-form-namespacename-label": "Namespace Name",

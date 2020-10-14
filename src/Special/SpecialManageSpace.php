@@ -73,33 +73,35 @@ class SpecialManageSpace extends SpecialPage {
      * @throws \MWException
      */
     function doExecute( string $parameter ) {
+        $output = $this->getOutput();
+        $renderer = $this->getLinkRenderer();
+
+        if ( empty( $parameter ) ) {
+            $ui = new ManageSpaceBaseUI( $output, $renderer );
+            $ui->execute();
+
+            return;
+        }
+
         try {
             $namespace_repository = new NamespaceRepository();
 
-            if ( !empty( $parameter ) ) {
-                if ( !in_array( $parameter, $namespace_repository->getSpaces() ) ) {
-                    $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
-                    $ui->execute();
+            if ( !in_array( $parameter, $namespace_repository->getSpaces( true ) ) ) {
+                $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+                $ui->execute();
 
-                    return;
-                }
-
-                $space = Space::newFromName( $parameter );
-                if ( !$space->canEdit() ) {
-                    $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
-                    $ui->execute();
-
-                    return;
-                }
+                return;
             }
 
-            $output = $this->getOutput();
-            $renderer = $this->getLinkRenderer();
+            $space = Space::newFromConstant( $parameter );
+            if ( !$space->canEdit() ) {
+                $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+                $ui->execute();
 
-            $ui = empty( $parameter ) ?
-                new ManageSpaceBaseUI( $output, $renderer ) :
-                new ManageSpaceFormUI( $output, $renderer );
+                return;
+            }
 
+            $ui = new ManageSpaceFormUI( $output, $renderer );
             $ui->setParameter( $parameter );
             $ui->execute();
         } catch( Exception $e ) {

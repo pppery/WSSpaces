@@ -29,13 +29,8 @@ class PermissionsUI extends WSSUI {
 
     /**
      * @inheritDoc
-     * @throws \ConfigException
      */
     public function render() {
-        if ( !in_array( $this->getParameter(), $this->namespaces->getSpaces() ) ) {
-            $this->getOutput()->addWikiMsg( 'wss-permissions-core-namespace' );
-        }
-
         $this->getOutput()->addWikiMsg( 'wss-permissions-intro' );
         $this->showPermissionsMatrixForm();
     }
@@ -49,13 +44,11 @@ class PermissionsUI extends WSSUI {
 
     /**
      * @inheritDoc
+     * @throws \ConfigException
      */
     public function getHeader(): string {
-        $namespace = $this->getParameter();
-        $space = Space::newFromName( $namespace );
-        $display_name = $space ? $space->getDisplayName() : $namespace;
-
-        return wfMessage( 'wss-permissions-header', $display_name )->plain();
+        $space = Space::newFromConstant( $this->getParameter() );
+        return wfMessage( 'wss-permissions-header', $space->getName() )->parse();
     }
 
     /**
@@ -73,52 +66,20 @@ class PermissionsUI extends WSSUI {
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getNavigationPrefix(): string {
-        return wfMessage( 'wss-permissions-topnav' )->plain();
-    }
-
-    /**
-     * @inheritDoc
-     * @throws \Exception
-     */
-    public function getNavigationItems(): array {
-        if ( ( Space::newFromName( $this->getParameter() ) ) ) {
-            return [];
-        }
-
-        $namespaces = ( new NamespaceRepository() )->getCoreNamespaces();
-
-        $result = [];
-        foreach ($namespaces as $namespace) {
-           $space = Space::newFromName( $namespace );
-           $display_name = $space ? $space->getDisplayName() : $namespace;
-
-           $result[$display_name] = "Special:Permissions/$namespace";
-        }
-
-        return $result;
-    }
-
-    /**
      * Shows the PermissionsMatrix form.
-     * @throws \InvalidArgumentException
-     * @throws \ConfigException
      */
     private function showPermissionsMatrixForm() {
-        $namespaces = $this->namespaces->getNamespaces( true );
+        $namespaces = $this->namespaces->getSpaces();
+        $parameter = $this->getParameter();
 
-        if ( !isset( $namespaces[$this->getParameter()] ) ) {
-            throw new \InvalidArgumentException( "The namespace '{$this->getParameter()}' is invalid." );
+        if ( !isset( $namespaces[$parameter] ) ) {
+            throw new \InvalidArgumentException( "The namespace constant '{$parameter}' is invalid." );
         }
 
-        $namespace_constant = $namespaces[$this->getParameter()];
-
         $form = new PermissionsMatrixForm(
-            $namespace_constant,
+            $parameter,
             $this->getOutput(),
-            new PermissionsMatrixSubmitCallback( $this, $namespace_constant ),
+            new PermissionsMatrixSubmitCallback( $this, $parameter ),
             new PermissionsMatrixValidationCallback()
         );
 

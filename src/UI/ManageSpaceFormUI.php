@@ -14,21 +14,20 @@ use WSS\Validation\AddSpaceValidationCallback;
 class ManageSpaceFormUI extends ManageSpaceUI {
     /**
      * @inheritDoc
+     * @throws \ConfigException
      */
     public function getHeader(): string {
-        $namespace = $this->getParameter();
-        $space = Space::newFromName( $namespace );
-        $display_name = $space ? $space->getDisplayName() : $namespace;
-
-        return wfMessage( "wss-manage-space-form-header", $display_name )->plain();
+        $space = Space::newFromConstant( $this->getParameter() );
+        return wfMessage( "wss-manage-space-form-header", $space->getName() )->parse();
     }
 
     /**
      * @inheritDoc
+     * @throws \ConfigException
      */
     function render() {
-        $namespace = $this->getParameter();
-        $space = Space::newFromName( $namespace );
+        $parameter = $this->getParameter();
+        $space = Space::newFromConstant( $parameter );
 
         $form = new EditSpaceForm(
             $space,

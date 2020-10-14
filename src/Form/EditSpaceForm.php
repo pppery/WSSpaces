@@ -36,27 +36,20 @@ class EditSpaceForm extends AbstractForm {
                 'disabled' => true,
                 'default' => $this->space->getId()
             ],
-            'namespacename' => [
-                'label-message' => 'wss-manage-space-form-namespacename-label',
-                'type' => 'text',
-                'disabled' => true,
-                'default' => $this->space->getName()
-            ],
             'createdby' => [
                 'label-message' => 'wss-manage-space-form-createdby-label',
                 'type' => 'text',
                 'disabled' => true,
                 'default' => $this->space->getOwner()->getName()
             ],
-            'displayname' => [
-                'label-message' => 'wss-add-space-form-displayname-label',
+            'namespace' => [
+                'label-message' => 'wss-manage-space-form-namespacename-label',
                 'type' => 'text',
                 'size' => 32,
                 'maxlength' => 64,
-                'required' => true,
-                'default' => $this->space->getDisplayName(),
+                'default' => $this->space->getName(),
                 'validation-callback' => function( $field, $data ) {
-                    return $this->getValidationCallback()->validateField( 'displayname', $field, $data );
+                    return $this->getValidationCallback()->validateField( 'namespace', $field, $data );
                 }
             ],
             'description' => [
@@ -104,5 +97,16 @@ class EditSpaceForm extends AbstractForm {
      */
     public function isDestructive(): bool {
         return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function showCancel(): bool {
+        return true;
+    }
+
+    public function cancelTarget(): \Title {
+        return \Title::newFromText( "Special:ManageSpace" );
     }
 }

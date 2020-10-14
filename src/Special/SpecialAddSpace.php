@@ -62,6 +62,7 @@ class SpecialAddSpace extends SpecialPage {
 
     /**
      * @inheritDoc
+     * @throws \MWException
      */
     public function doExecute( string $parameter ) {
         try {

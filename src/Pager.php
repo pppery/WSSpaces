@@ -23,7 +23,7 @@ abstract class Pager extends \TablePager {
 
         $valid_rows = [];
         foreach( $results->result as &$row ) {
-            $space = Space::newFromName( $row['namespace_name'] );
+            $space = Space::newFromConstant( $row['namespace_id'] );
 
             if ( $space->canEdit() ) {
                 $valid_rows[] = $row;

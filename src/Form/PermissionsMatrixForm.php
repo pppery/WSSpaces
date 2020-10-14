@@ -78,6 +78,17 @@ class PermissionsMatrixForm extends AbstractForm {
         return false;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function showCancel(): bool {
+        return true;
+    }
+
+    public function cancelTarget(): \Title {
+        return \Title::newFromText( "Special:ManageSpace" );
+    }
+
     private function getColumns() {
         $columns = PermissionsMatrixValidationCallback::getValidRights();
         return array_combine($columns, $columns);

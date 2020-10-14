@@ -67,6 +67,7 @@ class PermissionsMatrix implements \Iterator, \Countable {
      *
      * @param int $namespace_constant
      * @return PermissionsMatrix
+     * @throws \ConfigException
      */
     public static function newFromNamespaceConstant( $namespace_constant ): PermissionsMatrix {
         $database = wfGetDB( DB_REPLICA );
@@ -112,8 +113,7 @@ class PermissionsMatrix implements \Iterator, \Countable {
      * @throws \ConfigException
      */
     public static function getAll(): array {
-        $namespaces = ( new NamespaceRepository() )->getAllNamespaces( true );
-
+        $namespaces = ( new NamespaceRepository() )->getSpaces( true );
         return array_map( "self::newFromNamespaceConstant", $namespaces );
     }
 

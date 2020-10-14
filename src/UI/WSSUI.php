@@ -103,23 +103,23 @@ abstract class WSSUI {
      */
     public function getSidebarItems(): array {
         $space = $this->getParameter();
-        $spaces = ( new NamespaceRepository() )->getSpaces();
+        $spaces = ( new NamespaceRepository() )->getSpaces( true );
 
         if ( !in_array( $space, $spaces ) ) {
             // We cannot edit regular namespaces.
             return [];
         }
 
-        $display_name = ucfirst( Space::newFromName( $space )->getDisplayName() );
+        $space_name = Space::newFromConstant( $space )->getName();
 
-        $bar[wfMessage( 'wss-space-administration-sidebar-header', $display_name )->plain()][] = [
+        $bar[wfMessage( 'wss-space-administration-sidebar-header', $space_name )->parse()][] = [
             'text' => wfMessage( 'wss-edit-space-details' ),
             'href' => \Title::newFromText( "ManageSpace/$space", NS_SPECIAL )->getFullUrlForRedirect(),
             'id'   => 'wss-permissions-special',
             'active' => ''
         ];
 
-        $bar[wfMessage( 'wss-space-administration-sidebar-header', $display_name )->plain()][] = [
+        $bar[wfMessage( 'wss-space-administration-sidebar-header', $space_name )->parse()][] = [
             'text' => wfMessage( 'wss-edit-space-permissions' ),
             'href' => \Title::newFromText( "Permissions/$space", NS_SPECIAL )->getFullUrlForRedirect(),
             'id'   => 'wss-permissions-special',

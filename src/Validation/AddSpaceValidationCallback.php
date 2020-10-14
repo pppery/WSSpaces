@@ -22,24 +22,11 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
      */
     public function validateField( string $field, $value, array $form_data ) {
         switch ( $field ) {
-            case 'displayname':
-                return $this->validateDisplayName( $value, $form_data );
             case 'namespace':
                 return $this->validateNamespace( $value, $form_data );
             default:
                 return false;
         }
-    }
-
-    /**
-     * @param $value
-     * @param array $form_data
-     * @return bool|string
-     */
-    private function validateDisplayName( $value, array $form_data ) {
-        $valid = !empty( $value );
-
-        return $valid ? true : "A display name must not be empty.";
     }
 
     /**
@@ -61,11 +48,15 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
         $namespaces = array_map( 'strtolower', $namespaces );
         $namespaces = array_map( 'trim', $namespaces );
 
-        $space = Space::newFromName( $value );
+        $space = Space::newFromConstant( $form_data['namespaceid'] ?? 0 );
 
-        $namespace = trim( strtolower( $value ) );
+        if ( $space !== false && $space->getName() === $value ) {
+            // The given namespace name is the one we are editing
+            return true;
+        }
 
-        if ( in_array( $namespace, $namespaces ) || $space !== false ) {
+        if ( in_array( trim( strtolower( $value ) ), $namespaces ) ) {
+            // This namespace/space name is already in use
             return "This namespace is already in use. Please choose a different name.";
         }
 

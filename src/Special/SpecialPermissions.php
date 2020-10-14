@@ -68,23 +68,18 @@ class SpecialPermissions extends SpecialPage {
      * @throws \MWException
      */
     public function doExecute( string $parameter ) {
-        $parameter = $parameter ? $parameter : 'Main';
-
         try {
             $namespace_repository = new NamespaceRepository();
-            $namespaces = $namespace_repository->getNamespaces();
 
-            if ( !in_array( $parameter, $namespaces ) ) {
+            if ( !in_array( $parameter, $namespace_repository->getSpaces( true ) ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 
                 return;
             }
 
-            $rights = \RequestContext::getMain()->getUser()->getRights();
-            $space = Space::newFromName( $parameter );
-            $can_edit_core = in_array( 'wss-edit-core-namespaces', $rights );
-            if ( ( !$space && !$can_edit_core ) || ( $space && !$space->canEdit() ) ) {
+            $space = Space::newFromConstant( $parameter );
+            if ( $space && !$space->canEdit() ) {
                 $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 

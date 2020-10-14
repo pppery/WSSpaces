@@ -139,7 +139,9 @@ abstract class WSSHooks {
         \WebRequest $request,
         \MediaWiki $mediaWiki
     ) {
-        $handler = new LockdownHandler();
+        $matrices = PermissionsMatrix::getAll();
+
+        $handler = new LockdownHandler( $matrices );
         $handler->setLockdownConstraints();
     }
 
