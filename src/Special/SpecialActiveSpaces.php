@@ -14,11 +14,11 @@ use WSS\UI\ManageSpaceFormUI;
 use WSS\UI\MissingPermissionsUI;
 
 /**
- * Class SpecialManageSpace
+ * Class SpecialActiveSpaces
  *
  * @package WSS\Special
  */
-class SpecialManageSpace extends SpecialPage {
+class SpecialActiveSpaces extends SpecialPage {
     /**
      * SpecialPermissions constructor.
      *
@@ -33,7 +33,7 @@ class SpecialManageSpace extends SpecialPage {
      * @inheritDoc
      */
     public function getName() {
-        return "ManageSpace";
+        return "ActiveSpaces";
     }
 
     /**
@@ -54,7 +54,7 @@ class SpecialManageSpace extends SpecialPage {
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'wss-manage-space-title' )->plain();
+        return wfMessage( 'wss-active-spaces-header' )->plain();
     }
 
     /**
@@ -86,7 +86,7 @@ class SpecialManageSpace extends SpecialPage {
         try {
             $namespace_repository = new NamespaceRepository();
 
-            if ( !in_array( $parameter, $namespace_repository->getSpaces( true ) ) ) {
+            if ( !in_array( $parameter, $namespace_repository->getSpaces( true ), true ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 

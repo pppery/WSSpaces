@@ -16,6 +16,7 @@ abstract class Pager extends \TablePager {
      * the user should not be able to see.
      *
      * @param ResultWrapper $results
+     * @throws \ConfigException
      */
     public function preprocessResults( $results ) {
         // We cannot use type checking in the function's signature, because it must be compatible with the interface

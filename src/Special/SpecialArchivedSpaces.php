@@ -57,7 +57,7 @@ class SpecialArchivedSpaces extends SpecialPage {
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'wss-archived-spaces-title' )->plain();
+        return wfMessage( 'wss-archived-spaces-header' )->plain();
     }
 
     /**
@@ -85,7 +85,7 @@ class SpecialArchivedSpaces extends SpecialPage {
                 return;
             }
 
-            if ( !in_array( $parameter, $namespace_repository->getArchivedSpaces( true ) ) ) {
+            if ( !in_array( $parameter, $namespace_repository->getArchivedSpaces( true ), true ) ) {
                 // This space isn't archived
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();

@@ -63,6 +63,7 @@ class SpacePager extends Pager {
      * @param string $name The database field name
      * @param string $value The value retrieved from the database
      * @return string
+     * @throws \ConfigException
      */
     public function formatValue( $name, $value ) {
         $value = htmlspecialchars( $value );

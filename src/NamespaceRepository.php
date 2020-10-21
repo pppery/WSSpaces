@@ -28,11 +28,6 @@ class NamespaceRepository {
     private $extension_namespaces;
 
     /**
-     * @var array
-     */
-    private $valid_canonical_namespaces;
-
-    /**
      * NamespaceRepository constructor.
      *
      * @throws ConfigException
@@ -40,7 +35,6 @@ class NamespaceRepository {
     public function __construct() {
         $this->canonical_namespaces         = [ NS_MAIN => 'Main' ] + $this->getConfig()->get( 'CanonicalNamespaceNames' );
         $this->extension_namespaces         = ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
-        $this->valid_canonical_namespaces   = $this->getConfig()->get( 'WSSValidNamespaces' );
     }
 
     /**
@@ -158,15 +152,6 @@ class NamespaceRepository {
      */
     public function getExtensionNamespaces( $flip = false ): array {
         return $flip ? array_flip( $this->extension_namespaces ) : $this->extension_namespaces;
-    }
-
-    /**
-     * Returns the list of valid canonical namespaces as defined by $wgWSSValidNamespaces.
-     *
-     * @return array
-     */
-    public function getValidCanonicalNamespaces(): array {
-        return $this->valid_canonical_namespaces;
     }
 
     /**

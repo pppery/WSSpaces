@@ -64,6 +64,6 @@ class AddSpaceForm extends AbstractForm {
     }
 
     public function cancelTarget(): \Title {
-        return \Title::newFromText( "Special:ManageSpace" );
+        return \Title::newFromText( "Special:ActiveSpaces" );
     }
 }

@@ -55,7 +55,7 @@ class AddSpaceSubmitCallback implements SubmitCallback {
         $this->ui->setAllowCallback();
 
         \RequestContext::getMain()->getOutput()->redirect(
-            \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
+            \Title::newFromText( "ActiveSpaces", NS_SPECIAL )->getFullUrlForRedirect(
                 [ 'wss_callback' => 'created' ]
             )
         );

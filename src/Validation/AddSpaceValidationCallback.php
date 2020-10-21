@@ -55,7 +55,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
             return true;
         }
 
-        if ( in_array( trim( strtolower( $value ) ), $namespaces ) ) {
+        if ( in_array( trim( strtolower( $value ) ), $namespaces, true ) ) {
             // This namespace/space name is already in use
             return "This namespace is already in use. Please choose a different name.";
         }

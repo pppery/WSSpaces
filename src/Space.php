@@ -344,7 +344,7 @@ class Space {
      * @return bool
      */
     public function canEdit(): bool {
-        return in_array( \RequestContext::getMain()->getUser()->getName(), $this->namespace_administrators ) ||
-            in_array( 'wss-edit-all-spaces', \RequestContext::getMain()->getUser()->getRights() );
+        return in_array( \RequestContext::getMain()->getUser()->getName(), $this->namespace_administrators, true ) ||
+            in_array( 'wss-edit-all-spaces', \RequestContext::getMain()->getUser()->getRights(), true );
     }
 }
