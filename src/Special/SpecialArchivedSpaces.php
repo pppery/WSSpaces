@@ -57,7 +57,7 @@ class SpecialArchivedSpaces extends SpecialPage {
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'wss-archived-spaces-title' )->plain();
+        return wfMessage( 'wss-archived-spaces-header' )->plain();
     }
 
     /**
@@ -75,29 +75,34 @@ class SpecialArchivedSpaces extends SpecialPage {
         try {
             $namespace_repository = new NamespaceRepository();
 
-            if ( !empty( $parameter ) ) {
-                if ( !in_array( $parameter, $namespace_repository->getArchivedSpaces() ) ) {
-                    $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
-                    $ui->execute();
-
-                    return;
-                }
-
-                $space = Space::newFromName( $parameter );
-                if ( !$space->canEdit() ) {
-                    $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
-                    $ui->execute();
-
-                    return;
-                }
-            }
-
             $output   = $this->getOutput();
             $renderer = $this->getLinkRenderer();
 
-            $ui = empty( $parameter ) ?
-                new ArchivedSpacesUI( $output, $renderer ) :
-                new UnarchiveSpaceUI( $output, $renderer );
+            if ( empty( $parameter ) ) {
+                $ui = new ArchivedSpacesUI( $output, $renderer );
+                $ui->execute();
+
+                return;
+            }
+
+            if ( !in_array( $parameter, $namespace_repository->getArchivedSpaces( true ), true ) ) {
+                // This space isn't archived
+                $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+                $ui->execute();
+
+                return;
+            }
+
+            $space = Space::newFromConstant( $parameter );
+            if ( !$space->canEdit() ) {
+                // We can't edit this space
+                $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+                $ui->execute();
+
+                return;
+            }
+
+            $ui = new UnarchiveSpaceUI( $output, $renderer );
 
             $ui->setParameter( $parameter );
             $ui->execute();

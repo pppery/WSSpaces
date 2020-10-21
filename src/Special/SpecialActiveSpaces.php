@@ -1,23 +1,24 @@
 <?php
 
+
 namespace WSS\Special;
 
-use ErrorPageError;
 use Exception;
 use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\SpecialPage;
 use WSS\UI\ExceptionUI;
 use WSS\UI\InvalidPageUI;
+use WSS\UI\ManageSpaceBaseUI;
+use WSS\UI\ManageSpaceFormUI;
 use WSS\UI\MissingPermissionsUI;
-use WSS\UI\PermissionsUI;
-use PermissionsError;
 
 /**
- * Class SpecialPermissions
+ * Class SpecialActiveSpaces
+ *
  * @package WSS\Special
  */
-class SpecialPermissions extends SpecialPage {
+class SpecialActiveSpaces extends SpecialPage {
     /**
      * SpecialPermissions constructor.
      *
@@ -32,7 +33,7 @@ class SpecialPermissions extends SpecialPage {
      * @inheritDoc
      */
     public function getName() {
-        return "Permissions";
+        return "ActiveSpaces";
     }
 
     /**
@@ -53,47 +54,55 @@ class SpecialPermissions extends SpecialPage {
      * @inheritDoc
      */
     public function getDescription() {
-        return wfMessage( 'wss-special-permissions-title' )->plain();
-    }
-
-    /**
-     * @return bool|string
-     */
-    public function getLoginSecurityLevel() {
-        return 'ws-change-permissions';
+        return wfMessage( 'wss-active-spaces-header' )->plain();
     }
 
     /**
      * @inheritDoc
+     */
+    public function getLoginSecurityLevel() {
+        return 'ws-manage-namespaces';
+    }
+
+    /**
+     * The main method that gets invoked upon successfully loading the special page, after preExecuteChecks have
+     * been performed.
+     *
+     * @param $parameter
+     * @return void
      * @throws \MWException
      */
-    public function doExecute( string $parameter ) {
-        $parameter = $parameter ? $parameter : 'Main';
+    function doExecute( string $parameter ) {
+        $output = $this->getOutput();
+        $renderer = $this->getLinkRenderer();
+
+        if ( empty( $parameter ) ) {
+            $ui = new ManageSpaceBaseUI( $output, $renderer );
+            $ui->execute();
+
+            return;
+        }
 
         try {
             $namespace_repository = new NamespaceRepository();
-            $namespaces = $namespace_repository->getNamespaces();
 
-            if ( !in_array( $parameter, $namespaces ) ) {
+            if ( !in_array( $parameter, $namespace_repository->getSpaces( true ), true ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 
                 return;
             }
 
-            $rights = \RequestContext::getMain()->getUser()->getRights();
-            $space = Space::newFromName( $parameter );
-            $can_edit_core = in_array( 'wss-edit-core-namespaces', $rights );
-            if ( ( !$space && !$can_edit_core ) || ( $space && !$space->canEdit() ) ) {
+            $space = Space::newFromConstant( $parameter );
+            if ( !$space->canEdit() ) {
                 $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 
                 return;
             }
 
-            $ui = new PermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+            $ui = new ManageSpaceFormUI( $output, $renderer );
             $ui->setParameter( $parameter );
-
             $ui->execute();
         } catch( Exception $e ) {
             $ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );

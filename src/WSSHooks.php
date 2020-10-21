@@ -24,13 +24,12 @@ abstract class WSSHooks {
     public static function onSecuritySensitiveOperationStatus( string &$status, string $operation, Session $session, int $timeSinceAuth ): bool {
         $security_sensitive_operations = [
             "ws-manage-namespaces",
-            "ws-create-namespaces",
-            "ws-change-permissions"
+            "ws-create-namespaces"
         ];
 
         if ( $session->getLoggedOutTimestamp() > 0 ) {
             $status = AuthManager::SEC_FAIL;
-        } else if ( in_array( $operation, $security_sensitive_operations ) && $timeSinceAuth > self::TIMEOUT ) {
+        } else if ( in_array( $operation, $security_sensitive_operations, true ) && $timeSinceAuth > self::TIMEOUT ) {
             $status = AuthManager::SEC_REAUTH;
         } else {
             $status = AuthManager::SEC_OK;
@@ -49,18 +48,9 @@ abstract class WSSHooks {
      * @return bool
      * @throws \ConfigException
      */
-    public static function onSkinBuildSidebar( \Skin $skin, &$bar ) {
+    public static function onSkinBuildSidebar( \Skin $skin, &$bar ): bool {
         if ( !WSSUI::isQueued() ) {
             return true;
-        }
-
-        if ( in_array( 'wss-edit-core-namespaces', \RequestContext::getMain()->getUser()->getRights() ) ) {
-            $bar[wfMessage('wss-sidebar-header')->plain()][] = [
-                'text' => wfMessage( 'wss-special-permissions-title' ),
-                'href' => \Title::newFromText( "Permissions", NS_SPECIAL )->getFullUrlForRedirect(),
-                'id'   => 'wss-permissions-special',
-                'active' => ''
-            ];
         }
 
         $bar[wfMessage('wss-sidebar-header')->plain()][] = [
@@ -71,8 +61,8 @@ abstract class WSSHooks {
         ];
 
         $bar[wfMessage('wss-sidebar-header')->plain()][] = [
-            'text' => wfMessage( 'wss-manage-space-header' ),
-            'href' => \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(),
+            'text' => wfMessage( 'wss-active-spaces-header' ),
+            'href' => \Title::newFromText( "ActiveSpaces", NS_SPECIAL )->getFullUrlForRedirect(),
             'id'   => 'wss-manage-space-special',
             'active' => ''
         ];
@@ -95,52 +85,27 @@ abstract class WSSHooks {
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/LoadExtensionSchemaUpdates
      *
      * @param \DatabaseUpdater $updater
+     * @return bool
      * @throws MWException
      */
-    public static function onLoadExtensionSchemaUpdates( \DatabaseUpdater $updater ) {
+    public static function onLoadExtensionSchemaUpdates( \DatabaseUpdater $updater ): bool {
         $directory = $GLOBALS['wgExtensionDirectory'] . '/WSSpaces/sql';
         $type = $updater->getDB()->getType();
 
-        $wss_permissions_table = sprintf( "%s/%s/wss_permissions_table.sql", $directory, $type );
         $wss_namespaces_table = sprintf( "%s/%s/wss_namespaces_table.sql", $directory, $type );
         $wss_namespace_admins_table = sprintf( "%s/%s/wss_namespace_admins_table.sql", $directory, $type );
 
         if (
-            !file_exists( $wss_permissions_table ) ||
             !file_exists( $wss_namespaces_table )  ||
             !file_exists( $wss_namespace_admins_table )
         ) {
             throw new MWException( "WSS does not support database type `$type`." );
         }
 
-        $updater->addExtensionTable( 'wss_permissions', $wss_permissions_table );
         $updater->addExtensionTable( 'wss_namespaces', $wss_namespaces_table );
         $updater->addExtensionTable( 'wss_namespace_admins', $wss_namespace_admins_table );
-    }
 
-    /**
-     * Occurs before anything is initialized in MediaWiki::performRequest().
-     *
-     * @see https://www.mediawiki.org/wiki/Manual:Hooks/BeforeInitialize
-     *
-     * @param \Title $title
-     * @param $unused
-     * @param \OutputPage $output
-     * @param \User $user
-     * @param \WebRequest $request
-     * @param \MediaWiki $mediaWiki
-     * @throws \ConfigException
-     */
-    public static function onBeforeInitialize(
-        \Title &$title,
-        $unused,
-        \OutputPage $output,
-        \User $user,
-        \WebRequest $request,
-        \MediaWiki $mediaWiki
-    ) {
-        $handler = new LockdownHandler();
-        $handler->setLockdownConstraints();
+        return true;
     }
 
     /**
@@ -149,12 +114,27 @@ abstract class WSSHooks {
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/CanonicalNamespaces
      *
      * @param array $namespaces
+     * @return bool
+     *
      * @throws \ConfigException
      */
-    public static function onCanonicalNamespaces( array &$namespaces ) {
+    public static function onCanonicalNamespaces( array &$namespaces ): bool {
         $namespace_repository = new NamespaceRepository();
         $spaces = $namespace_repository->getSpaces();
 
         $namespaces = $namespaces + $spaces;
+
+        return true;
+    }
+
+    /**
+     * Called when generating the extensions credits, use this to change the tables headers.
+     *
+     * @param $extension_types
+     * @return bool
+     */
+    public static function onExtensionTypes( array &$extension_types ): bool {
+        $extension_types[ 'contentmanagement' ] = wfMessage( "version-contentmanagement" )->parse();
+        return true;
     }
 }

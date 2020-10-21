@@ -30,17 +30,20 @@ class UnarchiveSpaceSubmitCallback implements SubmitCallback {
      * @param array $form_data The data submitted via the form.
      * @return string|bool
      * @throws \ConfigException
+     * @throws \MWException
+     * @throws \PermissionsError
      */
     public function onSubmit( array $form_data ) {
-        $space = Space::newFromName( $form_data['namespacename'] );
+        $old_space = Space::newFromConstant( $form_data['namespaceid'] );
+        $new_space = Space::newFromConstant( $form_data['namespaceid'] );
 
         $namespace_repository = new NamespaceRepository();
-        $namespace_repository->unarchiveSpace( $space );
+        $namespace_repository->unarchiveSpace( $old_space, $new_space );
 
         $this->ui->setAllowCallback();
 
         \RequestContext::getMain()->getOutput()->redirect(
-            \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
+            \Title::newFromText( "ActiveSpaces", NS_SPECIAL )->getFullUrlForRedirect(
                 [ 'wss_callback' => 'unarchived' ]
             )
         );

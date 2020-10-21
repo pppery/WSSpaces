@@ -19,6 +19,6 @@ abstract class ManageSpaceUI extends SpacesUI {
      * @inheritDoc
      */
     public function getIdentifier(): string {
-        return 'manage-space';
+        return 'active-spaces';
     }
 }

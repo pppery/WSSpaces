@@ -39,7 +39,7 @@ class InvalidPageUI extends WSSUI {
     function getNavigationItems(): array {
         return [
             wfMessage( 'wss-add-space-header' )->plain() => 'Special:AddSpace',
-            wfMessage( 'wss-manage-space-header' )->plain() => 'Special:ManageSpace',
+            wfMessage( 'wss-active-spaces-header' )->plain() => 'Special:ActiveSpaces',
             wfMessage( 'wss-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
         ];
     }

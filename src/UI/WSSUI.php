@@ -103,28 +103,25 @@ abstract class WSSUI {
      */
     public function getSidebarItems(): array {
         $space = $this->getParameter();
-        $spaces = ( new NamespaceRepository() )->getSpaces();
+        $spaces = ( new NamespaceRepository() )->getSpaces( true );
 
-        if ( !in_array( $space, $spaces ) ) {
+        if ( !in_array( $space, $spaces, true ) ) {
             // We cannot edit regular namespaces.
             return [];
         }
 
-        $display_name = ucfirst( Space::newFromName( $space )->getDisplayName() );
+        $space_object = Space::newFromConstant( $space );
 
-        $bar[wfMessage( 'wss-space-administration-sidebar-header', $display_name )->plain()][] = [
-            'text' => wfMessage( 'wss-edit-space-details' ),
-            'href' => \Title::newFromText( "ManageSpace/$space", NS_SPECIAL )->getFullUrlForRedirect(),
-            'id'   => 'wss-permissions-special',
-            'active' => ''
-        ];
-
-        $bar[wfMessage( 'wss-space-administration-sidebar-header', $display_name )->plain()][] = [
-            'text' => wfMessage( 'wss-edit-space-permissions' ),
-            'href' => \Title::newFromText( "Permissions/$space", NS_SPECIAL )->getFullUrlForRedirect(),
-            'id'   => 'wss-permissions-special',
-            'active' => ''
-        ];
+        // Add a link in the sidebar to the policies for this space, if WSPolicies is installed
+        if ( \ExtensionRegistry::getInstance()->isLoaded( 'WSPermissions' ) ) {
+            $bar[wfMessage( 'wss-space-sidebar-header', $space_object->getName() )->parse()][] = [
+                'text' => wfMessage( 'wss-manage-space-policy' ),
+                'href' => \Title::newFromText( "ManageNamespacePermissions/" . $space_object->getId(), NS_SPECIAL )->getFullUrlForRedirect(),
+                'active' => ''
+            ];
+        } else {
+            $bar = [];
+        }
 
         return $bar;
     }

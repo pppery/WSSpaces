@@ -18,11 +18,6 @@ class Space {
     private $description;
 
     /**
-     * @var string
-     */
-    private $display_name;
-
-    /**
      * @var int
      */
     private $namespace_id;
@@ -52,16 +47,15 @@ class Space {
      *
      * @param string $namespace_name The canonical name of the namespace.
      * @param int $namespace_id The ID of the namespace. MUST be an even number.
-     * @param string $display_name The display name of the namespace. Currently unused.
      * @param string $description The description of the namespace.
      * @param User $namespace_owner The owner of the namespace.
      * @param bool $is_archived Whether or not the space is archived.
      * @param array $namespace_administrators The administrators of this namespace.
+     * @throws \ConfigException
      */
     private function __construct(
         string $namespace_name,
         int $namespace_id,
-        string $display_name,
         string $description,
         User $namespace_owner,
         bool $is_archived = false,
@@ -79,14 +73,13 @@ class Space {
             throw new \InvalidArgumentException( "A namespace name can only consist of letters, therefore $namespace_name is invalid." );
         }
 
-        $namespace_name = ucfirst( $namespace_name );
-
-        $this->namespace_name  = $namespace_name;
         $this->namespace_id    = $namespace_id;
         $this->talkspace_id    = $namespace_id + 1;
         $this->is_archived     = $is_archived;
 
-        $this->setDisplayName( $display_name );
+        $namespace_name = ucfirst( $namespace_name );
+
+        $this->setName( $namespace_name );
         $this->setDescription( $description );
         $this->setOwner( $namespace_owner );
         $this->setSpaceAdministrators( $namespace_administrators );
@@ -97,12 +90,15 @@ class Space {
      *
      * @param string $namespace_name
      * @return bool|Space
+     * @throws \ConfigException
+     *
+     * @deprecated Use newFromConstant when possible instead
      */
     public static function newFromName( string $namespace_name ) {
         $database = wfGetDB( DB_REPLICA );
         $namespace = $database->select(
             'wss_namespaces',
-            [ 'namespace_id', 'display_name', 'description', 'creator_id', 'archived' ],
+            [ 'namespace_id', 'description', 'creator_id', 'archived' ],
             [ 'namespace_name' => $namespace_name ]
         );
 
@@ -128,7 +124,6 @@ class Space {
         return new Space(
             $namespace_name,
             $namespace->namespace_id,
-            $namespace->display_name,
             $namespace->description,
             $user,
             $namespace->archived,
@@ -140,27 +135,19 @@ class Space {
      * Returns a new space object from the given values.
      *
      * @param string $namespace_name
-     * @param string $display_name
      * @param string $description
      * @param User $user
      * @return Space
+     * @throws \ConfigException
      */
     public static function newFromValues(
         string $namespace_name,
-        string $display_name,
         string $description,
         User $user
     ): Space {
-        $space = self::newFromName( $namespace_name );
-
-        if ( $space instanceof Space ) {
-            return $space;
-        }
-
         return new Space(
             $namespace_name,
             self::DEFAULT_NAMESPACE_CONSTANT,
-            $display_name,
             $description,
             $user
         );
@@ -171,12 +158,13 @@ class Space {
      *
      * @param int $namespace_constant
      * @return bool|Space
+     * @throws \ConfigException
      */
     public static function newFromConstant( int $namespace_constant ) {
         $database = wfGetDB( DB_REPLICA );
         $namespace = $database->select(
             'wss_namespaces',
-            [ 'namespace_name', 'display_name', 'description', 'creator_id', 'archived' ],
+            [ 'namespace_name', 'description', 'creator_id', 'archived' ],
             [ 'namespace_id' => $namespace_constant ]
         );
 
@@ -202,7 +190,6 @@ class Space {
         return new Space(
             $namespace->namespace_name,
             $namespace_constant,
-            $namespace->display_name,
             $namespace->description,
             $user,
             $namespace->archived,
@@ -264,15 +251,6 @@ class Space {
     }
 
     /**
-     * Returns the display name of this space.
-     *
-     * @return string
-     */
-    public function getDisplayName(): string {
-        return ucfirst( $this->display_name );
-    }
-
-    /**
      * Returns the description of this space.
      *
      * @return string
@@ -291,16 +269,13 @@ class Space {
     }
 
     /**
-     * Sets the display name for this Space.
+     * Sets the name for this namespace.
      *
-     * @param string $display_name
+     * @param string $name
+     * @throws \ConfigException
      */
-    public function setDisplayName( string $display_name ) {
-        if ( empty( $display_name ) ) {
-            throw new \InvalidArgumentException( "Display name must not be empty." );
-        }
-
-        $this->display_name = $display_name;
+    public function setName( string $name ) {
+        $this->namespace_name = $name;
     }
 
     /**
@@ -356,8 +331,8 @@ class Space {
         $database = wfGetDB(DB_MASTER);
         $result = $database->select(
             'wss_namespaces',
-            ['namespace_id'],
-            ['namespace_id' => $this->namespace_id]
+            [ 'namespace_id' ],
+            [ 'namespace_id' => $this->namespace_id ]
         );
 
         return $result->numRows() > 0 && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
@@ -369,7 +344,7 @@ class Space {
      * @return bool
      */
     public function canEdit(): bool {
-        return in_array( \RequestContext::getMain()->getUser()->getName(), $this->namespace_administrators ) ||
-            in_array( 'wss-edit-all-spaces', \RequestContext::getMain()->getUser()->getRights() );
+        return in_array( \RequestContext::getMain()->getUser()->getName(), $this->namespace_administrators, true ) ||
+            in_array( 'wss-edit-all-spaces', \RequestContext::getMain()->getUser()->getRights(), true );
     }
 }

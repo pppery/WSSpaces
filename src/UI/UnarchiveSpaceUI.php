@@ -16,16 +16,16 @@ use WSS\Validation\UnarchiveSpaceValidationCallback;
 class UnarchiveSpaceUI extends SpacesUI {
     /**
      * @inheritDoc
+     * @throws \ConfigException
      */
     function render() {
-        $namespace = $this->getParameter();
-        $space = Space::newFromName( $namespace );
+        $parameter = $this->getParameter();
+        $space = Space::newFromConstant( $parameter );
 
         $form = new UnarchiveSpaceForm(
             $space,
             $this->getOutput(),
-            new UnarchiveSpaceSubmitCallback( $this ),
-            new UnarchiveSpaceValidationCallback()
+            new UnarchiveSpaceSubmitCallback( $this )
         );
 
         $form->show();

@@ -3,17 +3,14 @@
   "version": "1.0",
   "namemsg": "wss-extensionname",
   "url": "https://wikibase-solutions.com",
-  "type": "other",
+  "type": "contentmanagement",
   "author": [
     "[https://mediawiki.org/wiki/User:Xxmarijnw Marijn van Wezel]"
   ],
   "descriptionmsg": "wss-desc",
   "license-name": "MIT",
   "requires": {
-    "MediaWiki": ">= 1.31.0",
-    "extensions": {
-      "Lockdown": "*"
-    }
+    "MediaWiki": ">= 1.31.0"
   },
   "MessagesDirs": {
     "WSSpaces": [
@@ -30,24 +27,21 @@
     "SecuritySensitiveOperationStatus": "WSS\\WSSHooks::onSecuritySensitiveOperationStatus",
     "SkinBuildSidebar": "WSS\\WSSHooks::onSkinBuildSidebar",
     "LoadExtensionSchemaUpdates": "WSS\\WSSHooks::onLoadExtensionSchemaUpdates",
-    "BeforeInitialize": "WSS\\WSSHooks::onBeforeInitialize",
-    "CanonicalNamespaces": "WSS\\WSSHooks::onCanonicalNamespaces"
+    "CanonicalNamespaces": "WSS\\WSSHooks::onCanonicalNamespaces",
+    "ExtensionTypes": "WSS\\WSSHooks::onExtensionTypes"
   },
   "SpecialPages": {
-    "Permissions": "WSS\\Special\\SpecialPermissions",
     "AddSpace": "WSS\\Special\\SpecialAddSpace",
-    "ManageSpace": "WSS\\Special\\SpecialManageSpace",
+    "ActiveSpaces": "WSS\\Special\\SpecialActiveSpaces",
     "ArchivedSpaces": "WSS\\Special\\SpecialArchivedSpaces"
   },
   "AvailableRights": [
-    "wss-manage",
     "wss-edit-core-namespaces",
     "wss-edit-all-spaces"
   ],
   "GroupPermissions": {
     "sysop": {
       "wss-manage": true,
-      "wss-edit-core-namespaces": true,
       "wss-edit-all-spaces": false
     },
     "spacemaster": {
@@ -56,9 +50,6 @@
     }
   },
   "ResourceModules": {
-    "ext.wss.SpecialPermissions": {
-      "styles": "extensions/WSSpaces/resources/styles/ext.wss.SpecialPermissions.css"
-    },
     "ext.wss.Spaces": {
       "styles": "extensions/WSSpaces/resources/styles/ext.wss.Spaces.css"
     },
@@ -67,17 +58,6 @@
     },
     "ext.wss.Exception": {
       "styles": "extensions/WSSpaces/resources/styles/ext.wss.Exception.css"
-    },
-    "ext.wss.SpecialPermissionsSuccess": {
-      "scripts": "extensions/WSSpaces/resources/scripts/ext.wss.SpecialPermissionsSuccess.js",
-      "position": "bottom",
-      "messages": [
-        "wss-permissions-saved-successfully"
-      ],
-      "dependencies": [
-        "mediawiki.util",
-        "mediawiki.api"
-      ]
     },
     "ext.wss.AddSpaceSuccess": {
       "scripts": "extensions/WSSpaces/resources/scripts/ext.wss.AddSpaceSuccess.js",
@@ -124,23 +104,8 @@
       ]
     }
   },
-  "config": {
-    "WSSValidRights": {
-      "value": [
-        "read",
-        "edit",
-        "delete",
-        "move",
-        "protect"
-      ]
-    },
-    "WSSValidUserGroups": {
-      "value": []
-    },
-    "WSSValidNamespaces": {
-      "value": ["Main", "Media", "User", "Project", "File", "MediaWiki", "Template", "Help", "Category"]
-    }
-  },
+  "config_prefix": "cmg",
+  "config": {},
   "LogTypes": [
     "space"
   ],

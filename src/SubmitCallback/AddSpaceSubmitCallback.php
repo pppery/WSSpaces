@@ -33,12 +33,9 @@ class AddSpaceSubmitCallback implements SubmitCallback {
      * @param array $form_data The data submitted via the form.
      * @return string|bool
      * @throws \ConfigException
+     * @throws \MWException
      */
     public function onSubmit( array $form_data ) {
-        if ( !isset( $form_data['displayname'] ) || empty( $form_data['displayname'] ) ) {
-            return "wss-invalid-input";
-        }
-
         if ( !isset( $form_data['description'] ) || empty( $form_data['description'] ) ) {
             return "wss-invalid-input";
         }
@@ -47,11 +44,10 @@ class AddSpaceSubmitCallback implements SubmitCallback {
             return "wss-invalid-input";
         }
 
-        $display_name = $form_data['displayname'];
         $description  = $form_data['description'];
         $namespace    = $form_data['namespace'];
 
-        $space = Space::newFromValues( $namespace, $display_name, $description, \RequestContext::getMain()->getUser() );
+        $space = Space::newFromValues( $namespace, $description, \RequestContext::getMain()->getUser() );
 
         $namespace_repository = new NamespaceRepository();
         $namespace_repository->addSpace( $space );
@@ -59,7 +55,7 @@ class AddSpaceSubmitCallback implements SubmitCallback {
         $this->ui->setAllowCallback();
 
         \RequestContext::getMain()->getOutput()->redirect(
-            \Title::newFromText( "ManageSpace", NS_SPECIAL )->getFullUrlForRedirect(
+            \Title::newFromText( "ActiveSpaces", NS_SPECIAL )->getFullUrlForRedirect(
                 [ 'wss_callback' => 'created' ]
             )
         );

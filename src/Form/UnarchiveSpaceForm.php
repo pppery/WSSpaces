@@ -34,19 +34,13 @@ class UnarchiveSpaceForm extends AbstractForm {
                 'label-message' => 'wss-manage-space-form-namespaceid-label',
                 'type' => 'text',
                 'disabled' => true,
-                'default' => $this->space->getId(),
-                'validation-callback' => function( $field, $data ) {
-                    return $this->getValidationCallback()->validateField( 'namespace_id', $field, $data );
-                }
+                'default' => $this->space->getId()
             ],
-            'namespacename' => [
+            'namespace' => [
                 'label-message' => 'wss-manage-space-form-namespacename-label',
                 'type' => 'text',
                 'disabled' => true,
-                'default' => $this->space->getName(),
-                'validation-callback' => function( $field, $data ) {
-                    return $this->getValidationCallback()->validateField( 'namespace_name', $field, $data );
-                }
+                'default' => $this->space->getName()
             ]
         ];
     }
@@ -76,5 +70,16 @@ class UnarchiveSpaceForm extends AbstractForm {
      */
     public function isDestructive(): bool {
         return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function showCancel(): bool {
+        return true;
+    }
+
+    public function cancelTarget(): \Title {
+        return \Title::newFromText( "Special:ArchivedSpaces" );
     }
 }
