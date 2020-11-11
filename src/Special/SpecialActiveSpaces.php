@@ -86,7 +86,7 @@ class SpecialActiveSpaces extends SpecialPage {
         try {
             $namespace_repository = new NamespaceRepository();
 
-            if ( !in_array( $parameter, $namespace_repository->getSpaces( true ), true ) ) {
+            if ( !ctype_digit( $parameter ) || !in_array( (int)$parameter, $namespace_repository->getSpaces( true ), true ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 

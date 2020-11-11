@@ -85,7 +85,7 @@ class SpecialArchivedSpaces extends SpecialPage {
                 return;
             }
 
-            if ( !in_array( $parameter, $namespace_repository->getArchivedSpaces( true ), true ) ) {
+            if ( !ctype_digit( $parameter ) || !in_array( (int)$parameter, $namespace_repository->getArchivedSpaces( true ), true ) ) {
                 // This space isn't archived
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
