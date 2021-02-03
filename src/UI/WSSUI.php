@@ -114,7 +114,7 @@ abstract class WSSUI {
 
         // Add a link in the sidebar to the policies for this space, if WSPolicies is installed
         if ( \ExtensionRegistry::getInstance()->isLoaded( 'WSPermissions' ) ) {
-            $bar[wfMessage( 'wss-space-sidebar-header', $space_object->getName() )->parse()][] = [
+            $bar[wfMessage( 'wss-space-sidebar-header', $space_object->getKey() )->parse()][] = [
                 'text' => wfMessage( 'wss-manage-space-policy' ),
                 'href' => \Title::newFromText( "ManageNamespacePermissions/" . $space_object->getId(), NS_SPECIAL )->getFullUrlForRedirect(),
                 'active' => ''

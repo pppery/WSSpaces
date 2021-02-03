@@ -43,8 +43,7 @@ abstract class SpecialPage extends \SpecialPage {
     }
 
     /**
-     * Does some checks before the special page is even shown. Return false to abort the execution of the
-     * special page.
+     * Does some checks before the special page is even shown.
      *
      * @return void
      */

@@ -30,7 +30,7 @@ class Space {
     /**
      * @var string
      */
-    private $namespace_name;
+    private $namespace_key;
 
     /**
      * @var bool
@@ -43,17 +43,23 @@ class Space {
     private $namespace_administrators;
 
     /**
+     * @var string
+     */
+    private $namespace_name;
+
+    /**
      * Space constructor.
      *
-     * @param string $namespace_name The canonical name of the namespace.
+     * @param string $namespace_key The canonical name of the namespace.
+     * @param string $namespace_name The name of the namespace.
      * @param int $namespace_id The ID of the namespace. MUST be an even number.
      * @param string $description The description of the namespace.
      * @param User $namespace_owner The owner of the namespace.
      * @param bool $is_archived Whether or not the space is archived.
      * @param array $namespace_administrators The administrators of this namespace.
-     * @throws \ConfigException
      */
     private function __construct(
+        string $namespace_key,
         string $namespace_name,
         int $namespace_id,
         string $description,
@@ -65,21 +71,23 @@ class Space {
             throw new \InvalidArgumentException( "Namespace ID must be an even number; '$namespace_id' is not even'" );
         }
 
-        if ( empty( $namespace_name ) ) {
+        if ( empty( $namespace_key ) ) {
             throw new \InvalidArgumentException( "Namespace name must not be empty." );
         }
 
-        if ( !ctype_alpha( $namespace_name ) ) {
-            throw new \InvalidArgumentException( "A namespace name can only consist of letters, therefore $namespace_name is invalid." );
+        if ( !ctype_alpha( $namespace_key ) ) {
+            throw new \InvalidArgumentException( "A namespace name can only consist of letters, therefore $namespace_key is invalid." );
         }
 
         $this->namespace_id    = $namespace_id;
         $this->talkspace_id    = $namespace_id + 1;
         $this->is_archived     = $is_archived;
 
-        $namespace_name = ucfirst( $namespace_name );
+        $this->namespace_name  = $namespace_name;
 
-        $this->setName( $namespace_name );
+        $namespace_key = ucfirst( $namespace_key );
+
+        $this->setKey( $namespace_key );
         $this->setDescription( $description );
         $this->setOwner( $namespace_owner );
         $this->setSpaceAdministrators( $namespace_administrators );
@@ -88,18 +96,18 @@ class Space {
     /**
      * Returns a new space object from the given namespace name.
      *
-     * @param string $namespace_name
+     * @param string $namespace_key
      * @return bool|Space
      * @throws \ConfigException
      *
      * @deprecated Use newFromConstant when possible instead
      */
-    public static function newFromName( string $namespace_name ) {
+    public static function newFromKey( string $namespace_key ) {
         $database = wfGetDB( DB_REPLICA );
         $namespace = $database->select(
             'wss_namespaces',
-            [ 'namespace_id', 'description', 'creator_id', 'archived' ],
-            [ 'namespace_name' => $namespace_name ]
+            [ 'namespace_id', 'namespace_name', 'description', 'creator_id', 'archived' ],
+            [ 'namespace_key' => $namespace_key ]
         );
 
         if ( $namespace->numRows() === 0 ) {
@@ -122,7 +130,8 @@ class Space {
         ) ) );
 
         return new Space(
-            $namespace_name,
+            $namespace_key,
+            $namespace->namespace_name,
             $namespace->namespace_id,
             $namespace->description,
             $user,
@@ -134,18 +143,20 @@ class Space {
     /**
      * Returns a new space object from the given values.
      *
+     * @param string $namespace_key
      * @param string $namespace_name
      * @param string $description
      * @param User $user
      * @return Space
-     * @throws \ConfigException
      */
     public static function newFromValues(
+        string $namespace_key,
         string $namespace_name,
         string $description,
         User $user
     ): Space {
         return new Space(
+            $namespace_key,
             $namespace_name,
             self::DEFAULT_NAMESPACE_CONSTANT,
             $description,
@@ -164,7 +175,7 @@ class Space {
         $database = wfGetDB( DB_REPLICA );
         $namespace = $database->select(
             'wss_namespaces',
-            [ 'namespace_name', 'description', 'creator_id', 'archived' ],
+            [ 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ],
             [ 'namespace_id' => $namespace_constant ]
         );
 
@@ -188,6 +199,7 @@ class Space {
         ) ) );
 
         return new Space(
+            $namespace->namespace_key,
             $namespace->namespace_name,
             $namespace_constant,
             $namespace->description,
@@ -202,8 +214,17 @@ class Space {
      *
      * @return string
      */
+    public function getKey(): string {
+        return ucfirst( $this->namespace_key );
+    }
+
+    /**
+     * Returns the name of this namespace.
+     *
+     * @return string
+     */
     public function getName(): string {
-        return ucfirst( $this->namespace_name );
+        return $this->namespace_name;
     }
 
     /**
@@ -274,6 +295,15 @@ class Space {
      * @param string $name
      * @throws \ConfigException
      */
+    public function setKey( string $name ) {
+        $this->namespace_key = $name;
+    }
+
+    /**
+     * Sets the display name for this namespace.
+     *
+     * @param string $name
+     */
     public function setName( string $name ) {
         $this->namespace_name = $name;
     }
@@ -307,7 +337,7 @@ class Space {
     /**
      * Sets the administrators of this space.
      *
-     * @param array $administrators
+     * @param string[] $administrators
      */
     public function setSpaceAdministrators( array $administrators ) {
         $this->namespace_administrators = $administrators;

@@ -19,8 +19,8 @@ class UnarchiveSpaceUI extends SpacesUI {
      * @throws \ConfigException
      */
     function render() {
-        $parameter = $this->getParameter();
-        $space = Space::newFromConstant( $parameter );
+        $namespace_constant = (int)$this->getParameter();
+        $space = Space::newFromConstant( $namespace_constant );
 
         $form = new UnarchiveSpaceForm(
             $space,

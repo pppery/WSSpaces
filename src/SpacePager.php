@@ -2,6 +2,7 @@
 
 namespace WSS;
 
+use ConfigException;
 use MediaWiki\MediaWikiServices;
 
 class SpacePager extends Pager {
@@ -22,7 +23,7 @@ class SpacePager extends Pager {
             'tables' => 'wss_namespaces',
             'fields' => [
                 'namespace_id',
-                'namespace_name',
+                'namespace_key',
                 'description',
                 'creator_id',
                 'created_on'
@@ -42,7 +43,7 @@ class SpacePager extends Pager {
      */
     public function isFieldSortable( $field ) {
         switch ( $field ) {
-            case 'namespace_name':
+            case 'namespace_key':
             case 'created_on':
             case 'creator_id':
                 return true;
@@ -63,18 +64,16 @@ class SpacePager extends Pager {
      * @param string $name The database field name
      * @param string $value The value retrieved from the database
      * @return string
-     * @throws \ConfigException
+     * @throws ConfigException
      */
     public function formatValue( $name, $value ) {
         $value = htmlspecialchars( $value );
 
         switch ( $name ) {
-            case 'namespace_name':
+            case 'namespace_key':
                 $link_renderer = MediaWikiServices::getInstance()->getLinkRenderer();
                 $title = $this->getTitle();
-
-                $namespace_constant = Space::newFromName( $value )->getId();
-
+                $namespace_constant = Space::newFromKey( $value )->getId();
                 $page = \Title::newFromText( $title->getText() . "/$namespace_constant", NS_SPECIAL );
 
                return $link_renderer->makeLink( $page, new \HtmlArmor( $value ) );
@@ -112,17 +111,10 @@ class SpacePager extends Pager {
      */
     public function getFieldNames() {
         return [
-            'namespace_name' => "Namespace",
+            'namespace_key' => "Namespace",
             'description' => "Description",
             'creator_id' => "Created by",
             'created_on' => "Created on"
         ];
-    }
-
-    /**
-     * @return string
-     */
-    public function getTableClass() {
-        return 'wss-table TablePager';
     }
 }

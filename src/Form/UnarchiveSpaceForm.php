@@ -40,7 +40,7 @@ class UnarchiveSpaceForm extends AbstractForm {
                 'label-message' => 'wss-manage-space-form-namespacename-label',
                 'type' => 'text',
                 'disabled' => true,
-                'default' => $this->space->getName()
+                'default' => $this->space->getKey()
             ]
         ];
     }

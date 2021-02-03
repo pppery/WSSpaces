@@ -23,6 +23,16 @@ class AddSpaceForm extends AbstractForm {
                     return $this->getValidationCallback()->validateField( 'namespace', $field, $data );
                 }
             ],
+            'namespace_name' => [
+                'label-message' => 'wss-add-space-form-namespacename-label',
+                'type' => 'text',
+                'size' => 32,
+                'maxlength' => 64,
+                'required' => true,
+                'validation-callback' => function( $field, array $data ) {
+                    return $this->getValidationCallback()->validateField( 'namespace_name', $field, $data );
+                }
+            ],
             'description' => [
                 'label-message' => 'wss-add-space-form-description-label',
                 'type' => 'textarea',

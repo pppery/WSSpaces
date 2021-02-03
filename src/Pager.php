@@ -12,7 +12,7 @@ use Wikimedia\Rdbms\ResultWrapper;
  */
 abstract class Pager extends \TablePager {
     /**
-     * Preprocesses the results from the database to remove any results
+     * Pre-processes the results from the database to remove any results
      * the user should not be able to see.
      *
      * @param ResultWrapper $results
@@ -22,15 +22,23 @@ abstract class Pager extends \TablePager {
         // We cannot use type checking in the function's signature, because it must be compatible with the interface
         assert( $results instanceof ResultWrapper );
 
-        $valid_rows = [];
-        foreach( $results->result as &$row ) {
-            $space = Space::newFromConstant( $row['namespace_id'] );
+        $res_pointer =& ResultWrapper::unwrap( $results );
 
+        $valid_rows = [];
+        foreach ( $res_pointer as $row ) {
+            $space = Space::newFromConstant( $row["namespace_id"] );
             if ( $space->canEdit() ) {
                 $valid_rows[] = $row;
             }
         }
 
-        $results->result = $valid_rows;
+        $res_pointer = $valid_rows;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTableClass() {
+        return parent::getTableClass() . ' wss-table';
     }
 }

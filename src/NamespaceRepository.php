@@ -92,13 +92,13 @@ class NamespaceRepository {
             'wss_namespaces',
             [
                 'namespace_id',
-                'namespace_name'
+                'namespace_key'
             ]
         );
 
         $buffer = [];
         foreach ( $result as $item ) {
-            $buffer[$item->namespace_id] = $item->namespace_name;
+            $buffer[$item->namespace_id] = $item->namespace_key;
         }
 
         return $flip ? array_flip( $buffer ) : $buffer;
@@ -158,10 +158,12 @@ class NamespaceRepository {
      * Adds the given Space to the database.
      *
      * @param Space $space
+     * @return int The ID of the created namespace
      * @throws MWException
      * @throws ConfigException
+     * @throws \Exception
      */
-    public function addSpace( Space $space ) {
+    public function addSpace( Space $space ): int {
         if ( $space->exists() ) {
             throw new \InvalidArgumentException( "Cannot add existing space to database, use NamespaceRepository::updateSpace() instead." );
         }
@@ -177,6 +179,7 @@ class NamespaceRepository {
         'wss_namespaces',  [
             'namespace_id' => $namespace_id,
             'namespace_name' => $space->getName(),
+            'namespace_key' => $space->getKey(),
             'description' => $space->getDescription(),
             'archived' => $space->isArchived(),
             'creator_id' => $space->getOwner()->getId(),
@@ -190,6 +193,10 @@ class NamespaceRepository {
         $this->updateSpaceAdministrators( $database, $space );
 
         $log->publish();
+
+        \Hooks::run( "WSSpacesAfterCreateSpace", [ $space ] );
+
+        return $namespace_id;
     }
 
     /**
@@ -220,6 +227,7 @@ class NamespaceRepository {
 
         $database = wfGetDB( DB_MASTER );
         $database->update('wss_namespaces', [
+            'namespace_key' => $new_space->getKey(),
             'namespace_name' => $new_space->getName(),
             'description' => $new_space->getDescription(),
             'creator_id' => $new_space->getOwner()->getId(),
@@ -283,10 +291,10 @@ class NamespaceRepository {
     /**
      * Updates the space administrators for the given space. Should only be called by self::updateSpace().
      *
-     * @param \Database $database
+     * @param \Database|\DBConnRef $database
      * @param Space $space
      */
-    private function updateSpaceAdministrators( \Database $database, Space $space ) {
+    private function updateSpaceAdministrators( $database, Space $space ) {
         $namespace_id = $space->getId();
         $rows = $this->createRowsFromSpaceAdministrators( $space->getSpaceAdministrators(), $namespace_id );
 
@@ -304,13 +312,13 @@ class NamespaceRepository {
      * @param bool $archived True to only get archived spaces, false otherwise
      * @return array
      */
-    private function getSpacesOnArchived(bool $archived ): array {
+    private function getSpacesOnArchived( bool $archived ): array {
         $dbr = wfGetDB( DB_REPLICA );
         $result = $dbr->select(
             'wss_namespaces',
             [
                 'namespace_id',
-                'namespace_name'
+                'namespace_key'
             ],
             [
                 'archived' => $archived
@@ -319,7 +327,7 @@ class NamespaceRepository {
 
         $buffer = [];
         foreach ( $result as $item ) {
-            $buffer[$item->namespace_id] = $item->namespace_name;
+            $buffer[$item->namespace_id] = $item->namespace_key;
         }
 
         return $buffer;

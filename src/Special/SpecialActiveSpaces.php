@@ -83,17 +83,27 @@ class SpecialActiveSpaces extends SpecialPage {
             return;
         }
 
+        if ( !ctype_digit( $parameter ) ) {
+            $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+            $ui->execute();
+
+            return;
+        }
+
+        $namespace_constant = intval( $parameter );
+
         try {
             $namespace_repository = new NamespaceRepository();
 
-            if ( !in_array( $parameter, $namespace_repository->getSpaces( true ), true ) ) {
+            if ( !in_array( $namespace_constant, $namespace_repository->getSpaces( true ), true ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 
                 return;
             }
 
-            $space = Space::newFromConstant( $parameter );
+            $space = Space::newFromConstant( $namespace_constant );
+
             if ( !$space->canEdit() ) {
                 $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();

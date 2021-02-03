@@ -2,6 +2,7 @@
 
 namespace WSS\UI;
 
+use MediaWiki\MediaWikiServices;
 use WSS\Form\EditSpaceForm;
 use WSS\Space;
 use WSS\SubmitCallback\EditSpaceSubmitCallback;
@@ -13,8 +14,8 @@ use WSS\Validation\AddSpaceValidationCallback;
  */
 class ManageSpaceFormUI extends ManageSpaceUI {
     public function getHeader(): string {
-        $space = Space::newFromConstant( $this->getParameter() );
-        return wfMessage("wss-manage-space-header", $space->getName() );
+        $space = Space::newFromConstant( (int)$this->getParameter() );
+        return wfMessage("wss-manage-space-header", $space->getKey() );
     }
 
     /**
@@ -22,8 +23,8 @@ class ManageSpaceFormUI extends ManageSpaceUI {
      * @throws \ConfigException
      */
     function render() {
-        $parameter = $this->getParameter();
-        $space = Space::newFromConstant( $parameter );
+        $namespace_constant = (int)$this->getParameter();
+        $space = Space::newFromConstant( $namespace_constant );
 
         $form = new EditSpaceForm(
             $space,
@@ -32,14 +33,16 @@ class ManageSpaceFormUI extends ManageSpaceUI {
             new AddSpaceValidationCallback()
         );
 
-        $form->getForm()->addButton([
-            'name' => 'archive',
-            'value' => 'archive',
-            'label-message' => 'wss-archive-space',
-            'id' => 'wss-archive-space',
-            'flags' => 'destructive',
-            'framed' => false
-        ]);
+        if ( MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) ) {
+            $form->getForm()->addButton( [
+                'name' => 'archive',
+                'value' => 'archive',
+                'label-message' => 'wss-archive-space',
+                'id' => 'wss-archive-space',
+                'flags' => 'destructive',
+                'framed' => false
+            ] );
+        }
 
         $form->show();
     }

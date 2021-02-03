@@ -2,6 +2,8 @@
 
 namespace WSS;
 
+use ConfigException;
+use Exception;
 use MediaWiki\Auth\AuthManager;
 use MediaWiki\Session\Session;
 use MWException;
@@ -46,7 +48,7 @@ abstract class WSSHooks {
      * @param \Skin $skin
      * @param $bar
      * @return bool
-     * @throws \ConfigException
+     * @throws ConfigException
      */
     public static function onSkinBuildSidebar( \Skin $skin, &$bar ): bool {
         if ( !WSSUI::isQueued() ) {
@@ -92,18 +94,21 @@ abstract class WSSHooks {
         $directory = $GLOBALS['wgExtensionDirectory'] . '/WSSpaces/sql';
         $type = $updater->getDB()->getType();
 
-        $wss_namespaces_table = sprintf( "%s/%s/wss_namespaces_table.sql", $directory, $type );
-        $wss_namespace_admins_table = sprintf( "%s/%s/wss_namespace_admins_table.sql", $directory, $type );
+        // Associative array where the keys are the name of the table and the value the name of the associated SQL file
+        $sql_files = [
+            "wss_namespace" => "wss_namespaces_table.sql",
+            "wss_namespace_admins" => "wss_namespace_admins_table.sql"
+        ];
 
-        if (
-            !file_exists( $wss_namespaces_table )  ||
-            !file_exists( $wss_namespace_admins_table )
-        ) {
-            throw new MWException( "WSS does not support database type `$type`." );
+        foreach ( $sql_files as $table => $sql_file ) {
+            $path = sprintf( "%s/%s/%s", $directory, $type, $sql_file );
+
+            if ( !file_exists( $path ) ) {
+                throw new MWException( "WSS does not support database type `$type`.` Please use `mysql`, `postgres` or `sqlite`." );
+            }
+
+            $updater->addExtensionTable( $table, $path );
         }
-
-        $updater->addExtensionTable( 'wss_namespaces', $wss_namespaces_table );
-        $updater->addExtensionTable( 'wss_namespace_admins', $wss_namespace_admins_table );
 
         return true;
     }
@@ -116,13 +121,17 @@ abstract class WSSHooks {
      * @param array $namespaces
      * @return bool
      *
-     * @throws \ConfigException
+     * @throws ConfigException
+     * @throws Exception
      */
     public static function onCanonicalNamespaces( array &$namespaces ): bool {
         $namespace_repository = new NamespaceRepository();
         $spaces = $namespace_repository->getSpaces();
 
-        $namespaces = $namespaces + $spaces;
+        foreach ( $spaces as $constant => $name ) {
+            \Hooks::run( "WSSpacesBeforeInitializeSpace", [ Space::newFromConstant( $constant ) ] );
+            $namespaces[$constant] = $name;
+        }
 
         return true;
     }

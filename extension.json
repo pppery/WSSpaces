@@ -3,7 +3,7 @@
   "version": "1.0",
   "namemsg": "wss-extensionname",
   "url": "https://wikibase-solutions.com",
-  "type": "contentmanagement",
+  "type": "csp",
   "author": [
     "[https://mediawiki.org/wiki/User:Xxmarijnw Marijn van Wezel]"
   ],
@@ -16,9 +16,6 @@
     "WSSpaces": [
       "i18n"
     ]
-  },
-  "ExtensionMessagesFiles": {
-    "WSSpacesMagic": "i18n/WSSpaces.i18n.php"
   },
   "AutoloadNamespaces": {
     "WSS\\": "src/"
@@ -104,8 +101,14 @@
       ]
     }
   },
-  "config_prefix": "cmg",
-  "config": {},
+  "config": {
+    "WSSpacesEnableSpaceArchiving": {
+      "value": true
+    }
+  },
+  "APIModules": {
+    "addspace": "WSS\\Api\\ApiAddSpace"
+  },
   "LogTypes": [
     "space"
   ],

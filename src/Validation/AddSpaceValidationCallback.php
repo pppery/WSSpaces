@@ -24,6 +24,8 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
         switch ( $field ) {
             case 'namespace':
                 return $this->validateNamespace( $value, $form_data );
+            case 'namespace_name':
+                return ctype_alnum( str_replace( ' ', '', $value ) );
             default:
                 return false;
         }
@@ -50,7 +52,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
 
         $space = Space::newFromConstant( $form_data['namespaceid'] ?? 0 );
 
-        if ( $space !== false && $space->getName() === $value ) {
+        if ( $space !== false && $space->getKey() === $value ) {
             // The given namespace name is the one we are editing
             return true;
         }

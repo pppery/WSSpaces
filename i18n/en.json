@@ -29,10 +29,12 @@
   "wss-unarchive-space-form-submit-text": "Unarchive this space",
   "wss-add-space-form-displayname-label": "Display name",
   "wss-add-space-form-description-label": "Description",
-  "wss-add-space-form-namespace-label": "Namespace",
-  "wss-add-space-form-namespace-help": "Namespace must be unique. It will be used as a prefix for the pages in this space.",
+  "wss-add-space-form-namespace-label": "Namespace Key",
+  "wss-add-space-form-namespacename-label": "Namespace Name",
+  "wss-add-space-form-namespace-help": "Namespace key must be unique. It will be used as a prefix for the pages in this space.",
   "wss-manage-space-form-submit-text": "Save changes",
   "wss-manage-space-form-namespaceid-label": "Namespace ID",
+  "wss-manage-space-form-namespace-label": "Namespace Key",
   "wss-manage-space-form-namespacename-label": "Namespace Name",
   "wss-manage-space-form-createdby-label": "Created by",
   "wss-manage-space-form-administrators-label": "Space administrators",
@@ -57,5 +59,6 @@
   "logentry-space-create": "$1 created the space \"$4\"",
   "logentry-space-archive": "$1 archived the space \"$4\"",
   "logentry-space-unarchive": "$1 unarchived the space \"$4\"",
-  "logentry-space-update": "$1 updated the details of space \"$4\""
+  "logentry-space-update": "$1 updated the details of space \"$4\"",
+  "action-wsspaces-archive": "manage archived spaces"
 }

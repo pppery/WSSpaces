@@ -17,7 +17,7 @@ class UnarchiveSpaceLog extends Log {
      */
     public function __construct( Space $space ) {
         $this->space = $space;
-        parent::__construct( \Title::newFromText( $space->getName() ), 'unarchive' );
+        parent::__construct( \Title::newFromText( $space->getKey() ), 'unarchive' );
     }
 
     /**
@@ -27,7 +27,7 @@ class UnarchiveSpaceLog extends Log {
      */
     public function getParameters(): array {
         return [
-            '4::namespace' => $this->space->getName()
+            '4::namespace' => $this->space->getKey()
         ];
     }
 }

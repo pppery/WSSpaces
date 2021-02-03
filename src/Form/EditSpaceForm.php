@@ -43,13 +43,25 @@ class EditSpaceForm extends AbstractForm {
                 'default' => $this->space->getOwner()->getName()
             ],
             'namespace' => [
+                'label-message' => 'wss-manage-space-form-namespace-label',
+                'type' => 'text',
+                'size' => 32,
+                'maxlength' => 24,
+                'required' => true,
+                'default' => $this->space->getKey(),
+                'validation-callback' => function( $field, $data ) {
+                    return $this->getValidationCallback()->validateField( 'namespace', $field, $data );
+                }
+            ],
+            'namespace_name' => [
                 'label-message' => 'wss-manage-space-form-namespacename-label',
                 'type' => 'text',
                 'size' => 32,
                 'maxlength' => 64,
+                'required' => true,
                 'default' => $this->space->getName(),
-                'validation-callback' => function( $field, $data ) {
-                    return $this->getValidationCallback()->validateField( 'namespace', $field, $data );
+                'validation-callback' => function( $field, array $data ) {
+                    return $this->getValidationCallback()->validateField( 'namespace_name', $field, $data );
                 }
             ],
             'description' => [

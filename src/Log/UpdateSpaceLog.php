@@ -35,7 +35,7 @@ class UpdateSpaceLog extends Log {
         
         $this->space = $new_space;
 
-        parent::__construct( \Title::newFromText( $new_space->getName() ), 'update' );
+        parent::__construct( \Title::newFromText( $new_space->getKey() ), 'update' );
     }
 
     /**
@@ -45,7 +45,7 @@ class UpdateSpaceLog extends Log {
      */
     public function getParameters(): array {
         return [
-            '4::namespace' => $this->space->getName()
+            '4::namespace' => $this->space->getKey()
         ];
     }
 }

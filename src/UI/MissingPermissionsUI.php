@@ -3,6 +3,7 @@
 namespace WSS\UI;
 
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\MediaWikiServices;
 use OutputPage;
 
 class MissingPermissionsUI extends WSSUI {
@@ -44,10 +45,15 @@ class MissingPermissionsUI extends WSSUI {
      * @inheritDoc
      */
     function getNavigationItems(): array {
-        return [
+        $menu = [
             wfMessage( 'wss-add-space-header' )->plain() => 'Special:AddSpace',
-            wfMessage( 'wss-active-spaces-header' )->plain() => 'Special:ActiveSpaces',
-            wfMessage( 'wss-archived-spaces-header' )->plain() => 'Special:ArchivedSpaces'
+            wfMessage( 'wss-active-spaces-header' )->plain() => 'Special:ActiveSpaces'
         ];
+
+        if ( MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) ) {
+            $menu[wfMessage( 'wss-archived-spaces-header' )->plain()] = 'Special:ArchivedSpaces';
+        }
+
+        return $menu;
     }
 }

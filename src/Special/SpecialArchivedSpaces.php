@@ -5,6 +5,7 @@ namespace WSS\Special;
 
 use ErrorPageError;
 use Exception;
+use MediaWiki\MediaWikiServices;
 use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\SpecialPage;
@@ -69,6 +70,16 @@ class SpecialArchivedSpaces extends SpecialPage {
 
     /**
      * @inheritDoc
+     * @throws PermissionsError
+     */
+    public function preExecute() {
+        if ( !MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) ) {
+            throw new PermissionsError( "wsspaces-archive" );
+        }
+    }
+
+    /**
+     * @inheritDoc
      * @throws \MWException
      */
     public function doExecute( string $parameter ) {
@@ -85,15 +96,25 @@ class SpecialArchivedSpaces extends SpecialPage {
                 return;
             }
 
-            if ( !in_array( $parameter, $namespace_repository->getArchivedSpaces( true ), true ) ) {
-                // This space isn't archived
+            if ( !ctype_digit( $parameter ) ) {
                 $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
                 $ui->execute();
 
                 return;
             }
 
-            $space = Space::newFromConstant( $parameter );
+            $namespace_constant = intval( $parameter );
+
+            if ( !in_array( $namespace_constant, $namespace_repository->getArchivedSpaces( true ), true ) ) {
+                // This space isn't archived or does not exist
+                $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+                $ui->execute();
+
+                return;
+            }
+
+            $space = Space::newFromConstant( $namespace_constant );
+
             if ( !$space->canEdit() ) {
                 // We can't edit this space
                 $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
@@ -103,7 +124,6 @@ class SpecialArchivedSpaces extends SpecialPage {
             }
 
             $ui = new UnarchiveSpaceUI( $output, $renderer );
-
             $ui->setParameter( $parameter );
             $ui->execute();
         } catch( Exception $e ) {
