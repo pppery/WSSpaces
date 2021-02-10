@@ -25,7 +25,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
             case 'namespace':
                 return $this->validateNamespace( $value, $form_data );
             case 'namespace_name':
-                return ctype_alnum( str_replace( ' ', '', $value ) );
+                return $this->validateNamespaceName( $value, $form_data );
             default:
                 return false;
         }
@@ -63,5 +63,36 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
         }
 
         return true;
+    }
+
+    /**
+     * @param string $value
+     * @param array $form_data
+     * @return bool|string
+     */
+    private function validateNamespaceName( $value, array $form_data ) {
+        $valid = ctype_alnum( str_replace( ' ', '', $value ) );
+
+        if ( !$valid ) {
+            return "A namespace name may only consist of letters, numbers and spaces.";
+        }
+
+        // Get DB_MASTER to ensure integrity
+        $database = wfGetDB( DB_MASTER );
+        $namespaces = $database->select( "wss_namespaces", [ "namespace_id" ], [ "namespace_name" => $value ] );
+
+        if ( $namespaces->numRows() === 0 ) {
+            // There are no spaces with this name
+            return true;
+        }
+
+        $space = Space::newFromConstant( $form_data['namespaceid'] ?? 0 );
+
+        if ( $space !== false && strtolower( $space->getName() ) === strtolower( $value ) ) {
+            // The given namespace name is the one we are editing
+            return true;
+        }
+
+        return "This namespace name is already in use. Please choose a different name.";
     }
 }

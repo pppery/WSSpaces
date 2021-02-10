@@ -4,6 +4,7 @@
 namespace WSS\Special;
 
 use Exception;
+use MediaWiki\MediaWikiServices;
 use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\SpecialPage;
@@ -40,7 +41,7 @@ class SpecialActiveSpaces extends SpecialPage {
      * @inheritDoc
      */
     public function getRestriction() {
-        return 'wss-view-spaces-overview';
+        return '';
     }
 
     /**
@@ -77,6 +78,13 @@ class SpecialActiveSpaces extends SpecialPage {
         $renderer = $this->getLinkRenderer();
 
         if ( empty( $parameter ) ) {
+            if ( !MediaWikiServices::getInstance()->getPermissionManager()->userHasRight(
+                \RequestContext::getMain()->getUser(),
+                "wss-view-spaces-overview"
+            ) ) {
+                throw new \PermissionsError( "wss-view-spaces-overview" );
+            }
+
             $ui = new ManageSpaceBaseUI( $output, $renderer );
             $ui->execute();
 

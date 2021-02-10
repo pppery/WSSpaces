@@ -25,6 +25,7 @@ class AddSpaceForm extends AbstractForm {
             ],
             'namespace_name' => [
                 'label-message' => 'wss-add-space-form-namespacename-label',
+                'help-message' => 'wss-add-space-form-namespacename-help',
                 'type' => 'text',
                 'size' => 32,
                 'maxlength' => 64,
