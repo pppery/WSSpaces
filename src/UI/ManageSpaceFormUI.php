@@ -3,6 +3,7 @@
 namespace WSS\UI;
 
 use MediaWiki\MediaWikiServices;
+use RequestContext;
 use WSS\Form\EditSpaceForm;
 use WSS\Space;
 use WSS\SubmitCallback\EditSpaceSubmitCallback;
@@ -33,7 +34,7 @@ class ManageSpaceFormUI extends ManageSpaceUI {
             new AddSpaceValidationCallback()
         );
 
-        if ( MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) ) {
+        if ( Space::canArchive() ) {
             $form->getForm()->addButton( [
                 'name' => 'archive',
                 'value' => 'archive',

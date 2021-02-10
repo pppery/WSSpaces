@@ -40,7 +40,7 @@ class SpecialActiveSpaces extends SpecialPage {
      * @inheritDoc
      */
     public function getRestriction() {
-        return 'wss-manage';
+        return 'wss-view-spaces-overview';
     }
 
     /**

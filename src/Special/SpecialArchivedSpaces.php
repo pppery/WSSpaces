@@ -6,6 +6,7 @@ namespace WSS\Special;
 use ErrorPageError;
 use Exception;
 use MediaWiki\MediaWikiServices;
+use MWException;
 use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\SpecialPage;
@@ -44,7 +45,7 @@ class SpecialArchivedSpaces extends SpecialPage {
      * @inheritDoc
      */
     public function getRestriction() {
-        return 'wss-manage';
+        return 'wss-archive-space';
     }
 
     /**
@@ -70,17 +71,23 @@ class SpecialArchivedSpaces extends SpecialPage {
 
     /**
      * @inheritDoc
-     * @throws PermissionsError
+     * @throws MWException
      */
-    public function preExecute() {
-        if ( !MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) ) {
-            throw new PermissionsError( "wsspaces-archive" );
+    public function preExecute(): bool {
+        if ( !Space::canArchive() ) {
+            // We can't edit this space
+            $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+            $ui->execute();
+
+            return false;
         }
+
+        return true;
     }
 
     /**
      * @inheritDoc
-     * @throws \MWException
+     * @throws MWException
      */
     public function doExecute( string $parameter ) {
         try {

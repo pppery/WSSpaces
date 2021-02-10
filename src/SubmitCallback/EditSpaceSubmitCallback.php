@@ -3,6 +3,7 @@
 namespace WSS\SubmitCallback;
 
 use MediaWiki\MediaWikiServices;
+use RequestContext;
 use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\UI\WSSUI;
@@ -35,13 +36,12 @@ class EditSpaceSubmitCallback implements SubmitCallback {
     public function onSubmit( array $form_data ) {
         $archive = \RequestContext::getMain()->getRequest()->getVal( 'archive' );
 
-        $old_space = Space::newFromConstant( $form_data['namespaceid'] );
-        $new_space = Space::newFromConstant( $form_data['namespaceid'] );
-
         $namespace_repository = new NamespaceRepository();
 
-        if ( $archive === "archive" && MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) ) {
-            $namespace_repository->archiveSpace( $old_space, $new_space );
+        $old_space = Space::newFromConstant( $form_data['namespaceid'] );
+
+        if ( $archive === "archive" && Space::canArchive() ) {
+            $namespace_repository->archiveSpace( $old_space );
 
             $this->ui->setAllowCallback();
             \RequestContext::getMain()->getOutput()->redirect(
@@ -52,6 +52,8 @@ class EditSpaceSubmitCallback implements SubmitCallback {
 
             return true;
         }
+
+        $new_space = clone $old_space;
 
         $new_space->setKey( $form_data['namespace'] );
         $new_space->setDescription( $form_data['description'] );

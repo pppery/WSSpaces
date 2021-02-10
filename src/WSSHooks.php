@@ -104,7 +104,7 @@ abstract class WSSHooks {
             $path = sprintf( "%s/%s/%s", $directory, $type, $sql_file );
 
             if ( !file_exists( $path ) ) {
-                throw new MWException( "WSS does not support database type `$type`.` Please use `mysql`, `postgres` or `sqlite`." );
+                throw new MWException( "WSSpaces does not support database type `$type`.` Please use `mysql`, `postgres` or `sqlite`." );
             }
 
             $updater->addExtensionTable( $table, $path );

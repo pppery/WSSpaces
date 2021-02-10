@@ -28,22 +28,6 @@ abstract class SpacesUI extends WSSUI {
     /**
      * @inheritDoc
      */
-    public function getNavigationItems(): array {
-        $menu = [
-            wfMessage( 'wss-add-space-header' )->plain() => 'Special:AddSpace',
-            wfMessage( 'wss-active-spaces-header' )->plain() => 'Special:ActiveSpaces'
-        ];
-
-        if ( MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) ) {
-            $menu[wfMessage( 'wss-archived-spaces-header' )->plain()] = 'Special:ArchivedSpaces';
-        }
-
-        return $menu;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function getModules(): array {
         return array_merge( [ 'ext.wss.Spaces' ], $this->getConditionalModules() );
     }

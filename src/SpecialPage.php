@@ -25,7 +25,9 @@ abstract class SpecialPage extends \SpecialPage {
             }
         }
 
-        $this->preExecute();
+        if ( $this->preExecute() === false ) {
+            return;
+        }
 
         $parameter = $parameter ?? '';
 
@@ -45,9 +47,10 @@ abstract class SpecialPage extends \SpecialPage {
     /**
      * Does some checks before the special page is even shown.
      *
-     * @return void
+     * @return bool
      */
-    public function preExecute() {
+    public function preExecute(): bool {
+        return true;
     }
 
     /**

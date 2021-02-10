@@ -2,6 +2,8 @@
 
 namespace WSS;
 
+use MediaWiki\MediaWikiServices;
+use RequestContext;
 use User;
 
 class Space {
@@ -374,7 +376,33 @@ class Space {
      * @return bool
      */
     public function canEdit(): bool {
-        return in_array( \RequestContext::getMain()->getUser()->getName(), $this->namespace_administrators, true ) ||
-            in_array( 'wss-edit-all-spaces', \RequestContext::getMain()->getUser()->getRights(), true );
+        $user = \RequestContext::getMain()->getUser();
+
+        if ( in_array( $user->getName(), $this->namespace_administrators, true ) ) {
+            // This user is a space administrator
+            return true;
+        }
+
+        return MediaWikiServices::getInstance()->getPermissionManager()->userHasRight(
+            $user,
+            "wss-edit-all-spaces"
+        );
+    }
+
+    /**
+     * Returns true if and only if archiving is currently enabled.
+     *
+     * @return bool
+     */
+    public static function canArchive(): bool {
+        $services = MediaWikiServices::getInstance();
+        $user_can_archive = $services
+            ->getPermissionManager()
+            ->userHasRight(
+                RequestContext::getMain()->getUser(),
+                "wss-archive-space"
+            );
+
+        return $services->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) && $user_can_archive;
     }
 }

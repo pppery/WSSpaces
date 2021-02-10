@@ -4,8 +4,10 @@ namespace WSS\UI;
 
 use HtmlArmor;
 use MediaWiki\Linker\LinkRenderer;
+use MediaWiki\MediaWikiServices;
 use MWException;
 use OutputPage;
+use RequestContext;
 use WSS\NamespaceRepository;
 use WSS\Space;
 
@@ -294,7 +296,16 @@ abstract class WSSUI {
      * @return array
      */
     public function getNavigationItems(): array {
-        return [];
+        $menu = [
+            wfMessage( 'wss-add-space-header' )->plain() => 'Special:AddSpace',
+            wfMessage( 'wss-active-spaces-header' )->plain() => 'Special:ActiveSpaces'
+        ];
+
+        if ( Space::canArchive() ) {
+            $menu[wfMessage( 'wss-archived-spaces-header' )->plain()] = 'Special:ArchivedSpaces';
+        }
+
+        return $menu;
     }
 
     /**

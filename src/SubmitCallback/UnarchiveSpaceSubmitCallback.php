@@ -34,11 +34,10 @@ class UnarchiveSpaceSubmitCallback implements SubmitCallback {
      * @throws \PermissionsError
      */
     public function onSubmit( array $form_data ) {
-        $old_space = Space::newFromConstant( $form_data['namespaceid'] );
-        $new_space = Space::newFromConstant( $form_data['namespaceid'] );
+        $space = Space::newFromConstant( $form_data['namespaceid'] );
 
         $namespace_repository = new NamespaceRepository();
-        $namespace_repository->unarchiveSpace( $old_space, $new_space );
+        $namespace_repository->unarchiveSpace( $space );
 
         $this->ui->setAllowCallback();
 

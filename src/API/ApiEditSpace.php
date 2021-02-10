@@ -10,7 +10,7 @@ use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\Validation\AddSpaceValidationCallback;
 
-class ApiAddSpace extends ApiBase {
+class ApiEditSpace extends ApiBase {
     /**
      * Evaluates the parameters, performs the requested query, and sets up
      * the result. Concrete implementations of ApiBase must override this
@@ -31,10 +31,14 @@ class ApiAddSpace extends ApiBase {
      * @throws MWException
      */
     public function execute() {
-        $this->checkUserRightsAny( 'wss-add-space' );
         $this->validateParameters();
 
         $request_params = $this->extractRequestParams();
+
+        /**
+         * @var int
+         */
+        $ns_id = $request_params["nsid"];
 
         /**
          * @var string
@@ -57,29 +61,22 @@ class ApiAddSpace extends ApiBase {
         $ns_admins = $request_params["nsadmins"];
         $ns_admins = explode( ",", $ns_admins );
 
-        /**
-         * @var User
-         */
-        $current_user = \RequestContext::getMain()->getUser();
-
-        // Add the current user to the list of namespace admins
-        $current_user_name = $current_user->getName();
-        if ( !in_array( $current_user, $ns_admins ) ) {
-            $ns_admins[] = $current_user_name;
-        }
-
-        $space = Space::newFromValues( $ns_key, $ns_name, $ns_description, $current_user );
         $namespace_repository = new NamespaceRepository();
 
-        $namespace_id = $namespace_repository->addSpace( $space );
+        $old_space = Space::newFromConstant( $ns_id );
+        $new_space = clone $old_space;
 
-        // Update the list of namespace admins
-        $old_space = Space::newFromConstant( $namespace_id );
-        $new_space = Space::newFromConstant( $namespace_id );
-
+        $new_space->setKey( $ns_key );
+        $new_space->setDescription( $ns_description );
+        $new_space->setName( $ns_name );
         $new_space->setSpaceAdministrators( $ns_admins );
 
-        $namespace_repository->updateSpace( $old_space, $new_space );
+        try {
+            $namespace_repository->updateSpace( $old_space, $new_space );
+        } catch( \PermissionsError $e ) {
+            // The user is not allowed to update this space
+            $this->dieWithError( [ 'apierror-permissiondenied', $this->msg( "action-wss-edit-space" ) ] );
+        }
 
         $this->getResult()->addValue( [], "result", "success" );
     }
@@ -92,6 +89,12 @@ class ApiAddSpace extends ApiBase {
      */
     private function validateParameters() {
         $request_params = $this->extractRequestParams();
+
+        $ns_id = isset( $request_params["nsid"] ) ? $request_params["nsid"] : false;
+
+        if ( $ns_id === false ) {
+            $this->dieWithError( wfMessage( "wss-api-missing-param", "nsid" ) );
+        }
 
         $ns_key = isset( $request_params["nskey"] ) ? $request_params["nskey"] : false;
 
@@ -117,9 +120,26 @@ class ApiAddSpace extends ApiBase {
             $this->dieWithError( wfMessage( "wss-api-missing-param", "nsadmins" ) );
         }
 
+        $space = Space::newFromConstant( $ns_id );
+
+        if ( !$space instanceof Space ) {
+            $this->dieWithError(
+                wfMessage(
+                    "wss-api-invalid-param-detailed",
+                    "nsid",
+                    wfMessage( "wss-api-space-does-not-exist", $request_params["nsid"] )->parse()
+                )
+            );
+        }
+
+        if ( !$space->canEdit() ) {
+            $this->dieWithError( [ 'apierror-permissiondenied', $this->msg( "action-wss-edit-space" ) ] );
+        }
+
         // Although this validation is made for HTMLForm, we use it here to avoid repeating ourselves
         $add_space_validation_callback = new AddSpaceValidationCallback();
         $request_data = [
+            "namespaceid" => $ns_id,
             "namespace" => $ns_key,
             "namespace_name" => $ns_name,
             "description" => $ns_description
@@ -157,6 +177,11 @@ class ApiAddSpace extends ApiBase {
      */
     public function getAllowedParams(): array {
         return [
+            'nsid' => [
+                ApiBase::PARAM_TYPE => "integer",
+                ApiBase::PARAM_HELP_MSG => "wss-api-nsid-param",
+                ApiBase::PARAM_REQUIRED => true
+            ],
             'nskey' => [
                 ApiBase::PARAM_TYPE => "string",
                 ApiBase::PARAM_HELP_MSG => "wss-api-nskey-param",
@@ -185,8 +210,8 @@ class ApiAddSpace extends ApiBase {
      */
     public function getExamplesMessages() {
         return [
-            "action=addspace&nskey=Foo&nsname=Foo&nsdescription=Lorem ipsum&nsadmins=Admin,Foobar" =>
-                "apihelp-addspace-example-foo"
+            "action=editspace&nsid=50000&nskey=Foo&nsname=Foo&nsdescription=Lorem ipsum&nsadmins=Admin,Foobar" =>
+                "apihelp-addspace-example-50000"
         ];
     }
 }

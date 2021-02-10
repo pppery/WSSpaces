@@ -8,6 +8,7 @@ use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
 use MWException;
 use PermissionsError;
+use User;
 use WSS\Log\AddSpaceLog;
 use WSS\Log\ArchiveSpaceLog;
 use WSS\Log\UnarchiveSpaceLog;
@@ -246,17 +247,20 @@ class NamespaceRepository {
     /**
      * Helper function to archive a namespace.
      *
-     * @param $old_space
-     * @param Space $new_space
+     * @param Space $space
      * @throws MWException
      * @throws PermissionsError
      */
-    public function archiveSpace( $old_space, Space $new_space ) {
-        $log = new ArchiveSpaceLog( $new_space );
+    public function archiveSpace( Space $space ) {
+        $log = new ArchiveSpaceLog( $space );
         $log->insert();
 
+        $new_space = clone $space;
         $new_space->setArchived();
-        $this->updateSpace( $old_space, $new_space, false, false );
+
+        // Because of the way "updateSpace" works, we need a clone of the original
+        // space
+        $this->updateSpace( $space, $new_space, false, false );
 
         $log->publish();
     }
@@ -264,17 +268,18 @@ class NamespaceRepository {
     /**
      * Helper function to unarchive a namespace.
      *
-     * @param $old_space
-     * @param Space $new_space
+     * @param Space $space
      * @throws MWException
      * @throws PermissionsError
      */
-    public function unarchiveSpace( $old_space, Space $new_space ) {
-        $log = new UnarchiveSpaceLog( $new_space );
+    public function unarchiveSpace( Space $space ) {
+        $log = new UnarchiveSpaceLog( $space );
         $log->insert();
 
+        $new_space = clone $space;
         $new_space->setArchived( false );
-        $this->updateSpace( $old_space, $new_space, false, false );
+
+        $this->updateSpace( $space, $new_space, false, false );
 
         $log->publish();
     }
@@ -334,6 +339,7 @@ class NamespaceRepository {
     }
 
     private function createRowsFromSpaceAdministrators( array $administrators, $namespace_id ) {
+        // FIXME: This is dumb and unreadable
         $rows = array_map(
             function ( int $admin_id ) use ( $namespace_id ): array {
                 return [
@@ -346,6 +352,11 @@ class NamespaceRepository {
                     function ( string $admin ): int {
                         // This function returns the ID of the given administrator, or 0 if they dont exist.
                         $user = \User::newFromName( $admin );
+
+                        if ( !$user instanceof User ) {
+                            return 0;
+                        }
+
                         return $user->isAnon() ? 0 : $user->getId();
                     }, $administrators
                 ),

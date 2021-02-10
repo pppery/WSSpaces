@@ -52,7 +52,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
 
         $space = Space::newFromConstant( $form_data['namespaceid'] ?? 0 );
 
-        if ( $space !== false && $space->getKey() === $value ) {
+        if ( $space !== false && strtolower( $space->getKey() ) === strtolower( $value ) ) {
             // The given namespace name is the one we are editing
             return true;
         }

@@ -36,7 +36,7 @@ class SpecialAddSpace extends SpecialPage {
      * @inheritDoc
      */
     public function getRestriction() {
-        return 'wss-manage';
+        return 'wss-add-space';
     }
 
     /**

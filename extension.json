@@ -33,17 +33,23 @@
     "ArchivedSpaces": "WSS\\Special\\SpecialArchivedSpaces"
   },
   "AvailableRights": [
-    "wss-edit-core-namespaces",
-    "wss-edit-all-spaces"
+    "wss-edit-all-spaces",
+    "wss-add-space",
+    "wss-archive-space",
+    "wss-view-spaces-overview"
   ],
   "GroupPermissions": {
     "sysop": {
-      "wss-manage": true,
-      "wss-edit-all-spaces": false
+      "wss-edit-all-spaces": true,
+      "wss-add-space": true,
+      "wss-archive-space": true,
+      "wss-view-spaces-overview": true
     },
     "spacemaster": {
-      "wss-manage": true,
-      "wss-edit-all-spaces": true
+      "wss-edit-all-spaces": true,
+      "wss-add-space": true,
+      "wss-archive-space": true,
+      "wss-view-spaces-overview": true
     }
   },
   "ResourceModules": {
@@ -107,7 +113,13 @@
     }
   },
   "APIModules": {
-    "addspace": "WSS\\Api\\ApiAddSpace"
+    "addspace": "WSS\\API\\ApiAddSpace",
+    "archivespace": "WSS\\API\\ApiArchiveSpace",
+    "unarchivespace": "WSS\\API\\ApiUnarchiveSpace",
+    "editspace": "WSS\\API\\ApiEditSpace"
+  },
+  "APIListModules": {
+    "spaces": "WSS\\API\\ApiQuerySpaces"
   },
   "LogTypes": [
     "space"
