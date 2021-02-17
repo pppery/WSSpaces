@@ -96,7 +96,7 @@ abstract class WSSHooks {
 
         // Associative array where the keys are the name of the table and the value the name of the associated SQL file
         $sql_files = [
-            "wss_namespace" => "wss_namespaces_table.sql",
+            "wss_namespaces" => "wss_namespaces_table.sql",
             "wss_namespace_admins" => "wss_namespace_admins_table.sql"
         ];
 
