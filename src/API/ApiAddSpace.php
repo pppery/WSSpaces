@@ -82,6 +82,7 @@ class ApiAddSpace extends ApiBase {
         $namespace_repository->updateSpace( $old_space, $new_space );
 
         $this->getResult()->addValue( [], "result", "success" );
+        $this->getResult()->addValue( [ "namespace" ], "id", $namespace_id );
     }
 
     /**
@@ -126,13 +127,15 @@ class ApiAddSpace extends ApiBase {
         ];
 
         // Validate "nskey"
-        if ( $add_space_validation_callback->validateField( "namespace", $ns_key, $request_data ) !== true ) {
-            $this->dieWithError( wfMessage( "wss-api-invalid-param", "nskey" ) );
+        $error_or_true = $add_space_validation_callback->validateField( "namespace", $ns_key, $request_data );
+        if ( $error_or_true !== true ) {
+            $this->dieWithError( wfMessage( "wss-api-invalid-param-detailed", "nskey", $error_or_true ) );
         }
 
         // Validate "nsname"
-        if ( $add_space_validation_callback->validateField( "namespace_name", $ns_name, $request_data ) !== true ) {
-            $this->dieWithError( wfMessage( "wss-api-invalid-param", "nsname" ) );
+        $error_or_true = $add_space_validation_callback->validateField( "namespace_name", $ns_name, $request_data );
+        if ( $error_or_true !== true ) {
+            $this->dieWithError( wfMessage( "wss-api-invalid-param-detailed", "nsname", $error_or_true ) );
         }
 
         // Validate "nsdescription"

@@ -41,7 +41,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
         $valid = ctype_alpha( $value ) && !empty( $value );
 
         if ( !$valid ) {
-            return "A namespace may only consist of letters.";
+            return wfMessage( "wss-invalid-namespace" )->parse();
         }
 
         $namespace_repository = new NamespaceRepository();
@@ -59,7 +59,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
 
         if ( in_array( trim( strtolower( $value ) ), $namespaces, true ) ) {
             // This namespace/space name is already in use
-            return "This namespace is already in use. Please choose a different name.";
+            return wfMessage( "wss-namespace-in-use" )->parse();
         }
 
         return true;
@@ -74,7 +74,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
         $valid = ctype_alnum( str_replace( ' ', '', $value ) );
 
         if ( !$valid ) {
-            return "A namespace name may only consist of letters, numbers and spaces.";
+            return wfMessage( "wss-invalid-namespace-name" )->parse();
         }
 
         // Get DB_MASTER to ensure integrity
@@ -93,6 +93,6 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
             return true;
         }
 
-        return "This namespace name is already in use. Please choose a different name.";
+        return wfMessage( "wss-namespace-name-in-use" )->parse();
     }
 }
