@@ -114,6 +114,29 @@ abstract class WSSHooks {
     }
 
     /**
+     * For extensions adding their own namespaces or altering the defaults.
+     *
+     * @see https://www.mediawiki.org/wiki/Manual:Hooks/CanonicalNamespaces
+     *
+     * @param array $namespaces
+     * @return bool
+     *
+     * @throws ConfigException
+     * @throws Exception
+     */
+    public static function onCanonicalNamespaces( array &$namespaces ): bool {
+        $namespace_repository = new NamespaceRepository();
+        $spaces = $namespace_repository->getSpaces();
+
+        foreach ( $spaces as $constant => $name ) {
+            \Hooks::run( "WSSpacesBeforeInitializeSpace", [ Space::newFromConstant( $constant ) ] );
+            $namespaces[$constant] = $name;
+        }
+
+        return true;
+    }
+
+    /**
      * Called when generating the extensions credits, use this to change the tables headers.
      *
      * @param $extension_types

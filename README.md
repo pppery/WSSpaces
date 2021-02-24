@@ -4,25 +4,6 @@ WSSpaces is a comprehensive space management system developed for MediaWiki. It 
 users to dynamically define namespaces. This document describes the extensions capabilities,
 options and usage.
 
-## Changelog
-
-* 1.0 - Initial release
-* 2.0 - Fix issue where SemanticMediaWiki properties were not available for dynamic namespaces. This update also
-changes the `WSSpacesBeforeInitializeSpace` hook (see documentation of the hook below).
-
-## Installation
-
-* Download and place the files in a directory called `WSSpaces` in your `extension/` folder.
-* Add the following code at the **top** (otherwise it will not work) of your `LocalSettings.php`:
-
-```php
-wfLoadExtension( "WSSpaces" );
-```
-
-* Run the update script (`update.php`), which will automatically create the necessary database tables
-  that this extension needs.
-* Possibly running `composer update` is required.
-
 ## Configuration
 
 WSSpaces has one configuration variable.
@@ -44,7 +25,7 @@ Gets called once directly after a space has been created.
 ### `WSSpacesBeforeInitializeSpace`
 
 ```php
-public static function onWSSpacesBeforeInitializeSpace( int $namespace_id, string $namespace_key ) {}
+public static function onWSSpacesBeforeInitializeSpace( \WSS\Space $space ) {}
 ```
 
 Gets called on each page load after the space has been initialized into `$wgCanonicalNamespaces`.
