@@ -10,6 +10,15 @@ WSSpaces has one configuration variable.
 
 * `$wgWSSpacesEnableSpaceArchiving` (boolean, default: true) Whether to allow archiving of spaces
 
+To enable Semantic MediaWiki for the created namespace, place the following code inbetween the initialization of Semantic MediaWiki and WSSpaces in LocalSettings.php:
+
+```
+// NOTE: This is not very nice, and another solution is needed, but it suffices for now
+for ($i = 50000; $i < 55000; $i++) {
+	$smwgNamespacesWithSemanticLinks[$i] = true;
+}
+```
+
 ## Hooks
 
 WSSpaces defines several hooks to alter or extend its behaviour.
@@ -20,7 +29,7 @@ WSSpaces defines several hooks to alter or extend its behaviour.
 public static function onWSSpacesAfterCreateSpace( \WSS\Space $space ) {}
 ```
 
-Gets called once directly after a space has been created.
+Gets called once directly after a space has been created. NOTE: The space has not been initialized with the Wiki at this point. Therefore, you cannot create a page in this namespace (use a job instead).
 
 ### `WSSpacesBeforeInitializeSpace`
 
