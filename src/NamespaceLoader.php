@@ -55,7 +55,7 @@ class NamespaceLoader {
      * @param int $space_key
      * @throws \Exception
      */
-    public static function initializeSpace( int $space_id, string $space_key ) {
+    public static function initializeSpace( int $space_id, int $space_key ) {
         Hooks::run( "WSSpacesBeforeInitializeSpace", [$space_id, $space_key] );
 
         // Add the namespace to $wgExtraNamespaces
