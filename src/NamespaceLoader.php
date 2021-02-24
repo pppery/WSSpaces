@@ -44,27 +44,17 @@ class NamespaceLoader {
         );
 
         while ( $row = $statement->fetch() ) {
-            self::initializeSpace( $row['namespace_id'], $row['namespace_key'] );
+            Hooks::run( "WSSpacesBeforeInitializeSpace", [$row['namespace_id'], $row['namespace_key']] );
+
+            // Add the namespace to $wgExtraNamespaces
+            $GLOBALS['wgExtraNamespaces'][$row['namespace_id']] = $row['namespace_key'];
+            // Add the namespace to $wgContentNamespaces
+            $GLOBALS['wgContentNamespaces'][] = $row['namespace_id'];
+            // Add the namespace to the default search index
+            $GLOBALS['wgNamespacesToBeSearchedDefault'][$row['namespace_id']] = true;
+            // Enable Semantic MediaWiki for the namespace
+            $GLOBALS["smwgNamespacesWithSemanticLinks"][$row['namespace_id']] = true;
         }
     }
 
-    /**
-     * Initializes the given space.
-     *
-     * @param int $space_id
-     * @param int $space_key
-     * @throws \Exception
-     */
-    public static function initializeSpace( int $space_id, int $space_key ) {
-        Hooks::run( "WSSpacesBeforeInitializeSpace", [$space_id, $space_key] );
-
-        // Add the namespace to $wgExtraNamespaces
-        $GLOBALS['wgExtraNamespaces'][$space_id] = $space_key;
-        // Add the namespace to $wgContentNamespaces
-        $GLOBALS['wgContentNamespaces'][] = $space_id;
-        // Add the namespace to the default search index
-        $GLOBALS['wgNamespacesToBeSearchedDefault'][$space_id] = true;
-        // Enable Semantic MediaWiki for the namespace
-        $GLOBALS["smwgNamespacesWithSemanticLinks"][$space_id] = true;
-    }
 }

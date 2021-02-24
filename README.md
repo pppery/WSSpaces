@@ -9,7 +9,6 @@ options and usage.
 * 1.0 - Initial release
 * 2.0 - Fix issue where SemanticMediaWiki properties were not available for dynamic namespaces. This update also
 changes the `WSSpacesBeforeInitializeSpace` hook (see documentation of the hook below).
-* 2.1 - Fix issue where space wouldn't be registered to MediaWiki when `WSSpacesAfterCreateSpace` is called.
 
 ## Installation
 

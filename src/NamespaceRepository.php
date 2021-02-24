@@ -195,8 +195,6 @@ class NamespaceRepository {
 
         $log->publish();
 
-        NamespaceLoader::initializeSpace( $space->getId(), $space->getKey() );
-
         \Hooks::run( "WSSpacesAfterCreateSpace", [ $space ] );
 
         return $namespace_id;
