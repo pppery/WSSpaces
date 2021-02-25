@@ -38,7 +38,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
      * @throws \ConfigException
      */
     private function validateNamespace( $value, array $form_data ) {
-        $valid = ctype_alpha( $value ) && !empty( $value );
+        $valid = ctype_alnum( $value ) && !empty( $value );
 
         if ( !$valid ) {
             return wfMessage( "wss-invalid-namespace" )->parse();
