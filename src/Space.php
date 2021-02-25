@@ -77,8 +77,8 @@ class Space {
             throw new \InvalidArgumentException( "Namespace name must not be empty." );
         }
 
-        if ( !ctype_alpha( $namespace_key ) ) {
-            throw new \InvalidArgumentException( "A namespace name can only consist of letters, therefore $namespace_key is invalid." );
+        if ( !ctype_alnum( $namespace_key ) ) {
+            throw new \InvalidArgumentException( "A namespace name can only consist of alphanumerical characters, therefore $namespace_key is invalid." );
         }
 
         $this->namespace_id    = $namespace_id;
