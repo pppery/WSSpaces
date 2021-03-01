@@ -106,6 +106,34 @@ class NamespaceRepository {
     }
 
     /**
+     * Returns a numbered list of all admins for namespaces defined by the WSS extension. The parameter passed is the
+     * namespace id for which a list of admins is requested.
+     *
+     * @param int $namespace_id
+     * @return array
+     */
+    public function getNamespaceAdmins( int $namespace_id ): array {
+        $dbr = wfGetDB( DB_REPLICA );
+        $result = $dbr->select(
+            'wss_namespace_admins',
+            [
+                'namespace_id',
+                'admin_user_id'
+            ],
+            [
+                'namespace_id' => $namespace_id
+            ]
+        );
+
+        $buffer = [];
+        foreach ( $result as $item ) {
+            $buffer[] = $item->admin_user_id;
+        }
+
+        return $buffer;
+    }
+
+    /**
      * Returns the list of unarchived dynamic spaces defined by the WSS extension. When the first parameter is true,
      * the key will be the name of the namespace, and the value the constant, otherwise
      * the key will be the namespace constant and the value the namespace name.

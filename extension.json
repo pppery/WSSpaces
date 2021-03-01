@@ -1,11 +1,11 @@
 {
   "name": "WSSpaces",
-  "version": "1.1",
+  "version": "1.2",
   "namemsg": "wss-extensionname",
   "url": "https://wikibase-solutions.com",
   "type": "csp",
   "author": [
-    "[https://mediawiki.org/wiki/User:Xxmarijnw Marijn van Wezel]"
+    "Wikibase Solutions"
   ],
   "descriptionmsg": "wss-desc",
   "license-name": "GPL-2.0-or-later",
@@ -119,7 +119,8 @@
     "editspace": "WSS\\API\\ApiEditSpace"
   },
   "APIListModules": {
-    "spaces": "WSS\\API\\ApiQuerySpaces"
+    "spaces": "WSS\\API\\ApiQuerySpaces",
+    "namespaceadmins": "WSS\\API\\ApiQuerySpaceAdmins"
   },
   "LogTypes": [
     "space"

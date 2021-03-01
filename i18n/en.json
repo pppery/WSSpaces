@@ -79,16 +79,19 @@
   "apihelp-archivespace-summary": "API module to archive spaces in WSSpaces",
   "apihelp-unarchivespace-summary": "API module to unarchive spaces in WSSpaces",
   "apihelp-query+spaces-summary": "API module to query spaces defined in WSSpaces",
+  "apihelp-query+namespaceadmins-summary": "API module to query admins belonging to a namespace defined in WSSpaces",
   "wss-api-nskey-param": "The namespace key of the space. Must be unique and must only consist of letters.",
   "wss-api-nsname-param": "The name of the space. Must be unique and may consist of letters, number and spaces.",
   "wss-api-nsdescription-param": "A short description of the space.",
   "wss-api-nsadmins-param": "The list of namespace administrators of the space. Should be a comma-separated list of user names.",
   "wss-api-nsid-param": "The ID of the space. Must be an existing space ID.",
   "wss-api-archived-param": "Whether to list only archived spaces or only active spaces.",
+  "wss-api-namespace-param": "The namespace you want to get the list of admins for.",
   "apihelp-addspace-example-foo": "Create the space 'Foo'.",
   "apihelp-archivespace-example-foo": "Archive the space 'Foo'.",
   "apihelp-unarchivespace-example-foo": "Unarchive the space 'Foo'.",
   "apihelp-addspace-example-50000": "Edit the space with ID 50000.",
   "apihelp-query-example-not-archived": "Query all spaces that are not archived.",
-  "apihelp-query-example-archived": "Query all spaces that are archived."
+  "apihelp-query-example-archived": "Query all spaces that are archived.",
+  "apihelp-query-example-namespace-admins": "Query all admins belonging to a namespace."
 }
