@@ -178,28 +178,23 @@ class ApiEditSpace extends ApiBase {
         return [
             'nsid' => [
                 ApiBase::PARAM_TYPE => "integer",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nsid-param",
-                ApiBase::PARAM_REQUIRED => true
+                ApiBase::PARAM_HELP_MSG => "wss-api-nsid-param"
             ],
             'nskey' => [
                 ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nskey-param",
-                ApiBase::PARAM_REQUIRED => true
+                ApiBase::PARAM_HELP_MSG => "wss-api-nskey-param"
             ],
             'nsname' => [
                 ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nsname-param",
-                ApiBase::PARAM_REQUIRED => true
+                ApiBase::PARAM_HELP_MSG => "wss-api-nsname-param"
             ],
             'nsdescription' => [
                 ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nsdescription-param",
-                ApiBase::PARAM_REQUIRED => true
+                ApiBase::PARAM_HELP_MSG => "wss-api-nsdescription-param"
             ],
             'nsadmins' => [
                 ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nsadmins-param",
-                ApiBase::PARAM_REQUIRED => true
+                ApiBase::PARAM_HELP_MSG => "wss-api-nsadmins-param"
             ]
         ];
     }

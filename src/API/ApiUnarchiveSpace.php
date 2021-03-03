@@ -63,8 +63,7 @@ class ApiUnarchiveSpace extends ApiBase {
         return [
             'nskey' => [
                 ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nskey-param",
-                ApiBase::PARAM_REQUIRED => true
+                ApiBase::PARAM_HELP_MSG => "wss-api-nskey-param"
             ]
         ];
     }
