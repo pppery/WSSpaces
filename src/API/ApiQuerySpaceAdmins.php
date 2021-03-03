@@ -24,7 +24,7 @@ class ApiQuerySpaceAdmins extends \ApiQueryBase
             $usrGrps = $usrGrpMng->getUserGroups($currentUser);
 
             if (!in_array($ns_id."Admin", $usrGrps) && !in_array("sysop", $usrGrps)) {
-                $this->dieWithError( wfMessage("wss-permission-denied", "spaceadmins"));
+                $this->dieWithError( wfMessage("wss-permission-denied-spaceadmins"));
             }
 
             $namespace_repository = new NamespaceRepository();
@@ -46,7 +46,7 @@ class ApiQuerySpaceAdmins extends \ApiQueryBase
                 $i++;
             }
         } else {
-            $this->dieWithError( wfMessage( "wss-api-missing-param", "namespace" ) );
+            $this->dieWithError( wfMessage( "wss-api-missing-param-namespace" ) );
         }
     }
 

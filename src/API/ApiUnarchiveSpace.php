@@ -36,7 +36,7 @@ class ApiUnarchiveSpace extends ApiBase {
         $request_params = $this->extractRequestParams();
 
         if ( !isset( $request_params["nskey"] ) ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param", "nskey" ) );
+            $this->dieWithError( wfMessage( "wss-api-missing-param-nskey" ) );
         }
 
         $space = Space::newFromKey( $request_params["nskey"] );
@@ -44,8 +44,7 @@ class ApiUnarchiveSpace extends ApiBase {
         if ( !$space instanceof Space ) {
             $this->dieWithError(
                 wfMessage(
-                    "wss-api-invalid-param-detailed",
-                    "nskey",
+                    "wss-api-invalid-param-detailed-nskey",
                     wfMessage( "wss-api-space-does-not-exist", $request_params["nskey"] )->parse()
                 )
             );

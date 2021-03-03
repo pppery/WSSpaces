@@ -97,25 +97,25 @@ class ApiAddSpace extends ApiBase {
         $ns_key = isset( $request_params["nskey"] ) ? $request_params["nskey"] : false;
 
         if ( $ns_key === false ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param", "nskey" ) );
+            $this->dieWithError( wfMessage( "wss-api-missing-param-nskey" ) );
         }
 
         $ns_name = isset( $request_params["nsname"] ) ? $request_params["nsname"] : false;
 
         if ( $ns_name === false ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param", "nsname" ) );
+            $this->dieWithError( wfMessage( "wss-api-missing-param-nsname" ) );
         }
 
         $ns_description = isset( $request_params["nsdescription"] ) ? $request_params["nsdescription"] : false;
 
         if ( $ns_description === false ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param", "nsdescription" ) );
+            $this->dieWithError( wfMessage( "wss-api-missing-param-nsdescription" ) );
         }
 
         $ns_admins = isset( $request_params["nsadmins"] ) ? $request_params["nsadmins"] : false;
 
         if ( $ns_admins === false ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param", "nsadmins" ) );
+            $this->dieWithError( wfMessage( "wss-api-missing-param-nsadmins" ) );
         }
 
         // Although this validation is made for HTMLForm, we use it here to avoid repeating ourselves
@@ -129,18 +129,18 @@ class ApiAddSpace extends ApiBase {
         // Validate "nskey"
         $error_or_true = $add_space_validation_callback->validateField( "namespace", $ns_key, $request_data );
         if ( $error_or_true !== true ) {
-            $this->dieWithError( wfMessage( "wss-api-invalid-param-detailed", "nskey", $error_or_true ) );
+            $this->dieWithError( wfMessage( "wss-api-invalid-param-detailed-nskey", $error_or_true ) );
         }
 
         // Validate "nsname"
         $error_or_true = $add_space_validation_callback->validateField( "namespace_name", $ns_name, $request_data );
         if ( $error_or_true !== true ) {
-            $this->dieWithError( wfMessage( "wss-api-invalid-param-detailed", "nsname", $error_or_true ) );
+            $this->dieWithError( wfMessage( "wss-api-invalid-param-detailed-nsname", $error_or_true ) );
         }
 
         // Validate "nsdescription"
         if ( $add_space_validation_callback->validateRequired( $ns_description ) !== true ) {
-            $this->dieWithError( wfMessage( "wss-api-invalid-param", "nsdescription" ) );
+            $this->dieWithError( wfMessage( "wss-api-invalid-param-nsdescription" ) );
         }
 
         $ns_admins = explode( ",", $ns_admins );
@@ -150,7 +150,7 @@ class ApiAddSpace extends ApiBase {
             $user = User::newFromName( $ns_admin_name );
 
             if ( !$user instanceof User || $user->isAnon() ) {
-                $this->dieWithError( wfMessage( "wss-api-invalid-param", "nsadmins") );
+                $this->dieWithError( wfMessage( "wss-api-invalid-param-nsadmins") );
             }
         }
     }
