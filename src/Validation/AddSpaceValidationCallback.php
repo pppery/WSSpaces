@@ -71,11 +71,11 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
      * @return bool|string
      */
     private function validateNamespaceName( $value, array $form_data ) {
-        $valid = ctype_alnum( str_replace( ' ', '', $value ) );
-
-        if ( !$valid ) {
-            return wfMessage( "wss-invalid-namespace-name" )->parse();
-        }
+//        $valid = ctype_alnum( str_replace( ' ', '', $value ) );
+//
+//        if ( !$valid ) {
+//            return wfMessage( "wss-invalid-namespace-name" )->parse();
+//        }
 
         // Get DB_MASTER to ensure integrity
         $database = wfGetDB( DB_MASTER );
