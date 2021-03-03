@@ -1,6 +1,7 @@
 <?php
 namespace WSS\API;
 
+use MediaWiki\MediaWikiServices;
 use User;
 use WSS\NamespaceRepository;
 
@@ -18,7 +19,13 @@ class ApiQuerySpaceAdmins extends \ApiQueryBase
         $ns_id = isset( $request_params["namespace"] ) ? $request_params["namespace"] : false;
 
         if ($ns_id !== false) {
-            $this->checkUserRightsAny( $ns_id."Admin" );
+            $currentUser = \RequestContext::getMain()->getUser();
+            $usrGrpMng = MediaWikiServices::getInstance()->getUserGroupManager();
+            $usrGrps = $usrGrpMng->getUserGroups($currentUser);
+
+            if (!in_array($ns_id."Admin", $usrGrps) && !in_array("sysop", $usrGrps)) {
+                $this->dieWithError( wfMessage("wss-permission-denied", "spaceadmins"));
+            }
 
             $namespace_repository = new NamespaceRepository();
 

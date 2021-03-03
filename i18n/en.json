@@ -93,5 +93,6 @@
   "apihelp-addspace-example-50000": "Edit the space with ID 50000.",
   "apihelp-query-example-not-archived": "Query all spaces that are not archived.",
   "apihelp-query-example-archived": "Query all spaces that are archived.",
-  "apihelp-query-example-namespace-admins": "Query all admins belonging to a namespace."
+  "apihelp-query-example-namespace-admins": "Query all admins belonging to a namespace.",
+  "wss-permission-denied": "You do not have permission to view the $1 list."
 }
