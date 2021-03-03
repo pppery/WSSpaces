@@ -49,7 +49,7 @@ class ApiQuerySpaceAdmins extends \ApiQueryBase
     public function getAllowedParams(): array {
         return [
             'namespace' => [
-                ApiBase::PARAM_TYPE => "int",
+                ApiBase::PARAM_TYPE => "integer",
                 ApiBase::PARAM_HELP_MSG => "wss-api-namespace-param"
             ]
         ];
