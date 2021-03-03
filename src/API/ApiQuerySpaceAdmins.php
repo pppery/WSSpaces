@@ -34,7 +34,7 @@ class ApiQuerySpaceAdmins extends \ApiQueryBase
 
             // Turn the list of namespace constants into Space objects
             $admins = array_map( [ User::class, "newFromId" ], $admin_ids );
-            $admins = array_filter($admins, function ($user):bool { return !($user instanceof User); });
+            $admins = array_filter($admins, function ($user):bool { return ($user instanceof User); });
 
             // Get a pointer to the result
             $result = $this->getResult();
