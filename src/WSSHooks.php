@@ -17,7 +17,7 @@ abstract class WSSHooks {
      *
      * @param Parser $parser
      */
-    public static function onParserFirstCallInit( Parser $parser ) {
+    public static function onParserFirstCallInit( \Parser $parser ) {
         // Create a function hook associating the "example" magic word with renderExample()
         $parser->setFunctionHook( 'spaceadmins', [ self::class, 'renderSpaceAdmins' ] );
     }
@@ -25,7 +25,7 @@ abstract class WSSHooks {
     /**
      * Render the output of {{#spaceadmins: namespace}}.
      */
-    public static function renderSpaceAdmins( Parser $parser, $namespace = '' ) : string {
+    public static function renderSpaceAdmins( \Parser $parser, $namespace = '' ) : string {
         if ($namespace === '') {
             return "No namespace provided.";
         }
@@ -34,8 +34,8 @@ abstract class WSSHooks {
         $admin_ids = NamespaceRepository::getNamespaceAdmins($namespace);
 
         // Turn the list of namespace constants into Space objects
-        $admins = array_map( [ User::class, "newFromId" ], $admin_ids );
-        $admins = array_filter($admins, function ($user):bool { return ($user instanceof User); });
+        $admins = array_map( [ \User::class, "newFromId" ], $admin_ids );
+        $admins = array_filter($admins, function ($user):bool { return ($user instanceof \User); });
 
         // Add all names to a comma separated string with admin names in it.
         $adminString = "";
