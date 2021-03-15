@@ -1,6 +1,6 @@
 {
   "name": "WSSpaces",
-  "version": "1.2",
+  "version": "1.3",
   "namemsg": "wss-extensionname",
   "url": "https://wikibase-solutions.com",
   "type": "csp",
@@ -20,12 +20,16 @@
   "AutoloadNamespaces": {
     "WSS\\": "src/"
   },
+  "ExtensionMessagesFiles": {
+    "WSSpacesMagic": "WSSpaces.i18n.php"
+  },
   "Hooks": {
     "SecuritySensitiveOperationStatus": "WSS\\WSSHooks::onSecuritySensitiveOperationStatus",
     "SkinBuildSidebar": "WSS\\WSSHooks::onSkinBuildSidebar",
     "LoadExtensionSchemaUpdates": "WSS\\WSSHooks::onLoadExtensionSchemaUpdates",
     "CanonicalNamespaces": "WSS\\WSSHooks::onCanonicalNamespaces",
-    "ExtensionTypes": "WSS\\WSSHooks::onExtensionTypes"
+    "ExtensionTypes": "WSS\\WSSHooks::onExtensionTypes",
+    "ParserFirstCallInit": "WSS\\WSSHooks::onParserFirstCallInit"
   },
   "SpecialPages": {
     "AddSpace": "WSS\\Special\\SpecialAddSpace",

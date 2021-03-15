@@ -112,7 +112,7 @@ class NamespaceRepository {
      * @param int $namespace_id
      * @return array
      */
-    public function getNamespaceAdmins( int $namespace_id ): array {
+    public static function getNamespaceAdmins( int $namespace_id ): array {
         $dbr = wfGetDB( DB_REPLICA );
         $result = $dbr->select(
             'wss_namespace_admins',

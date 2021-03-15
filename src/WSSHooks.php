@@ -13,6 +13,49 @@ abstract class WSSHooks {
     const TIMEOUT = 12000;
 
     /**
+     * Hook WSSpaces into the parser.
+     *
+     * @param Parser $parser
+     */
+    public static function onParserFirstCallInit( Parser $parser ) {
+        // Create a function hook associating the "example" magic word with renderExample()
+        $parser->setFunctionHook( 'spaceadmins', [ self::class, 'renderSpaceAdmins' ] );
+    }
+
+    /**
+     * Render the output of {{#spaceadmins: namespace}}.
+     */
+    public static function renderSpaceAdmins( Parser $parser, $namespace = '' ) : string {
+        if ($namespace === '') {
+            return "No namespace provided.";
+        }
+
+        // Get all admin ids for a namespace
+        $admin_ids = NamespaceRepository::getNamespaceAdmins($namespace);
+
+        // Turn the list of namespace constants into Space objects
+        $admins = array_map( [ User::class, "newFromId" ], $admin_ids );
+        $admins = array_filter($admins, function ($user):bool { return ($user instanceof User); });
+
+        // Add all names to a comma separated string with admin names in it.
+        $adminString = "";
+        foreach ($admins as $admin) {
+            if ($adminString !== "") {
+                $adminString .= ", ";
+            }
+            $adminString .= $admin->getName();
+        }
+
+        // If no admins passed through the User object filter, send this back.
+        if ($adminString === "") {
+            return "No admins passed the User check filter.";
+        }
+
+        // Return the string list of admins.
+        return $adminString;
+    }
+
+    /**
      * Affect the return value from AuthManager::securitySensitiveOperationStatus().
      *
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/SecuritySensitiveOperationStatus
