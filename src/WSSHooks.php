@@ -18,7 +18,6 @@ abstract class WSSHooks {
      * @param Parser $parser
      */
     public static function onParserFirstCallInit( \Parser $parser ) {
-        // Create a function hook associating the "example" magic word with renderExample()
         $parser->setFunctionHook( 'spaceadmins', [ self::class, 'renderSpaceAdmins' ] );
     }
 
@@ -26,18 +25,25 @@ abstract class WSSHooks {
      * Render the output of {{#spaceadmins: namespace}}.
      */
     public static function renderSpaceAdmins( \Parser $parser, $namespace = '' ) : string {
+        // If no namespace is provided, exit and mention this.
         if ($namespace === '') {
             return "No namespace provided.";
         }
 
-        // Get all admin ids for a namespace
+        // Get all admin ids for a namespace. If no admins are found, return the error message.
         $admin_ids = NamespaceRepository::getNamespaceAdmins($namespace);
+        if (empty($admin_ids)) {
+            return "No admins found for namespace: $namespace!";
+        }
 
-        // Turn the list of namespace constants into Space objects
+        // Turn the list of admin ids into User objects
         $admins = array_map( [ \User::class, "newFromId" ], $admin_ids );
         $admins = array_filter($admins, function ($user):bool { return ($user instanceof \User); });
+        if (empty($admins)) {
+            return "No admins are valid MediaWiki Users!";
+        }
 
-        // Add all names to a comma separated string with admin names in it.
+        // Add all admin names to a comma separated string.
         $adminString = "";
         foreach ($admins as $admin) {
             if ($adminString !== "") {
@@ -46,12 +52,7 @@ abstract class WSSHooks {
             $adminString .= $admin->getName();
         }
 
-        // If no admins passed through the User object filter, send this back.
-        if ($adminString === "") {
-            return "No admins passed the User check filter.";
-        }
-
-        // Return the string list of admins.
+        // Return the admin list.
         return $adminString;
     }
 
