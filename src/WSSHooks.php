@@ -25,9 +25,12 @@ abstract class WSSHooks {
      * Render the output of {{#spaceadmins: namespace}}.
      */
     public static function renderSpaceAdmins( \Parser $parser, $namespace = '' ) : string {
-        // If no namespace is provided, exit and mention this.
+        // Validate namespace input.
         if ($namespace === '') {
             return "No namespace provided.";
+        }
+        if (ctype_digit($namespace)) {
+            return "Namespace can only be (positive) numbers.";
         }
 
         // Get all admin ids for a namespace. If no admins are found, return the error message.
@@ -44,16 +47,10 @@ abstract class WSSHooks {
         }
 
         // Add all admin names to a comma separated string.
-        $adminString = "";
-        foreach ($admins as $admin) {
-            if ($adminString !== "") {
-                $adminString .= ", ";
-            }
-            $adminString .= $admin->getName();
-        }
+        $admins = array_map(fn(\User $user)=>$user->getName(), $admins);
 
         // Return the admin list.
-        return $adminString;
+        return implode(",", $admins);
     }
 
     /**
