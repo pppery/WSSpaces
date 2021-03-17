@@ -29,7 +29,7 @@ abstract class WSSHooks {
         if ($namespace === '') {
             return "No namespace provided.";
         }
-        if (ctype_digit($namespace)) {
+        if (!ctype_digit($namespace)) {
             return "Namespace can only be (positive) numbers.";
         }
 
