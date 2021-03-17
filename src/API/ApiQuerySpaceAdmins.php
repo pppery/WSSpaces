@@ -39,12 +39,11 @@ class ApiQuerySpaceAdmins extends \ApiQueryBase
             // Get a pointer to the result
             $result = $this->getResult();
 
-            $i = 0;
-            foreach ($admins as $admin) {
-                $result->addValue( $i, "name", $admin->getName() );
-                $result->addValue( $i, "user_id", $admin->getId() );
-                $i++;
+            foreach ($admins as $key => $admin) {
+                $result->addValue( ["admins", $key], "admin_id", (int)$admin->getId());
+                $result->addValue( ["admins", $key], "admin_name", $admin->getName());
             }
+
         } else {
             $this->dieWithError( wfMessage( "wss-api-missing-param-namespace" ) );
         }
