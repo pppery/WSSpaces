@@ -62,9 +62,15 @@ class ApiAddSpace extends ApiBase {
          */
         $current_user = \RequestContext::getMain()->getUser();
 
-        // Add the current user to the list of namespace admins
-        $current_user_name = $current_user->getName();
-        if ( !in_array( $current_user, $ns_admins ) ) {
+//        // Add the current user to the list of namespace admins
+//        $current_user_name = $current_user->getName();
+//        if ( !in_array( $current_user, $ns_admins ) ) {
+//            $ns_admins[] = $current_user_name;
+//        }
+
+        // If no admins were given, add current user to the list of admins.
+        if (!$ns_admins || empty($ns_admins)) {
+            $current_user_name = $current_user->getName();
             $ns_admins[] = $current_user_name;
         }
 
