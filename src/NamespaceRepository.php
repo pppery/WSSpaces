@@ -342,7 +342,7 @@ class NamespaceRepository {
             $usrGrpName = $space->getId() . "Admin";
 
             foreach (self::getNamespaceAdmins($space->getId()) as $admin) {
-                $adminObj = User::newFromName($admin);
+                $adminObj = User::newFromId($admin);
                 if (in_array($usrGrpName, $usrGrpMng->getUserGroups($adminObj))) {
                     $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
                     // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
@@ -351,7 +351,7 @@ class NamespaceRepository {
             }
 
             foreach ($rows as $admin) {
-                $adminObj = User::newFromName($admin);
+                $adminObj = User::newFromId($admin);
                 if (!in_array($usrGrpName, $usrGrpMng->getUserGroups($adminObj))) {
                     $usrGrpMng->addUserToGroup($adminObj, $usrGrpName, null, false);
                     // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
