@@ -347,22 +347,35 @@ class NamespaceRepository {
                     $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
                     // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
                     usleep(50);
+                    if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
+                        $usrGrp = $space->getId();
+                        if (in_array($usrGrp, $usrGrpMng->getUserGroups($adminObj))) {
+                            $usrGrpMng->removeUserFromGroup($adminObj, $usrGrp);
+                            // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
+                            usleep(50);
+                        }
+                    }
                 }
             }
 
             foreach ($rows as $admin) {
                 $adminObj = User::newFromId($admin);
-                if (!in_array($usrGrpName, $usrGrpMng->getUserGroups($adminObj))) {
+                if (!key_exists($usrGrpName, $usrGrpMng->getUserGroups($adminObj))) {
                     $usrGrpMng->addUserToGroup($adminObj, $usrGrpName, null, false);
                     // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
                     usleep(50);
-                }
-            }
+                    if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
+                        global $wgGroupPermissions;
+                        $wgGroupPermissions[$usrGrpName]['wsnl-api-manage'] = true;
 
-            // If WSNamespaceLockdown is active, add this user group to those who are allowed to use the WSNL API.
-            if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
-                global $wgGroupPermissions;
-                $wgGroupPermissions[$usrGrpName]['wsnl-api-manage'] = true;
+                        $usrGrp = $space->getId();
+                        if (!key_exists($usrGrp, $usrGrpMng->getUserGroups($adminObj))) {
+                            $usrGrpMng->addUserToGroup($adminObj, $usrGrp, null, false);
+                            // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
+                            usleep(50);
+                        }
+                    }
+                }
             }
         }
 
