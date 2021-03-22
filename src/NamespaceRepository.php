@@ -354,6 +354,12 @@ class NamespaceRepository {
                 // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
                 usleep(50);
             }
+
+            // If WSNamespaceLockdown is active, add this user group to those who are allowed to use the WSNL API.
+            if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
+                global $wgGroupPermissions;
+                $wgGroupPermissions[$usrGrpName]['wsnl-api-manage'] = true;
+            }
         }
 
     }
