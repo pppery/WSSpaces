@@ -343,16 +343,20 @@ class NamespaceRepository {
 
             foreach (self::getNamespaceAdmins($space->getId()) as $admin) {
                 $adminObj = User::newFromName($admin);
-                $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
-                // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
-                usleep(50);
+                if (in_array($usrGrpName, $usrGrpMng->getUserGroups($adminObj))) {
+                    $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
+                    // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
+                    usleep(50);
+                }
             }
 
             foreach ($rows as $admin) {
                 $adminObj = User::newFromName($admin);
-                $usrGrpMng->addUserToGroup($adminObj, $usrGrpName, null, false);
-                // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
-                usleep(50);
+                if (!in_array($usrGrpName, $usrGrpMng->getUserGroups($adminObj))) {
+                    $usrGrpMng->addUserToGroup($adminObj, $usrGrpName, null, false);
+                    // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
+                    usleep(50);
+                }
             }
 
             // If WSNamespaceLockdown is active, add this user group to those who are allowed to use the WSNL API.
