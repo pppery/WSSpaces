@@ -336,6 +336,26 @@ class NamespaceRepository {
         ] );
 
         $database->insert( 'wss_namespace_admins', $rows );
+
+        if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
+            $usrGrpMng = MediaWikiServices::getInstance()->getUserGroupManager();
+            $usrGrpName = $space->getId() . "Admin";
+
+            foreach (self::getNamespaceAdmins($space->getId()) as $admin) {
+                $adminObj = User::newFromName($admin);
+                $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
+                // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
+                usleep(50);
+            }
+
+            foreach ($rows as $admin) {
+                $adminObj = User::newFromName($admin);
+                $usrGrpMng->addUserToGroup($adminObj, $usrGrpName, null, false);
+                // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
+                usleep(50);
+            }
+        }
+
     }
 
     /**

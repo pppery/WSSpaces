@@ -114,6 +114,9 @@
   "config": {
     "WSSpacesEnableSpaceArchiving": {
       "value": true
+    },
+    "WSSpacesAutoAddAdminsToUserGroups": {
+      "value": false
     }
   },
   "APIModules": {
