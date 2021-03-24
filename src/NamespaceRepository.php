@@ -331,6 +331,25 @@ class NamespaceRepository {
         $namespace_id = $space->getId();
         $rows = $this->createRowsFromSpaceAdministrators( $space->getSpaceAdministrators(), $namespace_id );
 
+        $oldAdmins = self::getNamespaceAdmins($space->getId());
+        $newAdmins = array_map(fn($row) => $row["admin_user_id"], $rows);
+        $diffAdmins = array_diff($oldAdmins, $newAdmins);
+
+        $usrGrpMng = MediaWikiServices::getInstance()->getUserGroupManager();
+        $usrGrpName = $space->getId() . "Admin";
+        $usrGrp = (string)$space->getId();
+
+        if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
+            foreach ($diffAdmins as $admin) {
+                $adminObj = User::newFromId((int)$admin);
+
+                $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
+                if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
+                    $usrGrpMng->removeUserFromGroup($adminObj, $usrGrp);
+                }
+            }
+        }
+
         $database->delete('wss_namespace_admins', [
             "namespace_id" => $namespace_id
         ] );
@@ -338,43 +357,15 @@ class NamespaceRepository {
         $database->insert( 'wss_namespace_admins', $rows );
 
         if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
-            $usrGrpMng = MediaWikiServices::getInstance()->getUserGroupManager();
-            $usrGrpName = $space->getId() . "Admin";
-
-            foreach (self::getNamespaceAdmins($space->getId()) as $admin) {
+            foreach ($newAdmins as $admin) {
                 $adminObj = User::newFromId($admin);
-                if (in_array($usrGrpName, $usrGrpMng->getUserGroups($adminObj))) {
-                    $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
-                    // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
-                    usleep(50);
-                    if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
-                        $usrGrp = $space->getId();
-                        if (in_array($usrGrp, $usrGrpMng->getUserGroups($adminObj))) {
-                            $usrGrpMng->removeUserFromGroup($adminObj, $usrGrp);
-                            // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
-                            usleep(50);
-                        }
-                    }
-                }
+                $usrGrpMng->addUserToGroup($adminObj, $usrGrpName);
             }
-
-            foreach ($rows as $admin) {
-                $adminObj = User::newFromId($admin);
-                if (!key_exists($usrGrpName, $usrGrpMng->getUserGroups($adminObj))) {
-                    $usrGrpMng->addUserToGroup($adminObj, $usrGrpName, null, false);
-                    // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
-                    usleep(50);
-                    if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
-                        global $wgGroupPermissions;
-                        $wgGroupPermissions[$usrGrpName]['wsnl-api-manage'] = true;
-
-                        $usrGrp = $space->getId();
-                        if (!key_exists($usrGrp, $usrGrpMng->getUserGroups($adminObj))) {
-                            $usrGrpMng->addUserToGroup($adminObj, $usrGrp, null, false);
-                            // Prevent Database deadlocking by sleeping a brief moment to give the database time to process.
-                            usleep(50);
-                        }
-                    }
+            if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
+                $newUsers = array_unique(array_merge($newAdmins, $diffAdmins));
+                foreach ($newUsers as $user) {
+                    $userObj = User::newFromId($user);
+                    $usrGrpMng->addUserToGroup($userObj, $usrGrp);
                 }
             }
         }
