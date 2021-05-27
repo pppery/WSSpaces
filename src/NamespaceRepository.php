@@ -344,6 +344,19 @@ class NamespaceRepository {
                 $adminObj = User::newFromId((int)$admin);
 
                 $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
+
+                $rmnSpcAdmin = false;
+                foreach ($usrGrpMng->getUserGroups($adminObj) as $chGrp) {
+                    if ((strpos($chGrp, "Admin") !== false) && $chGrp !== "SpaceAdmin") {
+                        $rmnSpcAdmin = true;
+                    }
+                }
+                if (!$rmnSpcAdmin) {
+                    if (in_array("SpaceAdmin", $usrGrpMng->getUserGroups($adminObj), true)) {
+                        $usrGrpMng->removeUserFromGroup($adminObj, "SpaceAdmin");
+                    }
+                }
+
                 if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
                     $usrGrpMng->removeUserFromGroup($adminObj, $usrGrp);
                 }
@@ -360,6 +373,7 @@ class NamespaceRepository {
             foreach ($newAdmins as $admin) {
                 $adminObj = User::newFromId($admin);
                 $usrGrpMng->addUserToGroup($adminObj, $usrGrpName);
+                $usrGrpMng->addUserToGroup($adminObj, "SpaceAdmin");
             }
             if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
                 $newUsers = array_unique(array_merge($newAdmins, $diffAdmins));
