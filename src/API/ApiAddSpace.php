@@ -4,6 +4,7 @@
 namespace WSS\API;
 
 use ApiUsageException;
+use MediaWiki\MediaWikiServices;
 use MWException;
 use User;
 use WSS\NamespaceRepository;
@@ -151,12 +152,14 @@ class ApiAddSpace extends ApiBase {
 
         $ns_admins = explode( ",", $ns_admins );
 
-        // Validate "nsadmins"
-        foreach ( $ns_admins as $ns_admin_name ) {
-            $user = User::newFromName( $ns_admin_name );
+        if (!MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAllowNoAdmins" )) {
+            // Validate "nsadmins"
+            foreach ($ns_admins as $ns_admin_name) {
+                $user = User::newFromName($ns_admin_name);
 
-            if ( !$user instanceof User || $user->isAnon() ) {
-                $this->dieWithError( wfMessage( "wss-api-invalid-param-nsadmins") );
+                if (!$user instanceof User || $user->isAnon()) {
+                    $this->dieWithError(wfMessage("wss-api-invalid-param-nsadmins"));
+                }
             }
         }
     }

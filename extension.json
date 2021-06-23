@@ -1,6 +1,6 @@
 {
   "name": "WSSpaces",
-  "version": "1.4",
+  "version": "1.5",
   "namemsg": "wss-extensionname",
   "url": "https://wikibase-solutions.com",
   "type": "csp",
@@ -116,6 +116,9 @@
       "value": true
     },
     "WSSpacesAutoAddAdminsToUserGroups": {
+      "value": false
+    },
+    "WSSpacesAllowNoAdmins": {
       "value": false
     }
   },

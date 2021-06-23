@@ -9,7 +9,8 @@ options and usage.
 WSSpaces has two configuration variable.
 
 * `$wgWSSpacesEnableSpaceArchiving` (boolean, default: true) Whether to allow archiving of spaces
-* `$wgWSSpacesAutoAddAdminsToUserGroups` (boolean, default: false) Whether to automatically add space admins to a user group. Eg. An admin for a space with id 50000 will get added to a group called '50000Admin'. Will additionally add admins to a general 'SpaceAdmin' group that can be used to assign rights to for all space admins.
+* `$wgWSSpacesAutoAddAdminsToUserGroups` (boolean, default: false) Whether to automatically add space admins to a user group. Eg. An admin for a space with id 50000 will get added to a group called '50000Admin'. Will additionally add admins to a general 'SpaceAdmin' group that can be used to assign rights to all space admins.
+* `$wgWSSpacesAllowNoAdmins` (boolean, default: false) If set to true, this will disable the validation check that at least one admin must be set for this space. This is not recommended.
 
 To enable Semantic MediaWiki for the created namespace, place the following code inbetween the initialization of Semantic MediaWiki and WSSpaces in LocalSettings.php:
 
