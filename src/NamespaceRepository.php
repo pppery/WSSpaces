@@ -4,10 +4,12 @@ namespace WSS;
 
 use Config;
 use ConfigException;
+use DerivativeContext;
 use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
 use MWException;
 use PermissionsError;
+use RequestContext;
 use User;
 use WSS\Log\AddSpaceLog;
 use WSS\Log\ArchiveSpaceLog;
@@ -339,6 +341,14 @@ class NamespaceRepository {
         $usrGrpName = $space->getId() . "Admin";
         $usrGrp = (string)$space->getId();
 
+        // Get the special page to alter rights and give notifications.
+        $context = new DerivativeContext( RequestContext::getMain() );
+        $context->setUser( RequestContext::getMain()->getUser() );
+        $URSP = MediaWikiServices::getInstance()
+            ->getSpecialPageFactory()
+            ->getPage( 'Userrights' );
+        $URSP->setContext( $context );
+
         if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
             foreach ($diffAdmins as $admin) {
                 $adminObj = User::newFromId((int)$admin);
@@ -372,8 +382,11 @@ class NamespaceRepository {
         if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
             foreach ($newAdmins as $admin) {
                 $adminObj = User::newFromId($admin);
-                $usrGrpMng->addUserToGroup($adminObj, $usrGrpName);
-                $usrGrpMng->addUserToGroup($adminObj, "SpaceAdmin");
+
+                $URSP->doSaveUserGroups( $adminObj, [ $usrGrpName, "SpaceAdmin" ], [] );
+
+                //$usrGrpMng->addUserToGroup($adminObj, $usrGrpName);
+                //$usrGrpMng->addUserToGroup($adminObj, "SpaceAdmin");
             }
             if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
                 $newUsers = array_unique(array_merge($newAdmins, $diffAdmins));
