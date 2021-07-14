@@ -225,7 +225,10 @@ class NamespaceRepository {
 
         $log->publish();
 
-        \Hooks::run( "WSSpacesAfterCreateSpace", [ $space ] );
+        MediaWikiServices::getInstance()->getHookContainer()->run(
+            "WSSpacesAfterCreateSpace",
+            [ $space ]
+        );
 
         return $namespace_id;
     }

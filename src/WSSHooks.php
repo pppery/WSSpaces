@@ -5,6 +5,7 @@ namespace WSS;
 use ConfigException;
 use Exception;
 use MediaWiki\Auth\AuthManager;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Session\Session;
 use MWException;
 use WSS\UI\WSSUI;
@@ -170,7 +171,10 @@ abstract class WSSHooks {
         $spaces = $namespace_repository->getSpaces();
 
         foreach ( $spaces as $constant => $name ) {
-            \Hooks::run( "WSSpacesBeforeInitializeSpace", [ Space::newFromConstant( $constant ) ] );
+            MediaWikiServices::getInstance()->getHookContainer()->run(
+                "WSSpacesBeforeInitializeSpace",
+                [ Space::newFromConstant( $constant ) ]
+            );
             $namespaces[$constant] = $name;
         }
 

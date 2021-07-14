@@ -4,6 +4,7 @@
 namespace WSS\API;
 
 use ApiUsageException;
+use MediaWiki\MediaWikiServices;
 
 abstract class ApiBase extends \ApiBase {
     /**
@@ -16,7 +17,10 @@ abstract class ApiBase extends \ApiBase {
     public function dieWithError( $msg, $code = null, $data = null, $httpCode = null ) {
         $exception = ApiUsageException::newWithMessage( $this, $msg, $code, $data, $httpCode );
 
-        \Hooks::run( "WSSpacesCustomApiExceptionHandler", [ $exception ] );
+        MediaWikiServices::getInstance()->getHookContainer()->run(
+            "WSSpacesCustomApiExceptionHandler",
+            [ $exception ]
+        );
 
         throw $exception;
     }
