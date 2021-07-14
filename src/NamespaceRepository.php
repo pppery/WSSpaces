@@ -336,24 +336,25 @@ class NamespaceRepository {
         $oldAdmins = self::getNamespaceAdmins($space->getId());
         $newAdmins = array_map(fn($row) => $row["admin_user_id"], $rows);
         $diffAdmins = array_diff($oldAdmins, $newAdmins);
+        $interAdmins = array_intersect($oldAdmins, $newAdmins);
 
         $usrGrpMng = MediaWikiServices::getInstance()->getUserGroupManager();
         $usrGrpName = $space->getId() . "Admin";
         $usrGrp = (string)$space->getId();
-
-        // Get the special page to alter rights and give notifications.
-        $context = new DerivativeContext( RequestContext::getMain() );
-        $context->setUser( RequestContext::getMain()->getUser() );
-        $URSP = MediaWikiServices::getInstance()
-            ->getSpecialPageFactory()
-            ->getPage( 'Userrights' );
-        $URSP->setContext( $context );
 
         if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
             foreach ($diffAdmins as $admin) {
                 $adminObj = User::newFromId((int)$admin);
 
                 $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
+
+                // Let MediaWiki know that the User group has changed. (Required for Echo)
+                if (!in_array($admin, $interAdmins, false)) {
+                    MediaWikiServices::getInstance()->getHookContainer()->run(
+                        "UserGroupsChanged",
+                        [ $adminObj, [], [ $usrGrpName ], RequestContext::getMain()->getUser() ]
+                    );
+                }
 
                 $rmnSpcAdmin = false;
                 foreach ($usrGrpMng->getUserGroups($adminObj) as $chGrp) {
@@ -364,11 +365,21 @@ class NamespaceRepository {
                 if (!$rmnSpcAdmin) {
                     if (in_array("SpaceAdmin", $usrGrpMng->getUserGroups($adminObj), true)) {
                         $usrGrpMng->removeUserFromGroup($adminObj, "SpaceAdmin");
+
+                        // User is no longer admin for any spaces! Remove them from the overarching SpaceAdmin group.
+                        // Also let MediaWiki know this change was made. (Required for Echo)
+                        MediaWikiServices::getInstance()->getHookContainer()->run(
+                            "UserGroupsChanged",
+                            [ $adminObj, [], [ "SpaceAdmin" ], RequestContext::getMain()->getUser() ]
+                        );
                     }
                 }
 
                 if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
                     $usrGrpMng->removeUserFromGroup($adminObj, $usrGrp);
+
+                    // No message will be given to MediaWiki that User group has changed,
+                    // since this is an implied change.
                 }
             }
         }
@@ -383,10 +394,27 @@ class NamespaceRepository {
             foreach ($newAdmins as $admin) {
                 $adminObj = User::newFromId($admin);
 
-                $URSP->doSaveUserGroups( $adminObj, [ $usrGrpName, "SpaceAdmin" ], [] );
+                // If user was not in the SpaceAdmin group before, let MediaWiki know they've been added to it!
+                // (Required for Echo)
+                if (!in_array("SpaceAdmin", $usrGrpMng->getUserGroups($admin), true)) {
+                    MediaWikiServices::getInstance()->getHookContainer()->run(
+                        "UserGroupsChanged",
+                        [ $adminObj, [ "SpaceAdmin" ], [], RequestContext::getMain()->getUser() ]
+                    );
+                }
+                // Actually add them, as well.
+                $usrGrpMng->addUserToGroup($adminObj, "SpaceAdmin");
 
-                //$usrGrpMng->addUserToGroup($adminObj, $usrGrpName);
-                //$usrGrpMng->addUserToGroup($adminObj, "SpaceAdmin");
+                // Add user to Space Admin group.
+                $usrGrpMng->addUserToGroup($adminObj, $usrGrpName);
+
+                // Let MediaWiki know that the User group has changed. (Required for Echo)
+                if (!in_array($admin, $interAdmins, false)) {
+                    MediaWikiServices::getInstance()->getHookContainer()->run(
+                        "UserGroupsChanged",
+                        [ $adminObj, [ $usrGrpName ], [], RequestContext::getMain()->getUser() ]
+                    );
+                }
             }
             if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
                 $newUsers = array_unique(array_merge($newAdmins, $diffAdmins));
@@ -394,6 +422,9 @@ class NamespaceRepository {
                     $userObj = User::newFromId($user);
                     $usrGrpMng->addUserToGroup($userObj, $usrGrp);
                 }
+
+                // No message will be given to MediaWiki that User group has changed,
+                // since this is an implied change.
             }
         }
 
