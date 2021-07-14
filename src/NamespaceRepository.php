@@ -396,7 +396,7 @@ class NamespaceRepository {
 
                 // If user was not in the SpaceAdmin group before, let MediaWiki know they've been added to it!
                 // (Required for Echo)
-                if (!in_array("SpaceAdmin", $usrGrpMng->getUserGroups($admin), true)) {
+                if (!in_array("SpaceAdmin", $usrGrpMng->getUserGroups($adminObj), true)) {
                     MediaWikiServices::getInstance()->getHookContainer()->run(
                         "UserGroupsChanged",
                         [ $adminObj, [ "SpaceAdmin" ], [], RequestContext::getMain()->getUser() ]
