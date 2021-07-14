@@ -350,7 +350,9 @@ class NamespaceRepository {
             foreach ($diffAdmins as $admin) {
                 $adminObj = User::newFromId((int)$admin);
 
-                $this->removeUserFromUserGroup($adminObj, $usrGrpName, $usrGrpMng);
+                if (!in_array($admin, $interAdmins, false)) {
+                    $this->removeUserFromUserGroup($adminObj, $usrGrpName, $usrGrpMng);
+                }
 
                 $rmnSpcAdmin = false;
                 foreach ($usrGrpMng->getUserGroups($adminObj) as $chGrp) {
@@ -366,9 +368,6 @@ class NamespaceRepository {
 
                 if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
                     $usrGrpMng->removeUserFromGroup($adminObj, $usrGrp);
-
-                    // No message will be given to MediaWiki that User group has changed,
-                    // since this is an implied change.
                 }
             }
         }
@@ -386,7 +385,9 @@ class NamespaceRepository {
                 if (!in_array("SpaceAdmin", $usrGrpMng->getUserGroups($adminObj), true)) {
                     $this->addUserToUserGroup($adminObj, "SpaceAdmin", $usrGrpMng);
                 }
-                $this->addUserToUserGroup($adminObj, $usrGrpName, $usrGrpMng);
+                if (!in_array($admin, $interAdmins, false)) {
+                    $this->addUserToUserGroup($adminObj, $usrGrpName, $usrGrpMng);
+                }
             }
             if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
                 $newUsers = array_unique(array_merge($newAdmins, $diffAdmins));
