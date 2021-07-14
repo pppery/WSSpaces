@@ -7,6 +7,7 @@ use ConfigException;
 use DerivativeContext;
 use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\User\UserGroupManager;
 use MWException;
 use PermissionsError;
 use RequestContext;
@@ -349,15 +350,7 @@ class NamespaceRepository {
             foreach ($diffAdmins as $admin) {
                 $adminObj = User::newFromId((int)$admin);
 
-                $usrGrpMng->removeUserFromGroup($adminObj, $usrGrpName);
-
-                // Let MediaWiki know that the User group has changed. (Required for Echo)
-                if (!in_array($admin, $interAdmins, false)) {
-                    MediaWikiServices::getInstance()->getHookContainer()->run(
-                        "UserGroupsChanged",
-                        [ $adminObj, [], [ $usrGrpName ], RequestContext::getMain()->getUser() ]
-                    );
-                }
+                $this->removeUserFromUserGroup($adminObj, $usrGrpName, $usrGrpMng);
 
                 $rmnSpcAdmin = false;
                 foreach ($usrGrpMng->getUserGroups($adminObj) as $chGrp) {
@@ -367,14 +360,7 @@ class NamespaceRepository {
                 }
                 if (!$rmnSpcAdmin) {
                     if (in_array("SpaceAdmin", $usrGrpMng->getUserGroups($adminObj), true)) {
-                        $usrGrpMng->removeUserFromGroup($adminObj, "SpaceAdmin");
-
-                        // User is no longer admin for any spaces! Remove them from the overarching SpaceAdmin group.
-                        // Also let MediaWiki know this change was made. (Required for Echo)
-                        MediaWikiServices::getInstance()->getHookContainer()->run(
-                            "UserGroupsChanged",
-                            [ $adminObj, [], [ "SpaceAdmin" ], RequestContext::getMain()->getUser() ]
-                        );
+                        $this->removeUserFromUserGroup($adminObj, "SpaceAdmin", $usrGrpMng);
                     }
                 }
 
@@ -397,27 +383,10 @@ class NamespaceRepository {
             foreach ($newAdmins as $admin) {
                 $adminObj = User::newFromId($admin);
 
-                // If user was not in the SpaceAdmin group before, let MediaWiki know they've been added to it!
-                // (Required for Echo)
                 if (!in_array("SpaceAdmin", $usrGrpMng->getUserGroups($adminObj), true)) {
-                    MediaWikiServices::getInstance()->getHookContainer()->run(
-                        "UserGroupsChanged",
-                        [ $adminObj, [ "SpaceAdmin" ], [], RequestContext::getMain()->getUser() ]
-                    );
+                    $this->addUserToUserGroup($adminObj, "SpaceAdmin", $usrGrpMng);
                 }
-                // Actually add them, as well.
-                $usrGrpMng->addUserToGroup($adminObj, "SpaceAdmin");
-
-                // Add user to Space Admin group.
-                $usrGrpMng->addUserToGroup($adminObj, $usrGrpName);
-
-                // Let MediaWiki know that the User group has changed. (Required for Echo)
-                if (!in_array($admin, $interAdmins, false)) {
-                    MediaWikiServices::getInstance()->getHookContainer()->run(
-                        "UserGroupsChanged",
-                        [ $adminObj, [ $usrGrpName ], [], RequestContext::getMain()->getUser() ]
-                    );
-                }
+                $this->addUserToUserGroup($adminObj, $usrGrpName, $usrGrpMng);
             }
             if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
                 $newUsers = array_unique(array_merge($newAdmins, $diffAdmins));
@@ -425,12 +394,31 @@ class NamespaceRepository {
                     $userObj = User::newFromId($user);
                     $usrGrpMng->addUserToGroup($userObj, $usrGrp);
                 }
-
-                // No message will be given to MediaWiki that User group has changed,
-                // since this is an implied change.
             }
         }
+    }
 
+    /**
+     * Add a user to a user group and notify MediaWiki of this.
+     *
+     * @param User $user The user object for the user that is being added.
+     * @param string $userGroup The user group that the user is being added to.
+     * @param UserGroupManager $groupManager The user group manager for the current context.
+     */
+    private function addUserToUserGroup( User $user, string $userGroup, UserGroupManager $groupManager): void {
+        MediaWikiServices::getInstance()->getHookContainer()->run(
+            "UserGroupsChanged",
+            [ $user, [ $userGroup ], [], RequestContext::getMain()->getUser() ]
+        );
+        $groupManager->addUserToGroup($user, $userGroup);
+    }
+
+    private function removeUserFromUserGroup( User $user, string $userGroup, UserGroupManager $groupManager): void {
+        MediaWikiServices::getInstance()->getHookContainer()->run(
+            "UserGroupsChanged",
+            [ $user, [], [ $userGroup ], RequestContext::getMain()->getUser() ]
+        );
+        $groupManager->removeUserFromGroup($user, $userGroup);
     }
 
     /**
