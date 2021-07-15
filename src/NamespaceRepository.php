@@ -337,70 +337,87 @@ class NamespaceRepository {
         $namespace_id = $space->getId();
         $rows = $this->createRowsFromSpaceAdministrators( $space->getSpaceAdministrators(), $namespace_id );
 
-        $oldAdmins = self::getNamespaceAdmins($space->getId());
-        $newAdmins = array_map(fn($row) => $row["admin_user_id"], $rows);
-        $diffAdmins = array_diff($oldAdmins, $newAdmins);
-        $interAdmins = array_intersect($oldAdmins, $newAdmins);
+        // Get the admins that were saved to mw last time.
+        $mw_saved_admins = self::getNamespaceAdmins($space->getId());
+        // Get the admins that were input as part of the change space form.
+        $admin_input = array_map(fn($row) => $row["admin_user_id"], $rows);
 
-        $usrGrpMng = MediaWikiServices::getInstance()->getUserGroupManager();
-        $usrGrpName = $space->getId() . "Admin";
-        $usrGrp = (string)$space->getId();
+        // Check which admins disappeared in the new input.
+        $difference_of_admins = array_diff($mw_saved_admins, $admin_input);
+        // Check which admins remained the same in the new input.
+        $intersection_of_admins = array_intersect($mw_saved_admins, $admin_input);
 
+        // Get the MW User Group Manager and prepare the names for the space.
+        $user_group_manager = MediaWikiServices::getInstance()->getUserGroupManager();
+        $user_group_name_WSS = $space->getId() . "Admin";
+        $user_group_name_WSNL = (string)$space->getId();
+
+        // If it is required that Admins are automatically removed to User Groups, perform the remove operation here:
         if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
-            foreach ($diffAdmins as $admin) {
-                $adminObj = User::newFromId((int)$admin);
+            foreach ($difference_of_admins as $admin) {
+                $admin_object = User::newFromId((int)$admin);
+                $admin_user_groups = $user_group_manager->getUserGroups($admin_object);
 
-                if (!in_array($admin, $interAdmins, false)) {
-                    $this->removeUserFromUserGroup($adminObj, $usrGrpName, $usrGrpMng);
-                }
+                $this->removeUserFromUserGroup($admin_object, $user_group_name_WSS, $user_group_manager);
 
-                $rmnSpcAdmin = false;
-                foreach ($usrGrpMng->getUserGroups($adminObj) as $chGrp) {
-                    if ((strpos($chGrp, "Admin") !== false) && $chGrp !== "SpaceAdmin") {
-                        $rmnSpcAdmin = true;
-                    }
-                }
-                if (!$rmnSpcAdmin) {
-                    if (in_array("SpaceAdmin", $usrGrpMng->getUserGroups($adminObj), true)) {
-                        $this->removeUserFromUserGroup($adminObj, "SpaceAdmin", $usrGrpMng);
+                // Check if a user is part of at least one space admin group. If so,
+                // allow them to keep the SpaceAdmin group membership.
+                $remain_space_admin = false;
+                foreach ($admin_user_groups as $checked_group) {
+                    if ((strpos($checked_group, "Admin") !== false) && $checked_group !== "SpaceAdmin") {
+                        $remain_space_admin = true;
                     }
                 }
 
+                // Remove the user from the SpaceAdmin group if they are not allowed to remain space admin.
+                if (!$remain_space_admin) {
+                    if (in_array("SpaceAdmin", $admin_user_groups, true)) {
+                        $this->removeUserFromUserGroup($admin_object, "SpaceAdmin", $user_group_manager);
+                    }
+                }
+
+                // If WSNamespaceLockdown was loaded, remove the user from the group.
+                // If they are allowed to be in the group anyway, they will be re-added later.
                 if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
-                    $usrGrpMng->removeUserFromGroup($adminObj, $usrGrp);
+                    $user_group_manager->removeUserFromGroup($admin_object, $user_group_name_WSNL);
                 }
             }
         }
 
+        // Do the actual database changes.
         $database->delete('wss_namespace_admins', [
             "namespace_id" => $namespace_id
         ] );
-
         $database->insert( 'wss_namespace_admins', $rows );
 
+        // If it is required that Admins are automatically added to User Groups, perform the add operation here:
         if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
-            foreach ($newAdmins as $admin) {
-                $adminObj = User::newFromId($admin);
+            foreach ($admin_input as $admin) {
+                $admin_object = User::newFromId($admin);
 
-                if (!in_array("SpaceAdmin", $usrGrpMng->getUserGroups($adminObj), true)) {
-                    $this->addUserToUserGroup($adminObj, "SpaceAdmin", $usrGrpMng);
+                // If the user was not an overarching space admin before, add them to this group now.
+                if (!in_array("SpaceAdmin", $user_group_manager->getUserGroups($admin_object), true)) {
+                    $this->addUserToUserGroup($admin_object, "SpaceAdmin", $user_group_manager);
                 }
-                if (!in_array($admin, $interAdmins, false)) {
-                    $this->addUserToUserGroup($adminObj, $usrGrpName, $usrGrpMng);
+                // If the user was not an admin of the altered space before, add them now.
+                if (!in_array($admin, $intersection_of_admins, false)) {
+                    $this->addUserToUserGroup($admin_object, $user_group_name_WSS, $user_group_manager);
                 }
             }
+
+            // If WSNamespaceLockdown was loaded, add the user to the group.
             if (\ExtensionRegistry::getInstance()->isLoaded( 'WSNamespaceLockdown' )) {
-                $newUsers = array_unique(array_merge($newAdmins, $diffAdmins));
+                $newUsers = array_merge($admin_input, $difference_of_admins);
                 foreach ($newUsers as $user) {
                     $userObj = User::newFromId($user);
-                    $usrGrpMng->addUserToGroup($userObj, $usrGrp);
+                    $user_group_manager->addUserToGroup($userObj, $user_group_name_WSNL);
                 }
             }
         }
     }
 
     /**
-     * Add a user to a user group and notify MediaWiki of this.
+     * Adds a user to a user group and notifies MediaWiki of this.
      *
      * @param User $user The user object for the user that is being added.
      * @param string $userGroup The user group that the user is being added to.
@@ -414,6 +431,13 @@ class NamespaceRepository {
         $groupManager->addUserToGroup($user, $userGroup);
     }
 
+    /**
+     * Removes a user from a user group and notifies MediaWiki of this.
+     *
+     * @param User $user The user object for the user that is being removed.
+     * @param string $userGroup The user group that the user is being removede from.
+     * @param UserGroupManager $groupManager The user group manager for the current context.
+     */
     private function removeUserFromUserGroup( User $user, string $userGroup, UserGroupManager $groupManager): void {
         MediaWikiServices::getInstance()->getHookContainer()->run(
             "UserGroupsChanged",
