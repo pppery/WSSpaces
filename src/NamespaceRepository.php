@@ -356,13 +356,13 @@ class NamespaceRepository {
         if (MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" )) {
             foreach ($difference_of_admins as $admin) {
                 $admin_object = User::newFromId((int)$admin);
-                $admin_user_groups = $user_group_manager->getUserGroups($admin_object);
 
                 $this->removeUserFromUserGroup($admin_object, $user_group_name_WSS, $user_group_manager);
 
                 // Check if a user is part of at least one space admin group. If so,
                 // allow them to keep the SpaceAdmin group membership.
                 $remain_space_admin = false;
+                $admin_user_groups = $user_group_manager->getUserGroups($admin_object);
                 foreach ($admin_user_groups as $checked_group) {
                     if ((strpos($checked_group, "Admin") !== false) && $checked_group !== "SpaceAdmin") {
                         $remain_space_admin = true;
@@ -370,6 +370,7 @@ class NamespaceRepository {
                 }
 
                 // Remove the user from the SpaceAdmin group if they are not allowed to remain space admin.
+                $admin_user_groups = $user_group_manager->getUserGroups($admin_object);
                 if (!$remain_space_admin) {
                     if (in_array("SpaceAdmin", $admin_user_groups, true)) {
                         $this->removeUserFromUserGroup($admin_object, "SpaceAdmin", $user_group_manager);
