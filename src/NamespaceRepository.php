@@ -350,7 +350,6 @@ class NamespaceRepository {
         // Get the MW User Group Manager and prepare the names for the space.
         $user_group_manager = MediaWikiServices::getInstance()->getUserGroupManager();
         $user_group_name_WSS = $space->getId() . "Admin";
-        $user_group_key_name_WSS = $space->getKey() . "-Admin";
         $user_group_name_WSNL = (string)$space->getId();
 
         // If it is required that Admins are automatically removed to User Groups, perform the remove operation here:
@@ -358,8 +357,7 @@ class NamespaceRepository {
             foreach ($difference_of_admins as $admin) {
                 $admin_object = User::newFromId((int)$admin);
 
-                $this->removeUserFromUserGroup($admin_object, $user_group_name_WSS,
-                    $user_group_manager, $user_group_key_name_WSS);
+                $this->removeUserFromUserGroup($admin_object, $user_group_name_WSS, $user_group_manager);
 
                 // Check if a user is part of at least one space admin group. If so,
                 // allow them to keep the SpaceAdmin group membership.
@@ -404,8 +402,7 @@ class NamespaceRepository {
                 }
                 // If the user was not an admin of the altered space before, add them now.
                 if (!in_array($admin, $intersection_of_admins, false)) {
-                    $this->addUserToUserGroup($admin_object, $user_group_name_WSS,
-                        $user_group_manager, $user_group_key_name_WSS);
+                    $this->addUserToUserGroup($admin_object, $user_group_name_WSS, $user_group_manager);
                 }
             }
 
@@ -427,23 +424,19 @@ class NamespaceRepository {
      * @param string $userGroup The user group that the user is being added to.
      * @param UserGroupManager $groupManager The user group manager for the current context.
      */
-    private function addUserToUserGroup( User $user,
-                                         string $userGroup,
-                                         UserGroupManager $groupManager,
-                                         string $userGroupKey = ''
-    ): void {
-        if ($userGroupKey === '') {
-            MediaWikiServices::getInstance()->getHookContainer()->run(
-                "UserGroupsChanged",
-                [ $user, [ $userGroup ], [], RequestContext::getMain()->getUser() ]
-            );
+    private function addUserToUserGroup( User $user, string $userGroup, UserGroupManager $groupManager ): void {
+        if ( ( wfMessage("group-SpaceAdmin-member")->exists() ) && ( $userGroup === "SpaceAdmin" ) ) {
+            $user_message = wfMessage("group-SpaceAdmin-member")->parse();
+        } else if ( wfMessage("group-" . $userGroup)->exists() ) {
+            $user_message = wfMessage("group-" . $userGroup)->parse();
         } else {
-            MediaWikiServices::getInstance()->getHookContainer()->run(
-                "UserGroupsChanged",
-                [ $user, [ $userGroupKey ], [], RequestContext::getMain()->getUser() ]
-            );
+            $user_message = $userGroup;
         }
 
+        MediaWikiServices::getInstance()->getHookContainer()->run(
+            "UserGroupsChanged",
+            [ $user, [ $user_message ], [], RequestContext::getMain()->getUser() ]
+        );
         $groupManager->addUserToGroup($user, $userGroup);
     }
 
@@ -454,24 +447,19 @@ class NamespaceRepository {
      * @param string $userGroup The user group that the user is being removede from.
      * @param UserGroupManager $groupManager The user group manager for the current context.
      */
-    private function removeUserFromUserGroup( User $user,
-                                              string $userGroup,
-                                              UserGroupManager $groupManager,
-                                              string $userGroupKey = ''
-    ): void {
-        if ($userGroupKey === '') {
-            MediaWikiServices::getInstance()->getHookContainer()->run(
-                "UserGroupsChanged",
-                [ $user, [], [ $userGroup ], RequestContext::getMain()->getUser() ]
-            );
+    private function removeUserFromUserGroup( User $user, string $userGroup, UserGroupManager $groupManager ): void {
+        if ( ( wfMessage("group-SpaceAdmin-member")->exists() ) && ( $userGroup === "SpaceAdmin" ) ) {
+            $user_message = wfMessage("group-SpaceAdmin-member")->parse();
+        } else if ( wfMessage("group-" . $userGroup)->exists() ) {
+            $user_message = wfMessage("group-" . $userGroup)->parse();
         } else {
-            MediaWikiServices::getInstance()->getHookContainer()->run(
-                "UserGroupsChanged",
-                [ $user, [], [ $userGroupKey ], RequestContext::getMain()->getUser() ]
-            );
+            $user_message = $userGroup;
         }
 
-
+        MediaWikiServices::getInstance()->getHookContainer()->run(
+            "UserGroupsChanged",
+            [ $user, [], [ $user_message ], RequestContext::getMain()->getUser() ]
+        );
         $groupManager->removeUserFromGroup($user, $userGroup);
     }
 
