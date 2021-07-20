@@ -438,7 +438,7 @@ class NamespaceRepository {
             $user_message = $userGroup;
 
             // If WSSpacesForceNamedGroup is set to true and the $space is passed along, force the program to return
-            // a key + '-Admin' rather than an id + Admin.
+            // a key + '-Admin' rather than an id + Admin
             if ( ( MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesForceNamedGroup" ) )
                 && ( $space !== null ) ) {
                 $user_message = $space->getKey() . "-Admin";
