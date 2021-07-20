@@ -401,8 +401,9 @@ class NamespaceRepository {
                     $this->addUserToUserGroup($admin_object, "SpaceAdmin", $user_group_manager);
                 }
                 // If the user was not an admin of the altered space before, add them now.
+                // Also send the space along, just in case no system message was set.
                 if (!in_array($admin, $intersection_of_admins, false)) {
-                    $this->addUserToUserGroup($admin_object, $user_group_name_WSS, $user_group_manager);
+                    $this->addUserToUserGroup($admin_object, $user_group_name_WSS, $user_group_manager, $space);
                 }
             }
 
@@ -423,14 +424,24 @@ class NamespaceRepository {
      * @param User $user The user object for the user that is being added.
      * @param string $userGroup The user group that the user is being added to.
      * @param UserGroupManager $groupManager The user group manager for the current context.
+     * @param Space|null $space Optional: The space for which the group is made. Only used when no message is found.
      */
-    private function addUserToUserGroup( User $user, string $userGroup, UserGroupManager $groupManager ): void {
+    private function addUserToUserGroup( User $user,
+                                         string $userGroup,
+                                         UserGroupManager $groupManager,
+                                         Space $space = null ): void {
         if ( ( wfMessage("group-SpaceAdmin-member")->exists() ) && ( $userGroup === "SpaceAdmin" ) ) {
             $user_message = wfMessage("group-SpaceAdmin-member")->parse();
         } else if ( wfMessage("group-" . $userGroup)->exists() ) {
             $user_message = wfMessage("group-" . $userGroup)->parse();
         } else {
             $user_message = $userGroup;
+
+            // If WSSpacesForceNamedGroup is set to true and the $space is passed along,
+            if ( ( MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesForceNamedGroup" ) )
+                && ( $space !== null ) ) {
+                $user_message = $space->getKey() . "-Admin";
+            }
         }
 
         MediaWikiServices::getInstance()->getHookContainer()->run(
