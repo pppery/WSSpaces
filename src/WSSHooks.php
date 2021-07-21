@@ -173,13 +173,7 @@ abstract class WSSHooks {
         $namespace_repository = new NamespaceRepository();
         $spaces = $namespace_repository->getSpaces();
 
-        foreach ( $spaces as $constant => $name ) {
-//            MediaWikiServices::getInstance()->getHookContainer()->run(
-//                "WSSpacesBeforeInitializeSpace",
-//                [Space::newFromConstant($constant)]
-//            );
-            $namespaces[$constant] = $name;
-        }
+        $namespaces += $spaces;
 
         return true;
     }
