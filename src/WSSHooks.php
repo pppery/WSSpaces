@@ -165,16 +165,19 @@ abstract class WSSHooks {
      *
      * @throws ConfigException
      * @throws Exception
+     *
+     * Running the hook was commented out because creating the Space objects from the db was causing slowdown.
+     * TODO: Fix slowdown issue.
      */
     public static function onCanonicalNamespaces( array &$namespaces ): bool {
         $namespace_repository = new NamespaceRepository();
         $spaces = $namespace_repository->getSpaces();
 
         foreach ( $spaces as $constant => $name ) {
-            MediaWikiServices::getInstance()->getHookContainer()->run(
-                "WSSpacesBeforeInitializeSpace",
-                [ Space::newFromConstant( $constant ) ]
-            );
+//            MediaWikiServices::getInstance()->getHookContainer()->run(
+//                "WSSpacesBeforeInitializeSpace",
+//                [Space::newFromConstant($constant)]
+//            );
             $namespaces[$constant] = $name;
         }
 
