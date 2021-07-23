@@ -10,7 +10,6 @@ WSSpaces has two configuration variable.
 
 * `$wgWSSpacesEnableSpaceArchiving` (boolean, default: true) Whether to allow archiving of spaces
 * `$wgWSSpacesAutoAddAdminsToUserGroups` (boolean, default: false) Whether to automatically add space admins to a user group. Eg. An admin for a space with id 50000 will get added to a group called '50000Admin'. Will additionally add admins to a general 'SpaceAdmin' group that can be used to assign rights to all space admins.
-* `$wgWSSpacesAllowNoAdmins` (boolean, default: false) If set to true, this will disable the validation check that at least one admin must be set for this space. This is not recommended.
 * `$wgWSSpacesForceNamedGroup` (boolean, default: false) If set to true, this will force the message sent to MediaWiki to involve the Space key, rather than the Space id.
 
 To enable Semantic MediaWiki for the created namespace, place the following code in between the initialization of Semantic MediaWiki and WSSpaces in LocalSettings.php:
@@ -33,14 +32,6 @@ public static function onWSSpacesAfterCreateSpace( \WSS\Space $space ) {}
 ```
 
 Gets called once directly after a space has been created. NOTE: The space has not been initialized with the Wiki at this point. Therefore, you cannot create a page in this namespace (use a job instead).
-
-### `WSSpacesBeforeInitializeSpace`
-
-```php
-public static function onWSSpacesBeforeInitializeSpace( \WSS\Space $space ) {}
-```
-
-Gets called on each page load after the space has been initialized into `$wgCanonicalNamespaces`.
 
 ### `WSSpacesCustomApiExceptionHandler`
 
@@ -90,3 +81,4 @@ available:
 Furthermore, the following API list (`?action=query`) modules are available:
 
 * `spaces`
+* `spaceadmins`

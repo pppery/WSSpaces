@@ -118,9 +118,6 @@
     "WSSpacesAutoAddAdminsToUserGroups": {
       "value": false
     },
-    "WSSpacesAllowNoAdmins": {
-      "value": false
-    },
     "WSSpacesForceNamedGroup": {
       "value": false
     }

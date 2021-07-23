@@ -5,69 +5,68 @@ use MediaWiki\MediaWikiServices;
 use User;
 use WSS\NamespaceRepository;
 
-class ApiQuerySpaceAdmins extends \ApiQueryBase
-{
+class ApiQuerySpaceAdmins extends \ApiQueryBase {
 
-    /**
-     * @inheritDoc
-     * @throws \ApiUsageException
-     */
-    public function execute()
-    {
-        $request_params = $this->extractRequestParams();
+	/**
+	 * @inheritDoc
+	 * @throws \ApiUsageException
+	 */
+	public function execute() {
+		$request_params = $this->extractRequestParams();
 
-        $ns_id = isset( $request_params["namespace"] ) ? $request_params["namespace"] : false;
+		$space_id = isset( $request_params["namespace"] ) ? $request_params["namespace"] : false;
 
-        if ($ns_id !== false) {
-            $currentUser = \RequestContext::getMain()->getUser();
-            $usrGrpMng = MediaWikiServices::getInstance()->getUserGroupManager();
-            $usrGrps = $usrGrpMng->getUserGroups($currentUser);
+		if ( $space_id === false ) {
+			$this->dieWithError( wfMessage( "wss-api-missing-param-namespace" ) );
+		}
 
-            if (!in_array($ns_id."Admin", $usrGrps) && !in_array("sysop", $usrGrps)) {
-                $this->dieWithError( wfMessage("wss-permission-denied-spaceadmins"));
-            }
+		$user = \RequestContext::getMain()->getUser();
+		$group_manager = MediaWikiServices::getInstance()->getUserGroupManager();
+		$user_groups = $group_manager->getUserGroups( $user );
 
-            $namespace_repository = new NamespaceRepository();
+		if ( !in_array( $space_id . "Admin", $user_groups ) && !in_array( "sysop", $user_groups ) ) {
+			$this->dieWithError( wfMessage( "wss-permission-denied-spaceadmins" ) );
+		}
 
-            // Get all admin ids for a namespace
-            $admin_ids = $namespace_repository->getNamespaceAdmins($ns_id);
+		$namespace_repository = new NamespaceRepository();
 
-            // Turn the list of namespace constants into Space objects
-            $admins = array_map( [ User::class, "newFromId" ], $admin_ids );
-            $admins = array_filter($admins, function ($user):bool { return ($user instanceof User); });
+		// Get all admin ids for a namespace
+		$admin_ids = $namespace_repository->getNamespaceAdmins( $space_id );
 
-            // Get a pointer to the result
-            $result = $this->getResult();
+		// Turn the list of namespace constants into Space objects
+		$admins = array_map( [ User::class, "newFromId" ], $admin_ids );
+		$admins = array_filter( $admins, function ( $user ): bool {
+			return ( $user instanceof User );
+		} );
 
-            foreach ($admins as $key => $admin) {
-                $result->addValue( ["admins", $key], "admin_id", (int)$admin->getId());
-                $result->addValue( ["admins", $key], "admin_name", $admin->getName());
-            }
+		// Get a pointer to the result
+		$result = $this->getResult();
 
-        } else {
-            $this->dieWithError( wfMessage( "wss-api-missing-param-namespace" ) );
-        }
-    }
+		foreach ( $admins as $key => $admin ) {
+			$result->addValue( [ "admins", $key ], "admin_id", (int)$admin->getId() );
+			$result->addValue( [ "admins", $key ], "admin_name", $admin->getName() );
+		}
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getAllowedParams(): array {
-        return [
-            'namespace' => [
-                ApiBase::PARAM_TYPE => "integer",
-                ApiBase::PARAM_HELP_MSG => "wss-api-namespace-param"
-            ]
-        ];
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getAllowedParams(): array {
+		return [
+			'namespace' => [
+				ApiBase::PARAM_TYPE => "integer",
+				ApiBase::PARAM_HELP_MSG => "wss-api-namespace-param"
+			]
+		];
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getExamplesMessages() {
-        return [
-            "action=query&list=namespaceadmins&namespace=50000" =>
-                "apihelp-query-example-namespace-admins"
-        ];
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getExamplesMessages() {
+		return [
+			"action=query&list=namespaceadmins&namespace=50000" =>
+				"apihelp-query-example-namespace-admins"
+		];
+	}
 }

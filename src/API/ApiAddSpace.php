@@ -1,6 +1,5 @@
 <?php
 
-
 namespace WSS\API;
 
 use ApiUsageException;
@@ -12,189 +11,152 @@ use WSS\Space;
 use WSS\Validation\AddSpaceValidationCallback;
 
 class ApiAddSpace extends ApiBase {
-    /**
-     * Evaluates the parameters, performs the requested query, and sets up
-     * the result. Concrete implementations of ApiBase must override this
-     * method to provide whatever functionality their module offers.
-     * Implementations must not produce any output on their own and are not
-     * expected to handle any errors.
-     *
-     * The execute() method will be invoked directly by ApiMain immediately
-     * before the result of the module is output. Aside from the
-     * constructor, implementations should assume that no other methods
-     * will be called externally on the module before the result is
-     * processed.
-     *
-     * The result data should be stored in the ApiResult object available
-     * through getResult().
-     *
-     * @throws ApiUsageException
-     * @throws MWException
-     */
-    public function execute() {
-        $this->checkUserRightsAny( 'wss-add-space' );
-        $this->validateParameters();
+	/**
+	 * Evaluates the parameters, performs the requested query, and sets up
+	 * the result. Concrete implementations of ApiBase must override this
+	 * method to provide whatever functionality their module offers.
+	 * Implementations must not produce any output on their own and are not
+	 * expected to handle any errors.
+	 *
+	 * The execute() method will be invoked directly by ApiMain immediately
+	 * before the result of the module is output. Aside from the
+	 * constructor, implementations should assume that no other methods
+	 * will be called externally on the module before the result is
+	 * processed.
+	 *
+	 * The result data should be stored in the ApiResult object available
+	 * through getResult().
+	 *
+	 * @throws ApiUsageException
+	 * @throws MWException
+	 */
+	public function execute() {
+		$this->checkUserRightsAny( 'wss-add-space' );
+		$this->validateParameters();
 
-        $request_params = $this->extractRequestParams();
+		$request_params = $this->extractRequestParams();
 
-        /**
-         * @var string
-         */
-        $ns_key = $request_params["nskey"];
+		$ns_key = $request_params["nskey"];
+		$ns_name = $request_params["nsname"];
+		$ns_description = $request_params["nsdescription"];
+		$ns_admins = $request_params["nsadmins"];
+		$ns_admins = explode( ",", $ns_admins );
 
-        /**
-         * @var string
-         */
-        $ns_name = $request_params["nsname"];
+		$current_user = \RequestContext::getMain()->getUser();
 
-        /**
-         * @var string
-         */
-        $ns_description = $request_params["nsdescription"];
+		// If no admins were given, add current user to the list of admins.
+		if ( !$ns_admins || empty( $ns_admins ) ) {
+			$current_user_name = $current_user->getName();
+			$ns_admins[] = $current_user_name;
+		}
 
-        /**
-         * @var array
-         */
-        $ns_admins = $request_params["nsadmins"];
-        $ns_admins = explode( ",", $ns_admins );
+		$space = Space::newFromValues( $ns_key, $ns_name, $ns_description, $current_user );
+		$namespace_repository = new NamespaceRepository();
 
-        /**
-         * @var User
-         */
-        $current_user = \RequestContext::getMain()->getUser();
+		$namespace_id = $namespace_repository->addSpace( $space );
 
-//        // Add the current user to the list of namespace admins
-//        $current_user_name = $current_user->getName();
-//        if ( !in_array( $current_user, $ns_admins ) ) {
-//            $ns_admins[] = $current_user_name;
-//        }
+		// Update the list of namespace admins
+		$old_space = Space::newFromConstant( $namespace_id );
+		$new_space = Space::newFromConstant( $namespace_id );
 
-        // If no admins were given, add current user to the list of admins.
-        if (!$ns_admins || empty($ns_admins)) {
-            $current_user_name = $current_user->getName();
-            $ns_admins[] = $current_user_name;
-        }
+		$new_space->setSpaceAdministrators( $ns_admins );
 
-        $space = Space::newFromValues( $ns_key, $ns_name, $ns_description, $current_user );
-        $namespace_repository = new NamespaceRepository();
+		$namespace_repository->updateSpace( $old_space, $new_space );
 
-        $namespace_id = $namespace_repository->addSpace( $space );
+		$this->getResult()->addValue( [], "result", "success" );
+		$this->getResult()->addValue( [ "namespace" ], "id", $namespace_id );
+	}
 
-        // Update the list of namespace admins
-        $old_space = Space::newFromConstant( $namespace_id );
-        $new_space = Space::newFromConstant( $namespace_id );
+	/**
+	 * Evaluates the parameters given to the API module and throws an exception if the
+	 * validation fails.
+	 *
+	 * @throws ApiUsageException
+	 */
+	private function validateParameters() {
+		$request_params = $this->extractRequestParams();
 
-        $new_space->setSpaceAdministrators( $ns_admins );
+		$ns_key = isset( $request_params["nskey"] ) ? $request_params["nskey"] : false;
 
-        $namespace_repository->updateSpace( $old_space, $new_space );
+		if ( $ns_key === false ) {
+			$this->dieWithError( wfMessage( "wss-api-missing-param-nskey" ) );
+		}
 
-        $this->getResult()->addValue( [], "result", "success" );
-        $this->getResult()->addValue( [ "namespace" ], "id", $namespace_id );
-    }
+		$ns_name = isset( $request_params["nsname"] ) ? $request_params["nsname"] : false;
 
-    /**
-     * Evaluates the parameters given to the API module and throws an exception if the
-     * validation fails.
-     *
-     * @throws ApiUsageException
-     */
-    private function validateParameters() {
-        $request_params = $this->extractRequestParams();
+		if ( $ns_name === false ) {
+			$this->dieWithError( wfMessage( "wss-api-missing-param-nsname" ) );
+		}
 
-        $ns_key = isset( $request_params["nskey"] ) ? $request_params["nskey"] : false;
+		$ns_description = isset( $request_params["nsdescription"] ) ? $request_params["nsdescription"] : false;
 
-        if ( $ns_key === false ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param-nskey" ) );
-        }
+		if ( $ns_description === false ) {
+			$this->dieWithError( wfMessage( "wss-api-missing-param-nsdescription" ) );
+		}
 
-        $ns_name = isset( $request_params["nsname"] ) ? $request_params["nsname"] : false;
+		$ns_admins = isset( $request_params["nsadmins"] ) ? $request_params["nsadmins"] : false;
 
-        if ( $ns_name === false ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param-nsname" ) );
-        }
+		if ( $ns_admins === false ) {
+			$this->dieWithError( wfMessage( "wss-api-missing-param-nsadmins" ) );
+		}
 
-        $ns_description = isset( $request_params["nsdescription"] ) ? $request_params["nsdescription"] : false;
+		// Although this validation is made for HTMLForm, we use it here to avoid repeating ourselves
+		$add_space_validation_callback = new AddSpaceValidationCallback();
+		$request_data = [
+			"namespace" => $ns_key,
+			"namespace_name" => $ns_name,
+			"description" => $ns_description
+		];
 
-        if ( $ns_description === false ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param-nsdescription" ) );
-        }
+		// Validate "nskey"
+		$error_or_true = $add_space_validation_callback->validateField( "namespace", $ns_key, $request_data );
+		if ( $error_or_true !== true ) {
+			$this->dieWithError( wfMessage( "wss-api-invalid-param-detailed-nskey", $error_or_true ) );
+		}
 
-        $ns_admins = isset( $request_params["nsadmins"] ) ? $request_params["nsadmins"] : false;
+		// Validate "nsname"
+		$error_or_true = $add_space_validation_callback->validateField( "namespace_name", $ns_name, $request_data );
+		if ( $error_or_true !== true ) {
+			$this->dieWithError( wfMessage( "wss-api-invalid-param-detailed-nsname", $error_or_true ) );
+		}
 
-        if ( $ns_admins === false ) {
-            $this->dieWithError( wfMessage( "wss-api-missing-param-nsadmins" ) );
-        }
+		// Validate "nsdescription"
+		if ( $add_space_validation_callback->validateRequired( $ns_description ) !== true ) {
+			$this->dieWithError( wfMessage( "wss-api-invalid-param-nsdescription" ) );
+		}
+	}
 
-        // Although this validation is made for HTMLForm, we use it here to avoid repeating ourselves
-        $add_space_validation_callback = new AddSpaceValidationCallback();
-        $request_data = [
-            "namespace" => $ns_key,
-            "namespace_name" => $ns_name,
-            "description" => $ns_description
-        ];
+	/**
+	 * @inheritDoc
+	 */
+	public function getAllowedParams(): array {
+		return [
+			'nskey' => [
+				ApiBase::PARAM_TYPE => "string",
+				ApiBase::PARAM_HELP_MSG => "wss-api-nskey-param"
+			],
+			'nsname' => [
+				ApiBase::PARAM_TYPE => "string",
+				ApiBase::PARAM_HELP_MSG => "wss-api-nsname-param"
+			],
+			'nsdescription' => [
+				ApiBase::PARAM_TYPE => "string",
+				ApiBase::PARAM_HELP_MSG => "wss-api-nsdescription-param"
+			],
+			'nsadmins' => [
+				ApiBase::PARAM_TYPE => "string",
+				ApiBase::PARAM_HELP_MSG => "wss-api-nsadmins-param"
+			]
+		];
+	}
 
-        // Validate "nskey"
-        $error_or_true = $add_space_validation_callback->validateField( "namespace", $ns_key, $request_data );
-        if ( $error_or_true !== true ) {
-            $this->dieWithError( wfMessage( "wss-api-invalid-param-detailed-nskey", $error_or_true ) );
-        }
-
-        // Validate "nsname"
-        $error_or_true = $add_space_validation_callback->validateField( "namespace_name", $ns_name, $request_data );
-        if ( $error_or_true !== true ) {
-            $this->dieWithError( wfMessage( "wss-api-invalid-param-detailed-nsname", $error_or_true ) );
-        }
-
-        // Validate "nsdescription"
-        if ( $add_space_validation_callback->validateRequired( $ns_description ) !== true ) {
-            $this->dieWithError( wfMessage( "wss-api-invalid-param-nsdescription" ) );
-        }
-
-        $ns_admins = explode( ",", $ns_admins );
-
-        if (!MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAllowNoAdmins" )) {
-            // Validate "nsadmins"
-            foreach ($ns_admins as $ns_admin_name) {
-                $user = User::newFromName($ns_admin_name);
-
-                if (!$user instanceof User || $user->isAnon()) {
-                    $this->dieWithError(wfMessage("wss-api-invalid-param-nsadmins"));
-                }
-            }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAllowedParams(): array {
-        return [
-            'nskey' => [
-                ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nskey-param"
-            ],
-            'nsname' => [
-                ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nsname-param"
-            ],
-            'nsdescription' => [
-                ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nsdescription-param"
-            ],
-            'nsadmins' => [
-                ApiBase::PARAM_TYPE => "string",
-                ApiBase::PARAM_HELP_MSG => "wss-api-nsadmins-param"
-            ]
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getExamplesMessages() {
-        return [
-            "action=addspace&nskey=Foo&nsname=Foo&nsdescription=Lorem ipsum&nsadmins=Admin,Foobar" =>
-                "apihelp-addspace-example-foo"
-        ];
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getExamplesMessages() {
+		return [
+			"action=addspace&nskey=Foo&nsname=Foo&nsdescription=Lorem ipsum&nsadmins=Admin,Foobar" =>
+				"apihelp-addspace-example-foo"
+		];
+	}
 }
