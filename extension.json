@@ -1,6 +1,6 @@
 {
   "name": "WSSpaces",
-  "version": "1.6.10",
+  "version": "2.0",
   "namemsg": "wss-extensionname",
   "url": "https://wikibase-solutions.com",
   "type": "csp",
@@ -40,6 +40,7 @@
     "wss-edit-all-spaces",
     "wss-add-space",
     "wss-archive-space",
+    "wss-view-space-admins",
     "wss-view-spaces-overview"
   ],
   "GroupPermissions": {
@@ -47,12 +48,14 @@
       "wss-edit-all-spaces": true,
       "wss-add-space": true,
       "wss-archive-space": true,
+      "wss-view-space-admins": true,
       "wss-view-spaces-overview": true
     },
     "spacemaster": {
       "wss-edit-all-spaces": true,
       "wss-add-space": true,
       "wss-archive-space": true,
+      "wss-view-space-admins": true,
       "wss-view-spaces-overview": true
     }
   },
@@ -116,9 +119,6 @@
       "value": true
     },
     "WSSpacesAutoAddAdminsToUserGroups": {
-      "value": false
-    },
-    "WSSpacesForceNamedGroup": {
       "value": false
     }
   },

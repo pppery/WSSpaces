@@ -199,7 +199,7 @@ class NamespaceRepository {
 			throw new \InvalidArgumentException( "Cannot add existing space to database, use NamespaceRepository::updateSpace() instead." );
 		}
 
-		// We publish the log first, since we
+		// We publish the log first, since we ...?
 		$log = new AddSpaceLog( $space );
 		$log->insert();
 
@@ -220,15 +220,17 @@ class NamespaceRepository {
 		// Create a new space from the name, go get the latest details from the database.
 		$space = Space::newFromConstant( $namespace_id );
 
-		$space->setSpaceAdministrators( [ $space->getOwner()->getName() ] );
-		$this->updateSpaceAdministrators( $database, $space );
-
-		$log->publish();
-
+		// Run the hook so any custom actions can be taken on our new space.
 		MediaWikiServices::getInstance()->getHookContainer()->run(
 			"WSSpacesAfterCreateSpace",
 			[ $space ]
 		);
+
+        // Set the admins. Do this after running the WSSpacesAfterCreateSpace hook!
+        $space->setSpaceAdministrators( [ $space->getOwner()->getName() ] );
+        $this->updateSpaceAdministrators( $database, $space );
+
+        $log->publish();
 
 		return $namespace_id;
 	}
@@ -402,7 +404,7 @@ class NamespaceRepository {
 				// If the user was not an admin of the altered space before, add them now.
 				// Also send the space along, just in case no system message was set.
 				if ( !in_array( $admin, $intersection_of_admins, false ) ) {
-					$this->addUserToUserGroup( $admin_object, $space->getGroupName(), $user_group_manager, $space );
+					$this->addUserToUserGroup( $admin_object, $space->getGroupName(), $user_group_manager );
 				}
 			}
 		}
@@ -414,13 +416,11 @@ class NamespaceRepository {
 	 * @param User $user The user object for the user that is being added.
 	 * @param string $user_group The user group that the user is being added to.
 	 * @param UserGroupManager $groupManager The user group manager for the current context.
-	 * @param Space|null $space Optional: The space for which the group is made. Only used when no message is found.
 	 */
 	private function addUserToUserGroup(
 		User $user,
 		string $user_group,
-		UserGroupManager $groupManager,
-		Space $space = null
+		UserGroupManager $groupManager
 	): void {
 		if ( ( wfMessage( "group-SpaceAdmin-member" )->exists() ) && ( $user_group === "SpaceAdmin" ) ) {
 			$user_message = wfMessage( "group-SpaceAdmin-member" )->parse();
@@ -428,13 +428,6 @@ class NamespaceRepository {
 			$user_message = wfMessage( "group-" . $user_group )->parse();
 		} else {
 			$user_message = $user_group;
-
-			// If WSSpacesForceNamedGroup is set to true and the $space is passed along, force the program to return
-			// a key + '-Admin' rather than an id + Admin
-			if ( ( MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesForceNamedGroup" ) )
-				&& ( $space !== null ) ) {
-				$user_message = $space->getKey() . "-Admin";
-			}
 		}
 
 		MediaWikiServices::getInstance()->getHookContainer()->run(

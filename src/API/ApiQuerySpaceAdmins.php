@@ -12,7 +12,9 @@ class ApiQuerySpaceAdmins extends \ApiQueryBase {
 	 * @throws \ApiUsageException
 	 */
 	public function execute() {
-		$request_params = $this->extractRequestParams();
+        $this->checkUserRightsAny( 'wss-view-space-admins' );
+
+	    $request_params = $this->extractRequestParams();
 
 		$space_id = isset( $request_params["namespace"] ) ? $request_params["namespace"] : false;
 
@@ -20,13 +22,13 @@ class ApiQuerySpaceAdmins extends \ApiQueryBase {
 			$this->dieWithError( wfMessage( "wss-api-missing-param-namespace" ) );
 		}
 
-		$user = \RequestContext::getMain()->getUser();
-		$group_manager = MediaWikiServices::getInstance()->getUserGroupManager();
-		$user_groups = $group_manager->getUserGroups( $user );
+//		$user = \RequestContext::getMain()->getUser();
+//		$group_manager = MediaWikiServices::getInstance()->getUserGroupManager();
+//		$user_groups = $group_manager->getUserGroups( $user );
 
-		if ( !in_array( $space_id . "Admin", $user_groups ) && !in_array( "sysop", $user_groups ) ) {
-			$this->dieWithError( wfMessage( "wss-permission-denied-spaceadmins" ) );
-		}
+//		if ( !in_array( $space_id . "Admin", $user_groups ) && !in_array( "sysop", $user_groups ) ) {
+//			$this->dieWithError( wfMessage( "wss-permission-denied-spaceadmins" ) );
+//		}
 
 		$namespace_repository = new NamespaceRepository();
 

@@ -96,53 +96,6 @@ class Space {
 	}
 
 	/**
-	 * Returns a new space object from the given namespace name.
-	 *
-	 * @param string $namespace_key
-	 * @return bool|Space
-	 * @throws \ConfigException
-	 *
-	 * @deprecated Use newFromConstant when possible instead
-	 */
-	public static function newFromKey( string $namespace_key ) {
-		$database = wfGetDB( DB_REPLICA );
-		$namespace = $database->select(
-			'wss_namespaces',
-			[ 'namespace_id', 'namespace_name', 'description', 'creator_id', 'archived' ],
-			[ 'namespace_key' => $namespace_key ]
-		);
-
-		if ( $namespace->numRows() === 0 ) {
-			return false;
-		}
-
-		$namespace = $namespace->current();
-		$user = User::newFromId( $namespace->creator_id );
-
-		if ( !$user instanceof User ) {
-			throw new \InvalidArgumentException( "Invalid creator_id '{$namespace->creator_id}'" );
-		}
-
-		$namespace_administrators = array_map( function ( $row ): string {
-			return User::newFromId( $row->admin_user_id )->getName();
-		}, iterator_to_array( $database->select(
-			'wss_namespace_admins',
-			[ 'admin_user_id' ],
-			[ 'namespace_id' => $namespace->namespace_id ]
-		) ) );
-
-		return new Space(
-			$namespace_key,
-			$namespace->namespace_name,
-			$namespace->namespace_id,
-			$namespace->description,
-			$user,
-			$namespace->archived,
-			$namespace_administrators
-		);
-	}
-
-	/**
 	 * Returns a new space object from the given values.
 	 *
 	 * @param string $namespace_key

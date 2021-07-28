@@ -20,7 +20,6 @@ class SpecialAddSpace extends SpecialPage {
 	 */
 	public function __construct() {
 		parent::__construct( self::getName(), self::getRestriction(), true );
-		parent::requireLogin();
 	}
 
 	/**

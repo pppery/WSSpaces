@@ -57,7 +57,7 @@ class ApiAddSpace extends ApiBase {
 
 		// Update the list of namespace admins
 		$old_space = Space::newFromConstant( $namespace_id );
-		$new_space = Space::newFromConstant( $namespace_id );
+		$new_space = clone $old_space;
 
 		$new_space->setSpaceAdministrators( $ns_admins );
 

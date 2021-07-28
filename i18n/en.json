@@ -109,5 +109,9 @@
   "apihelp-query-example-archived": "Query all spaces that are archived.",
   "apihelp-query-example-namespace-admins": "Query all admins belonging to a namespace.",
   "wss-permission-denied": "You do not have permission to view the $1 list.",
-  "wss-permission-denied-spaceadmins": "You do not have permission to view the spaceadmins list."
+  "wss-permission-denied-spaceadmins": "You do not have permission to view the spaceadmins list.",
+  "wss-pf-invalid-number": "The namespace parameter must be a positive number.",
+  "wss-pf-no-admins-found": "No admins were found for namespace: $1",
+  "wss-pf-no-valid-admins": "None of the admins for namespace: $1 are valid MediaWiki Users.",
+  "wss-talk": "$1 Talk"
 }

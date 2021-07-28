@@ -34,23 +34,26 @@ abstract class WSSHooks {
 	 * @param Parser $parser
 	 * @param string $namespace
 	 * @return string
-	 *
-	 * TODO: Localize this function
 	 */
 	public static function renderSpaceAdmins( Parser $parser, $namespace = '' ) : string {
-		// Validate namespace input.
+        // Check if user has the 'wss-view-space-admins' right.
+        if ( !\RequestContext::getMain()->getUser()->isAllowed( 'wss-view-space-admins' ) ) {
+            return wfMessage( 'wss-permission-denied-spaceadmins' );
+        }
+
+	    // Validate namespace input.
 		if ( $namespace === '' ) {
-			return "No namespace provided.";
+			return wfMessage( 'wss-api-missing-param-namespace' );
 		}
 		if ( !ctype_digit( $namespace ) ) {
-			return "Namespace can only be (positive) numbers.";
+			return wfMessage( 'wss-pf-invalid-number' );
 		}
 
 		// Get all admin ids for a namespace. If no admins are found, return the error message.
 		$admin_ids = NamespaceRepository::getNamespaceAdmins( $namespace );
 
 		if ( empty( $admin_ids ) ) {
-			return "No admins found for namespace: $namespace!";
+			return wfMessage( 'wss-pf-no-admins-found', $namespace )->parse();
 		}
 
 		// Turn the list of admin ids into User objects
@@ -60,7 +63,7 @@ abstract class WSSHooks {
 		} );
 
 		if ( empty( $admins ) ) {
-			return "No admins are valid MediaWiki Users!";
+		    return wfMessage( 'wss-pf-no-valid-admins', $namespace )->parse();
 		}
 
 		// Add all admin names to a comma separated string.
@@ -186,6 +189,9 @@ abstract class WSSHooks {
 	public static function onCanonicalNamespaces( array &$namespaces ): bool {
 		$namespace_repository = new NamespaceRepository();
 		$spaces = $namespace_repository->getSpaces();
+		foreach ($spaces as $space) {
+            $spaces[$space->namespace_id + 1] = wfMessage( 'wss-talk', $space->namespace_key )->parse();
+        }
 
 		$namespaces += $spaces;
 

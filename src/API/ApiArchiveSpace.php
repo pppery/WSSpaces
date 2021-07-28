@@ -34,18 +34,18 @@ class ApiArchiveSpace extends ApiBase {
 
 		$request_params = $this->extractRequestParams();
 
-		if ( !isset( $request_params["nskey"] ) ) {
-			$this->dieWithError( wfMessage( "wss-api-missing-param-nskey" ) );
+		if ( !isset( $request_params["nsid"] ) ) {
+			$this->dieWithError( wfMessage( "wss-api-missing-param-nsid" ) );
 		}
 
-		$space = Space::newFromKey( $request_params["nskey"] );
+		$space = Space::newFromConstant( $request_params["nsid"] );
 
 		if ( !$space instanceof Space ) {
 			$this->dieWithError(
 				wfMessage(
-					"wss-api-invalid-param-detailed-nskey",
-					wfMessage( "wss-api-space-does-not-exist", $request_params["nskey"] )->parse()
-				)
+					"wss-api-invalid-param-detailed-nsid",
+					wfMessage( "wss-api-space-does-not-exist", $request_params["nsid"] )->parse()
+				)->parse()
 			);
 		}
 
@@ -60,9 +60,9 @@ class ApiArchiveSpace extends ApiBase {
 	 */
 	public function getAllowedParams(): array {
 		return [
-			'nskey' => [
-				ApiBase::PARAM_TYPE => "string",
-				ApiBase::PARAM_HELP_MSG => "wss-api-nskey-param"
+			'nsid' => [
+				ApiBase::PARAM_TYPE => "integer",
+				ApiBase::PARAM_HELP_MSG => "wss-api-nsid-param"
 			]
 		];
 	}
@@ -72,7 +72,7 @@ class ApiArchiveSpace extends ApiBase {
 	 */
 	public function getExamplesMessages() {
 		return [
-			"action=archivespace&nskey=Foo" =>
+			"action=archivespace&nsid=50000" =>
 				"apihelp-archivespace-example-foo"
 		];
 	}

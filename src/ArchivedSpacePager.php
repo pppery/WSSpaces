@@ -40,7 +40,7 @@ class ArchivedSpacePager extends Pager {
 	 */
 	public function isFieldSortable( $field ) {
 		switch ( $field ) {
-			case 'namespace_key':
+			case 'namespace_id':
 				return true;
 			default:
 				return false;
@@ -65,15 +65,15 @@ class ArchivedSpacePager extends Pager {
 		$value = htmlspecialchars( $value );
 
 		switch ( $name ) {
-			case 'namespace_key':
+			case 'namespace_id':
 				$link_renderer = MediaWikiServices::getInstance()->getLinkRenderer();
 				$title = $this->getTitle();
 
-				$namespace_constant = Space::newFromKey( $value )->getId();
+				$namespace_key = Space::newFromConstant( $value )->getKey();
 
-				$page = \Title::newFromText( $title->getText() . "/$namespace_constant", NS_SPECIAL );
+				$page = \Title::newFromText( $title->getText() . "/$value", NS_SPECIAL );
 
-				return $link_renderer->makeLink( $page, new \HtmlArmor( $value ) );
+				return $link_renderer->makeLink( $page, new \HtmlArmor( $namespace_key ) );
 			default:
 				return $value;
 		}
@@ -87,7 +87,7 @@ class ArchivedSpacePager extends Pager {
 	 * @return string
 	 */
 	public function getDefaultSort() {
-		return 'namespace_key';
+		return 'namespace_id';
 	}
 
 	public function getDefaultDirections() {
@@ -103,7 +103,7 @@ class ArchivedSpacePager extends Pager {
 	 */
 	public function getFieldNames() {
 		return [
-			'namespace_key' => "Namespace",
+			'namespace_id' => "Namespace",
 			'description' => "Description"
 		];
 	}
