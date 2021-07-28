@@ -189,8 +189,9 @@ abstract class WSSHooks {
 	public static function onCanonicalNamespaces( array &$namespaces ): bool {
 		$namespace_repository = new NamespaceRepository();
 		$spaces = $namespace_repository->getSpaces();
-		foreach ($spaces as $space) {
-            $spaces[$space->namespace_id + 1] = wfMessage( 'wss-talk', $space->namespace_key )->parse();
+		foreach ($spaces as $id => $space) {
+            // Using parse() leads to a circular reference, use plain() instead.
+            $spaces[$id + 1] = wfMessage('wss-talk', $space)->plain();
         }
 
 		$namespaces += $spaces;
