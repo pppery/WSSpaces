@@ -191,7 +191,7 @@ abstract class WSSHooks {
 		$spaces = $namespace_repository->getSpaces();
 		foreach ($spaces as $id => $space) {
             // Using parse() leads to a circular reference, use plain() instead.
-            $spaces[$id + 1] = wfMessage('wss-talk', $space)->plain();
+            $spaces[$id + 1] = $space . "_talk";
         }
 
 		$namespaces += $spaces;
