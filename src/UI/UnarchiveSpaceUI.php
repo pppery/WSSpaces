@@ -1,12 +1,10 @@
 <?php
 
-
 namespace WSS\UI;
 
 use WSS\Form\UnarchiveSpaceForm;
 use WSS\Space;
 use WSS\SubmitCallback\UnarchiveSpaceSubmitCallback;
-use WSS\Validation\UnarchiveSpaceValidationCallback;
 
 /**
  * Class UnarchiveSpaceUI
@@ -14,27 +12,27 @@ use WSS\Validation\UnarchiveSpaceValidationCallback;
  * @package WSS\UI
  */
 class UnarchiveSpaceUI extends SpacesUI {
-    /**
-     * @inheritDoc
-     * @throws \ConfigException
-     */
-    function render() {
-        $parameter = $this->getParameter();
-        $space = Space::newFromConstant( $parameter );
+	/**
+	 * @inheritDoc
+	 * @throws \ConfigException
+	 */
+	function render() {
+		$namespace_constant = (int)$this->getParameter();
+		$space = Space::newFromConstant( $namespace_constant );
 
-        $form = new UnarchiveSpaceForm(
-            $space,
-            $this->getOutput(),
-            new UnarchiveSpaceSubmitCallback( $this )
-        );
+		$form = new UnarchiveSpaceForm(
+			$space,
+			$this->getOutput(),
+			new UnarchiveSpaceSubmitCallback( $this )
+		);
 
-        $form->show();
-    }
+		$form->show();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    function getIdentifier(): string {
-        return 'unarchive-space';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	function getIdentifier(): string {
+		return 'unarchive-space';
+	}
 }

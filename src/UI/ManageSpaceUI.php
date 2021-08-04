@@ -1,6 +1,5 @@
 <?php
 
-
 namespace WSS\UI;
 
 /**
@@ -8,17 +7,17 @@ namespace WSS\UI;
  * @package WSS\UI
  */
 abstract class ManageSpaceUI extends SpacesUI {
-    /**
-     * @inheritDoc
-     */
-    public function ignoreParameterInNavigationHighlight(): bool {
-        return false;
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function ignoreParameterInNavigationHighlight(): bool {
+		return false;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getIdentifier(): string {
-        return 'active-spaces';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getIdentifier(): string {
+		return 'active-spaces';
+	}
 }

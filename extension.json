@@ -1,34 +1,35 @@
 {
   "name": "WSSpaces",
-  "version": "1.0",
+  "version": "2.0.1",
   "namemsg": "wss-extensionname",
   "url": "https://wikibase-solutions.com",
-  "type": "contentmanagement",
+  "type": "csp",
   "author": [
-    "[https://mediawiki.org/wiki/User:Xxmarijnw Marijn van Wezel]"
+    "Wikibase Solutions"
   ],
   "descriptionmsg": "wss-desc",
-  "license-name": "MIT",
+  "license-name": "GPL-2.0-or-later",
   "requires": {
-    "MediaWiki": ">= 1.31.0"
+    "MediaWiki": ">= 1.35.0"
   },
   "MessagesDirs": {
     "WSSpaces": [
       "i18n"
     ]
   },
-  "ExtensionMessagesFiles": {
-    "WSSpacesMagic": "i18n/WSSpaces.i18n.php"
-  },
   "AutoloadNamespaces": {
     "WSS\\": "src/"
+  },
+  "ExtensionMessagesFiles": {
+    "WSSpacesMagic": "WSSpaces.i18n.php"
   },
   "Hooks": {
     "SecuritySensitiveOperationStatus": "WSS\\WSSHooks::onSecuritySensitiveOperationStatus",
     "SkinBuildSidebar": "WSS\\WSSHooks::onSkinBuildSidebar",
     "LoadExtensionSchemaUpdates": "WSS\\WSSHooks::onLoadExtensionSchemaUpdates",
     "CanonicalNamespaces": "WSS\\WSSHooks::onCanonicalNamespaces",
-    "ExtensionTypes": "WSS\\WSSHooks::onExtensionTypes"
+    "ExtensionTypes": "WSS\\WSSHooks::onExtensionTypes",
+    "ParserFirstCallInit": "WSS\\WSSHooks::onParserFirstCallInit"
   },
   "SpecialPages": {
     "AddSpace": "WSS\\Special\\SpecialAddSpace",
@@ -36,17 +37,26 @@
     "ArchivedSpaces": "WSS\\Special\\SpecialArchivedSpaces"
   },
   "AvailableRights": [
-    "wss-edit-core-namespaces",
-    "wss-edit-all-spaces"
+    "wss-edit-all-spaces",
+    "wss-add-space",
+    "wss-archive-space",
+    "wss-view-space-admins",
+    "wss-view-spaces-overview"
   ],
   "GroupPermissions": {
     "sysop": {
-      "wss-manage": true,
-      "wss-edit-all-spaces": false
+      "wss-edit-all-spaces": true,
+      "wss-add-space": true,
+      "wss-archive-space": true,
+      "wss-view-space-admins": true,
+      "wss-view-spaces-overview": true
     },
     "spacemaster": {
-      "wss-manage": true,
-      "wss-edit-all-spaces": true
+      "wss-edit-all-spaces": true,
+      "wss-add-space": true,
+      "wss-archive-space": true,
+      "wss-view-space-admins": true,
+      "wss-view-spaces-overview": true
     }
   },
   "ResourceModules": {
@@ -104,8 +114,24 @@
       ]
     }
   },
-  "config_prefix": "cmg",
-  "config": {},
+  "config": {
+    "WSSpacesEnableSpaceArchiving": {
+      "value": true
+    },
+    "WSSpacesAutoAddAdminsToUserGroups": {
+      "value": false
+    }
+  },
+  "APIModules": {
+    "addspace": "WSS\\API\\ApiAddSpace",
+    "archivespace": "WSS\\API\\ApiArchiveSpace",
+    "unarchivespace": "WSS\\API\\ApiUnarchiveSpace",
+    "editspace": "WSS\\API\\ApiEditSpace"
+  },
+  "APIListModules": {
+    "spaces": "WSS\\API\\ApiQuerySpaces",
+    "namespaceadmins": "WSS\\API\\ApiQuerySpaceAdmins"
+  },
   "LogTypes": [
     "space"
   ],
