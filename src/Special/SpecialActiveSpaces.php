@@ -1,6 +1,5 @@
 <?php
 
-
 namespace WSS\Special;
 
 use Exception;
@@ -20,111 +19,110 @@ use WSS\UI\MissingPermissionsUI;
  * @package WSS\Special
  */
 class SpecialActiveSpaces extends SpecialPage {
-    /**
-     * SpecialPermissions constructor.
-     *
-     * @throws \UserNotLoggedIn
-     */
-    public function __construct() {
-        parent::__construct( self::getName(), self::getRestriction(), true );
-        parent::requireLogin();
-    }
+	/**
+	 * SpecialPermissions constructor.
+	 *
+	 * @throws \UserNotLoggedIn
+	 */
+	public function __construct() {
+		parent::__construct( self::getName(), self::getRestriction(), true );
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getName() {
-        return "ActiveSpaces";
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getName() {
+		return "ActiveSpaces";
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getRestriction() {
-        return '';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getRestriction() {
+		return '';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getGroupName() {
-        return 'wss-spaces';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getGroupName() {
+		return 'wss-spaces';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getDescription() {
-        return wfMessage( 'wss-active-spaces-header' )->plain();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getDescription() {
+		return wfMessage( 'wss-active-spaces-header' )->plain();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getLoginSecurityLevel() {
-        return 'ws-manage-namespaces';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getLoginSecurityLevel() {
+		return 'ws-manage-namespaces';
+	}
 
-    /**
-     * The main method that gets invoked upon successfully loading the special page, after preExecuteChecks have
-     * been performed.
-     *
-     * @param $parameter
-     * @return void
-     * @throws \MWException
-     */
-    function doExecute( string $parameter ) {
-        $output = $this->getOutput();
-        $renderer = $this->getLinkRenderer();
+	/**
+	 * The main method that gets invoked upon successfully loading the special page, after preExecuteChecks have
+	 * been performed.
+	 *
+	 * @param $parameter
+	 * @return void
+	 * @throws \MWException
+	 */
+	function doExecute( string $parameter ) {
+		$output = $this->getOutput();
+		$renderer = $this->getLinkRenderer();
 
-        if ( empty( $parameter ) ) {
-            if ( !MediaWikiServices::getInstance()->getPermissionManager()->userHasRight(
-                \RequestContext::getMain()->getUser(),
-                "wss-view-spaces-overview"
-            ) ) {
-                throw new \PermissionsError( "wss-view-spaces-overview" );
-            }
+		if ( empty( $parameter ) ) {
+			if ( !MediaWikiServices::getInstance()->getPermissionManager()->userHasRight(
+				\RequestContext::getMain()->getUser(),
+				"wss-view-spaces-overview"
+			) ) {
+				throw new \PermissionsError( "wss-view-spaces-overview" );
+			}
 
-            $ui = new ManageSpaceBaseUI( $output, $renderer );
-            $ui->execute();
+			$ui = new ManageSpaceBaseUI( $output, $renderer );
+			$ui->execute();
 
-            return;
-        }
+			return;
+		}
 
-        if ( !ctype_digit( $parameter ) ) {
-            $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
-            $ui->execute();
+		if ( !ctype_digit( $parameter ) ) {
+			$ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+			$ui->execute();
 
-            return;
-        }
+			return;
+		}
 
-        $namespace_constant = intval( $parameter );
+		$namespace_constant = intval( $parameter );
 
-        try {
-            $namespace_repository = new NamespaceRepository();
+		try {
+			$namespace_repository = new NamespaceRepository();
 
-            if ( !in_array( $namespace_constant, $namespace_repository->getSpaces( true ), true ) ) {
-                $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
-                $ui->execute();
+			if ( !in_array( $namespace_constant, $namespace_repository->getSpaces( true ), true ) ) {
+				$ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+				$ui->execute();
 
-                return;
-            }
+				return;
+			}
 
-            $space = Space::newFromConstant( $namespace_constant );
+			$space = Space::newFromConstant( $namespace_constant );
 
-            if ( !$space->canEdit() ) {
-                $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
-                $ui->execute();
+			if ( !$space->canEdit() ) {
+				$ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+				$ui->execute();
 
-                return;
-            }
+				return;
+			}
 
-            $ui = new ManageSpaceFormUI( $output, $renderer );
-            $ui->setParameter( $parameter );
-            $ui->execute();
-        } catch( Exception $e ) {
-            $ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );
-            $ui->execute();
-        }
-    }
+			$ui = new ManageSpaceFormUI( $output, $renderer );
+			$ui->setParameter( $parameter );
+			$ui->execute();
+		} catch ( Exception $e ) {
+			$ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );
+			$ui->execute();
+		}
+	}
 }

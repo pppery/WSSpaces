@@ -1,22 +1,17 @@
 <?php
 
-
 namespace WSS\Special;
 
-use ErrorPageError;
 use Exception;
-use MediaWiki\MediaWikiServices;
 use MWException;
 use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\SpecialPage;
-use WSS\UI\AddSpaceUI;
 use WSS\UI\ArchivedSpacesUI;
 use WSS\UI\ExceptionUI;
 use WSS\UI\InvalidPageUI;
 use WSS\UI\MissingPermissionsUI;
 use WSS\UI\UnarchiveSpaceUI;
-use PermissionsError;
 
 /**
  * Class SpecialArchivedSpaces
@@ -24,118 +19,117 @@ use PermissionsError;
  * @package WSS\Special
  */
 class SpecialArchivedSpaces extends SpecialPage {
-    /**
-     * SpecialPermissions constructor.
-     *
-     * @throws \UserNotLoggedIn
-     */
-    public function __construct() {
-        parent::__construct( self::getName(), self::getRestriction(), true );
-        parent::requireLogin();
-    }
+	/**
+	 * SpecialPermissions constructor.
+	 *
+	 * @throws \UserNotLoggedIn
+	 */
+	public function __construct() {
+		parent::__construct( self::getName(), self::getRestriction(), true );
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getName() {
-        return "ArchivedSpaces";
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getName() {
+		return "ArchivedSpaces";
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getRestriction() {
-        return 'wss-archive-space';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getRestriction() {
+		return 'wss-archive-space';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getGroupName() {
-        return 'wss-spaces';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getGroupName() {
+		return 'wss-spaces';
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getDescription() {
-        return wfMessage( 'wss-archived-spaces-header' )->plain();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getDescription() {
+		return wfMessage( 'wss-archived-spaces-header' )->plain();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getLoginSecurityLevel() {
-        return 'ws-manage-namespaces';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getLoginSecurityLevel() {
+		return 'ws-manage-namespaces';
+	}
 
-    /**
-     * @inheritDoc
-     * @throws MWException
-     */
-    public function preExecute(): bool {
-        if ( !Space::canArchive() ) {
-            // We can't edit this space
-            $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
-            $ui->execute();
+	/**
+	 * @inheritDoc
+	 * @throws MWException
+	 */
+	public function preExecute(): bool {
+		if ( !Space::canArchive() ) {
+			// We can't edit this space
+			$ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+			$ui->execute();
 
-            return false;
-        }
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    /**
-     * @inheritDoc
-     * @throws MWException
-     */
-    public function doExecute( string $parameter ) {
-        try {
-            $namespace_repository = new NamespaceRepository();
+	/**
+	 * @inheritDoc
+	 * @throws MWException
+	 */
+	public function doExecute( string $parameter ) {
+		try {
+			$namespace_repository = new NamespaceRepository();
 
-            $output   = $this->getOutput();
-            $renderer = $this->getLinkRenderer();
+			$output   = $this->getOutput();
+			$renderer = $this->getLinkRenderer();
 
-            if ( empty( $parameter ) ) {
-                $ui = new ArchivedSpacesUI( $output, $renderer );
-                $ui->execute();
+			if ( empty( $parameter ) ) {
+				$ui = new ArchivedSpacesUI( $output, $renderer );
+				$ui->execute();
 
-                return;
-            }
+				return;
+			}
 
-            if ( !ctype_digit( $parameter ) ) {
-                $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
-                $ui->execute();
+			if ( !ctype_digit( $parameter ) ) {
+				$ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+				$ui->execute();
 
-                return;
-            }
+				return;
+			}
 
-            $namespace_constant = intval( $parameter );
+			$namespace_constant = intval( $parameter );
 
-            if ( !in_array( $namespace_constant, $namespace_repository->getArchivedSpaces( true ), true ) ) {
-                // This space isn't archived or does not exist
-                $ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
-                $ui->execute();
+			if ( !in_array( $namespace_constant, $namespace_repository->getArchivedSpaces( true ), true ) ) {
+				// This space isn't archived or does not exist
+				$ui = new InvalidPageUI( $this->getOutput(), $this->getLinkRenderer() );
+				$ui->execute();
 
-                return;
-            }
+				return;
+			}
 
-            $space = Space::newFromConstant( $namespace_constant );
+			$space = Space::newFromConstant( $namespace_constant );
 
-            if ( !$space->canEdit() ) {
-                // We can't edit this space
-                $ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
-                $ui->execute();
+			if ( !$space->canEdit() ) {
+				// We can't edit this space
+				$ui = new MissingPermissionsUI( $this->getOutput(), $this->getLinkRenderer() );
+				$ui->execute();
 
-                return;
-            }
+				return;
+			}
 
-            $ui = new UnarchiveSpaceUI( $output, $renderer );
-            $ui->setParameter( $parameter );
-            $ui->execute();
-        } catch( Exception $e ) {
-            $ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );
-            $ui->execute();
-        }
-    }
+			$ui = new UnarchiveSpaceUI( $output, $renderer );
+			$ui->setParameter( $parameter );
+			$ui->execute();
+		} catch ( Exception $e ) {
+			$ui = new ExceptionUI( $e, $this->getOutput(), $this->getLinkRenderer() );
+			$ui->execute();
+		}
+	}
 }

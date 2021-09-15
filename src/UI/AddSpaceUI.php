@@ -12,25 +12,25 @@ use WSS\Validation\AddSpaceValidationCallback;
  * @package WSS\UI
  */
 class AddSpaceUI extends SpacesUI {
-    /**
-     * @inheritDoc
-     */
-    public function render() {
-        $this->getOutput()->addWikiMsg( 'wss-add-space-intro' );
+	/**
+	 * @inheritDoc
+	 */
+	public function render() {
+		$this->getOutput()->addWikiMsg( 'wss-add-space-intro' );
 
-        $form = new AddSpaceForm(
-            $this->getOutput(),
-            new AddSpaceSubmitCallback( $this ),
-            new AddSpaceValidationCallback()
-        );
+		$form = new AddSpaceForm(
+			$this->getOutput(),
+			new AddSpaceSubmitCallback( $this ),
+			new AddSpaceValidationCallback()
+		);
 
-        $form->show();
-    }
+		$form->show();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function getIdentifier(): string {
-        return "add-space";
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function getIdentifier(): string {
+		return "add-space";
+	}
 }

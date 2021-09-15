@@ -1,6 +1,5 @@
 <?php
 
-
 namespace WSS\UI;
 
 use WSS\ArchivedSpacePager;
@@ -11,21 +10,21 @@ use WSS\ArchivedSpacePager;
  * @package WSS\UI
  */
 class ArchivedSpacesUI extends SpacesUI {
-    /**
-     * @inheritDoc
-     */
-    function render() {
-        $pager = new ArchivedSpacePager();
+	/**
+	 * @inheritDoc
+	 */
+	function render() {
+		$pager = new ArchivedSpacePager();
 
-        $this->getOutput()->addParserOutput(
-            $pager->getFullOutput()
-        );
-    }
+		$this->getOutput()->addParserOutput(
+			$pager->getFullOutput()
+		);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    function getIdentifier(): string {
-        return 'archived-spaces';
-    }
+	/**
+	 * @inheritDoc
+	 */
+	function getIdentifier(): string {
+		return 'archived-spaces';
+	}
 }

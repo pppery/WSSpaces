@@ -7,402 +7,368 @@ use RequestContext;
 use User;
 
 class Space {
-    const DEFAULT_NAMESPACE_CONSTANT = 0;
+	const DEFAULT_NAMESPACE_CONSTANT = 0;
 
-    /**
-     * @var User
-     */
-    private $namespace_owner;
+	/**
+	 * @var User
+	 */
+	private $namespace_owner;
 
-    /**
-     * @var string
-     */
-    private $description;
+	/**
+	 * @var string
+	 */
+	private $description;
 
-    /**
-     * @var int
-     */
-    private $namespace_id;
+	/**
+	 * @var int
+	 */
+	private $namespace_id;
 
-    /**
-     * @var int
-     */
-    private $talkspace_id;
+	/**
+	 * @var int
+	 */
+	private $talkspace_id;
 
-    /**
-     * @var string
-     */
-    private $namespace_key;
+	/**
+	 * @var string
+	 */
+	private $namespace_key;
 
-    /**
-     * @var bool
-     */
-    private $is_archived;
+	/**
+	 * @var bool
+	 */
+	private $is_archived;
 
-    /**
-     * @var array
-     */
-    private $namespace_administrators;
+	/**
+	 * @var array
+	 */
+	private $namespace_administrators;
 
-    /**
-     * @var string
-     */
-    private $namespace_name;
+	/**
+	 * @var string
+	 */
+	private $namespace_name;
 
-    /**
-     * Space constructor.
-     *
-     * @param string $namespace_key The canonical name of the namespace.
-     * @param string $namespace_name The name of the namespace.
-     * @param int $namespace_id The ID of the namespace. MUST be an even number.
-     * @param string $description The description of the namespace.
-     * @param User $namespace_owner The owner of the namespace.
-     * @param bool $is_archived Whether or not the space is archived.
-     * @param array $namespace_administrators The administrators of this namespace.
-     */
-    private function __construct(
-        string $namespace_key,
-        string $namespace_name,
-        int $namespace_id,
-        string $description,
-        User $namespace_owner,
-        bool $is_archived = false,
-        array $namespace_administrators = []
-    ) {
-        if ( $namespace_id % 2 !== 0 ) {
-            throw new \InvalidArgumentException( "Namespace ID must be an even number; '$namespace_id' is not even'" );
-        }
+	/**
+	 * Space constructor.
+	 *
+	 * @param string $namespace_key The canonical name of the namespace.
+	 * @param string $namespace_name The name of the namespace.
+	 * @param int $namespace_id The ID of the namespace. MUST be an even number.
+	 * @param string $description The description of the namespace.
+	 * @param User $namespace_owner The owner of the namespace.
+	 * @param bool $is_archived Whether or not the space is archived.
+	 * @param array $namespace_administrators The administrators of this namespace.
+	 */
+	private function __construct(
+		string $namespace_key,
+		string $namespace_name,
+		int $namespace_id,
+		string $description,
+		User $namespace_owner,
+		bool $is_archived = false,
+		array $namespace_administrators = []
+	) {
+		if ( $namespace_id % 2 !== 0 ) {
+			throw new \InvalidArgumentException( "Namespace ID must be an even number; '$namespace_id' is not even'" );
+		}
 
-        if ( empty( $namespace_key ) ) {
-            throw new \InvalidArgumentException( "Namespace name must not be empty." );
-        }
+		if ( empty( $namespace_key ) ) {
+			throw new \InvalidArgumentException( "Namespace name must not be empty." );
+		}
 
-        if ( !ctype_alnum( $namespace_key ) ) {
-            throw new \InvalidArgumentException( "A namespace name can only consist of alphanumerical characters, therefore $namespace_key is invalid." );
-        }
+		if ( !ctype_alnum( $namespace_key ) ) {
+			throw new \InvalidArgumentException( "A namespace name can only consist of alphanumerical characters, therefore $namespace_key is invalid." );
+		}
 
-        $this->namespace_id    = $namespace_id;
-        $this->talkspace_id    = $namespace_id + 1;
-        $this->is_archived     = $is_archived;
+		$this->namespace_id    = $namespace_id;
+		$this->talkspace_id    = $namespace_id + 1;
+		$this->is_archived     = $is_archived;
 
-        $this->namespace_name  = $namespace_name;
+		$this->namespace_name = $namespace_name;
 
-        $namespace_key = ucfirst( $namespace_key );
+		$namespace_key = ucfirst( $namespace_key );
 
-        $this->setKey( $namespace_key );
-        $this->setDescription( $description );
-        $this->setOwner( $namespace_owner );
-        $this->setSpaceAdministrators( $namespace_administrators );
-    }
+		$this->setKey( $namespace_key );
+		$this->setDescription( $description );
+		$this->setOwner( $namespace_owner );
+		$this->setSpaceAdministrators( $namespace_administrators );
+	}
 
-    /**
-     * Returns a new space object from the given namespace name.
-     *
-     * @param string $namespace_key
-     * @return bool|Space
-     * @throws \ConfigException
-     *
-     * @deprecated Use newFromConstant when possible instead
-     */
-    public static function newFromKey( string $namespace_key ) {
-        $database = wfGetDB( DB_REPLICA );
-        $namespace = $database->select(
-            'wss_namespaces',
-            [ 'namespace_id', 'namespace_name', 'description', 'creator_id', 'archived' ],
-            [ 'namespace_key' => $namespace_key ]
-        );
+	/**
+	 * Returns a new space object from the given values.
+	 *
+	 * @param string $namespace_key
+	 * @param string $namespace_name
+	 * @param string $description
+	 * @param User $user
+	 * @return Space
+	 */
+	public static function newFromValues(
+		string $namespace_key,
+		string $namespace_name,
+		string $description,
+		User $user
+	): Space {
+		return new Space(
+			$namespace_key,
+			$namespace_name,
+			self::DEFAULT_NAMESPACE_CONSTANT,
+			$description,
+			$user
+		);
+	}
 
-        if ( $namespace->numRows() === 0 ) {
-            return false;
-        }
+	/**
+	 * Returns a new space object from the given namespace constant.
+	 *
+	 * @param int $namespace_constant
+	 * @return bool|Space
+	 * @throws \ConfigException
+	 */
+	public static function newFromConstant( int $namespace_constant ) {
+		$database = wfGetDB( DB_REPLICA );
+		$namespace = $database->select(
+			'wss_namespaces',
+			[ 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ],
+			[ 'namespace_id' => $namespace_constant ]
+		);
 
-        $namespace = $namespace->current();
-        $user = User::newFromId( $namespace->creator_id );
+		if ( $namespace->numRows() === 0 ) {
+			return false;
+		}
 
-        if ( !$user instanceof User ) {
-            throw new \InvalidArgumentException( "Invalid creator_id '{$namespace->creator_id}'" );
-        }
+		$namespace = $namespace->current();
+		$user = User::newFromId( $namespace->creator_id );
 
-        $namespace_administrators = array_map( function( $row ): string {
-            return User::newFromId( $row->admin_user_id )->getName();
-        }, iterator_to_array( $database->select(
-            'wss_namespace_admins',
-            [ 'admin_user_id' ],
-            [ 'namespace_id' => $namespace->namespace_id ]
-        ) ) );
+		if ( !$user instanceof User ) {
+			throw new \InvalidArgumentException( "Invalid creator_id '{$namespace->creator_id}'" );
+		}
 
-        return new Space(
-            $namespace_key,
-            $namespace->namespace_name,
-            $namespace->namespace_id,
-            $namespace->description,
-            $user,
-            $namespace->archived,
-            $namespace_administrators
-        );
-    }
+		$namespace_administrators = array_map( function ( $row ): string {
+			return User::newFromId( $row->admin_user_id )->getName();
+		}, iterator_to_array( $database->select(
+			'wss_namespace_admins',
+			[ 'admin_user_id' ],
+			[ 'namespace_id' => $namespace_constant ]
+		) ) );
 
-    /**
-     * Returns a new space object from the given values.
-     *
-     * @param string $namespace_key
-     * @param string $namespace_name
-     * @param string $description
-     * @param User $user
-     * @return Space
-     */
-    public static function newFromValues(
-        string $namespace_key,
-        string $namespace_name,
-        string $description,
-        User $user
-    ): Space {
-        return new Space(
-            $namespace_key,
-            $namespace_name,
-            self::DEFAULT_NAMESPACE_CONSTANT,
-            $description,
-            $user
-        );
-    }
+		return new Space(
+			$namespace->namespace_key,
+			$namespace->namespace_name,
+			$namespace_constant,
+			$namespace->description,
+			$user,
+			$namespace->archived,
+			$namespace_administrators
+		);
+	}
 
-    /**
-     * Returns a new space object from the given namespace constant.
-     *
-     * @param int $namespace_constant
-     * @return bool|Space
-     * @throws \ConfigException
-     */
-    public static function newFromConstant( int $namespace_constant ) {
-        $database = wfGetDB( DB_REPLICA );
-        $namespace = $database->select(
-            'wss_namespaces',
-            [ 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ],
-            [ 'namespace_id' => $namespace_constant ]
-        );
+	/**
+	 * Returns the canonical name of this namespace.
+	 *
+	 * @return string
+	 */
+	public function getKey(): string {
+		return ucfirst( $this->namespace_key );
+	}
 
-        if ( $namespace->numRows() === 0 ) {
-            return false;
-        }
+	/**
+	 * Returns the name of this namespace.
+	 *
+	 * @return string
+	 */
+	public function getName(): string {
+		return $this->namespace_name;
+	}
 
-        $namespace = $namespace->current();
-        $user = User::newFromId( $namespace->creator_id );
+	/**
+	 * Returns the id of this space.
+	 *
+	 * @return int
+	 */
+	public function getId(): int {
+		if ( !$this->exists() ) {
+			throw new \BadFunctionCallException( "Cannot call getId on a space that does not exist." );
+		}
 
-        if ( !$user instanceof User ) {
-            throw new \InvalidArgumentException( "Invalid creator_id '{$namespace->creator_id}'" );
-        }
+		return $this->namespace_id;
+	}
 
-        $namespace_administrators = array_map( function( $row ): string {
-            return User::newFromId( $row->admin_user_id )->getName();
-        }, iterator_to_array( $database->select(
-            'wss_namespace_admins',
-            [ 'admin_user_id' ],
-            [ 'namespace_id' => $namespace_constant ]
-        ) ) );
+	/**
+	 * Returns the talkspace id of this space.
+	 *
+	 * @return int
+	 */
+	public function getTalkId(): int {
+		if ( !$this->exists() ) {
+			throw new \BadFunctionCallException( "Cannot call getTalkId on a space that does not exist." );
+		}
 
-        return new Space(
-            $namespace->namespace_key,
-            $namespace->namespace_name,
-            $namespace_constant,
-            $namespace->description,
-            $user,
-            $namespace->archived,
-            $namespace_administrators
-        );
-    }
+		return $this->talkspace_id;
+	}
 
-    /**
-     * Returns the canonical name of this namespace.
-     *
-     * @return string
-     */
-    public function getKey(): string {
-        return ucfirst( $this->namespace_key );
-    }
+	/**
+	 * Returns an array of administrators of this space.
+	 *
+	 * @return array
+	 */
+	public function getSpaceAdministrators(): array {
+		return $this->namespace_administrators;
+	}
 
-    /**
-     * Returns the name of this namespace.
-     *
-     * @return string
-     */
-    public function getName(): string {
-        return $this->namespace_name;
-    }
+	/**
+	 * Returns true if and only if the Space is archived.
+	 *
+	 * @return bool
+	 */
+	public function isArchived(): bool {
+		return $this->is_archived;
+	}
 
-    /**
-     * Returns the id of this space.
-     *
-     * @return int
-     */
-    public function getId(): int {
-        if ( !$this->exists() ) {
-            throw new \BadFunctionCallException( "Cannot call getId on a space that does not exist." );
-        }
+	/**
+	 * Returns the description of this space.
+	 *
+	 * @return string
+	 */
+	public function getDescription(): string {
+		return $this->description;
+	}
 
-        return $this->namespace_id;
-    }
+	/**
+	 * Returns the owner of this space.
+	 *
+	 * @return User
+	 */
+	public function getOwner(): User {
+		return $this->namespace_owner;
+	}
 
-    /**
-     * Returns the talkspace id of this space.
-     *
-     * @return int
-     */
-    public function getTalkId(): int {
-        if ( !$this->exists() ) {
-            throw new \BadFunctionCallException( "Cannot call getTalkId on a space that does not exist." );
-        }
+	/**
+	 * Returns the group name of this space.
+	 *
+	 * @return string
+	 */
+	public function getGroupName(): string {
+		if ( !$this->exists() ) {
+			throw new \BadFunctionCallException( "Cannot call getId on a space that does not exist." );
+		}
 
-        return $this->talkspace_id;
-    }
+		return strval( $this->namespace_id ) . "Admin";
+	}
 
-    /**
-     * Returns an array of administrators of this space.
-     *
-     * @return array
-     */
-    public function getSpaceAdministrators(): array {
-        return $this->namespace_administrators;
-    }
+	/**
+	 * Sets the name for this namespace.
+	 *
+	 * @param string $name
+	 * @throws \ConfigException
+	 */
+	public function setKey( string $name ) {
+		$this->namespace_key = $name;
+	}
 
-    /**
-     * Returns true if and only if the Space is archived.
-     *
-     * @return bool
-     */
-    public function isArchived(): bool {
-        return $this->is_archived;
-    }
+	/**
+	 * Sets the display name for this namespace.
+	 *
+	 * @param string $name
+	 */
+	public function setName( string $name ) {
+		$this->namespace_name = $name;
+	}
 
-    /**
-     * Returns the description of this space.
-     *
-     * @return string
-     */
-    public function getDescription(): string {
-        return $this->description;
-    }
+	/**
+	 * Sets the description for this Space.
+	 *
+	 * @param string $description
+	 */
+	public function setDescription( string $description ) {
+		if ( empty( $description ) ) {
+			throw new \InvalidArgumentException( "Description must not be empty." );
+		}
 
-    /**
-     * Returns the owner of this space.
-     *
-     * @return User
-     */
-    public function getOwner(): User {
-        return $this->namespace_owner;
-    }
+		$this->description = $description;
+	}
 
-    /**
-     * Sets the name for this namespace.
-     *
-     * @param string $name
-     * @throws \ConfigException
-     */
-    public function setKey( string $name ) {
-        $this->namespace_key = $name;
-    }
+	/**
+	 * Sets the owner of this Space.
+	 *
+	 * @param User $owner
+	 */
+	public function setOwner( User $owner ) {
+		if ( $owner->isAnon() ) {
+			throw new \InvalidArgumentException( "A namespace cannot be owned by an anonymous user." );
+		}
 
-    /**
-     * Sets the display name for this namespace.
-     *
-     * @param string $name
-     */
-    public function setName( string $name ) {
-        $this->namespace_name = $name;
-    }
+		$this->namespace_owner = $owner;
+	}
 
-    /**
-     * Sets the description for this Space.
-     *
-     * @param string $description
-     */
-    public function setDescription( string $description ) {
-        if ( empty( $description ) ) {
-            throw new \InvalidArgumentException( "Description must not be empty." );
-        }
+	/**
+	 * Sets the administrators of this space.
+	 *
+	 * @param string[] $administrators
+	 */
+	public function setSpaceAdministrators( array $administrators ) {
+		$this->namespace_administrators = $administrators;
+	}
 
-        $this->description = $description;
-    }
+	/**
+	 * Sets the archived status of this Space.
+	 *
+	 * @param bool $is_archived
+	 */
+	public function setArchived( bool $is_archived = true ) {
+		$this->is_archived = $is_archived;
+	}
 
-    /**
-     * Sets the owner of this Space.
-     *
-     * @param User $owner
-     */
-    public function setOwner( User $owner ) {
-        if ( $owner->isAnon() ) {
-            throw new \InvalidArgumentException( "A namespace cannot be owned by an anonymous user." );
-        }
+	/**
+	 * Returns true if and only if the given space exists.
+	 *
+	 * @return bool
+	 */
+	public function exists(): bool {
+		$database = wfGetDB( DB_MASTER );
+		$result = $database->select(
+			'wss_namespaces',
+			[ 'namespace_id' ],
+			[ 'namespace_id' => $this->namespace_id ]
+		);
 
-        $this->namespace_owner = $owner;
-    }
+		return $result->numRows() > 0 && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
+	}
 
-    /**
-     * Sets the administrators of this space.
-     *
-     * @param string[] $administrators
-     */
-    public function setSpaceAdministrators( array $administrators ) {
-        $this->namespace_administrators = $administrators;
-    }
+	/**
+	 * Returns true if and only if the current logged in user can edit this space.
+	 *
+	 * @return bool
+	 */
+	public function canEdit(): bool {
+		$user = \RequestContext::getMain()->getUser();
 
-    /**
-     * Sets the archived status of this Space.
-     *
-     * @param bool $is_archived
-     */
-    public function setArchived( bool $is_archived = true ) {
-        $this->is_archived = $is_archived;
-    }
+		if ( in_array( $user->getName(), $this->namespace_administrators, true ) ) {
+			// This user is a space administrator
+			return true;
+		}
 
-    /**
-     * Returns true if and only if the given space exists.
-     *
-     * @return bool
-     */
-    public function exists(): bool {
-        $database = wfGetDB(DB_MASTER);
-        $result = $database->select(
-            'wss_namespaces',
-            [ 'namespace_id' ],
-            [ 'namespace_id' => $this->namespace_id ]
-        );
+		return MediaWikiServices::getInstance()->getPermissionManager()->userHasRight(
+			$user,
+			"wss-edit-all-spaces"
+		);
+	}
 
-        return $result->numRows() > 0 && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
-    }
+	/**
+	 * Returns true if and only if archiving is currently enabled.
+	 *
+	 * @return bool
+	 */
+	public static function canArchive(): bool {
+		$services = MediaWikiServices::getInstance();
+		$user_can_archive = $services
+			->getPermissionManager()
+			->userHasRight(
+				RequestContext::getMain()->getUser(),
+				"wss-archive-space"
+			);
 
-    /**
-     * Returns true if and only if the current logged in user can edit this space.
-     *
-     * @return bool
-     */
-    public function canEdit(): bool {
-        $user = \RequestContext::getMain()->getUser();
-
-        if ( in_array( $user->getName(), $this->namespace_administrators, true ) ) {
-            // This user is a space administrator
-            return true;
-        }
-
-        return MediaWikiServices::getInstance()->getPermissionManager()->userHasRight(
-            $user,
-            "wss-edit-all-spaces"
-        );
-    }
-
-    /**
-     * Returns true if and only if archiving is currently enabled.
-     *
-     * @return bool
-     */
-    public static function canArchive(): bool {
-        $services = MediaWikiServices::getInstance();
-        $user_can_archive = $services
-            ->getPermissionManager()
-            ->userHasRight(
-                RequestContext::getMain()->getUser(),
-                "wss-archive-space"
-            );
-
-        return $services->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) && $user_can_archive;
-    }
+		return $services->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) && $user_can_archive;
+	}
 }

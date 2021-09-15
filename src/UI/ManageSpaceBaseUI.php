@@ -9,14 +9,14 @@ use WSS\SpacePager;
  * @package WSS\UI
  */
 class ManageSpaceBaseUI extends ManageSpaceUI {
-    /**
-     * @inheritDoc
-     */
-    function render() {
-        $pager = new SpacePager();
+	/**
+	 * @inheritDoc
+	 */
+	function render() {
+		$pager = new SpacePager();
 
-        $this->getOutput()->addParserOutput(
-            $pager->getFullOutput()
-        );
-    }
+		$this->getOutput()->addParserOutput(
+			$pager->getFullOutput()
+		);
+	}
 }
