@@ -29,7 +29,7 @@ class ExceptionUI extends WSSUI {
 	/**
 	 * @inheritDoc
 	 */
-	function render() {
+	public function render() {
 		$this->getOutput()->addWikiMsg( 'wss-internal-exception-intro' );
 		$this->getOutput()->addHTML( Xml::tags( 'h1', [], wfMessage( 'wss-debug-information' ) ) );
 		$this->getOutput()->addWikiMsg( 'wss-debug-information-intro' );
@@ -49,7 +49,7 @@ class ExceptionUI extends WSSUI {
 	/**
 	 * @inheritDoc
 	 */
-	function getIdentifier(): string {
+	public function getIdentifier(): string {
 		return 'internal-exception';
 	}
 

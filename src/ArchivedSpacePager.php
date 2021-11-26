@@ -90,6 +90,9 @@ class ArchivedSpacePager extends Pager {
 		return 'namespace_id';
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getDefaultDirections() {
 		return parent::DIR_DESCENDING;
 	}

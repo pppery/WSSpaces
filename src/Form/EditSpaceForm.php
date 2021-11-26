@@ -13,6 +13,14 @@ class EditSpaceForm extends AbstractForm {
 	 */
 	private $space;
 
+	/**
+	 * EditSpaceForm constructor.
+	 *
+	 * @param Space $space
+	 * @param OutputPage $page
+	 * @param SubmitCallback $submit_callback
+	 * @param AbstractValidationCallback|null $validation_callback
+	 */
 	public function __construct(
 		Space $space,
 		OutputPage $page,

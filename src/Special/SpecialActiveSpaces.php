@@ -53,7 +53,7 @@ class SpecialActiveSpaces extends SpecialPage {
 	 * @inheritDoc
 	 */
 	public function getDescription() {
-		return wfMessage( 'wss-active-spaces-header' )->plain();
+		return $this->msg( 'wss-active-spaces-header' )->plain();
 	}
 
 	/**
@@ -67,11 +67,11 @@ class SpecialActiveSpaces extends SpecialPage {
 	 * The main method that gets invoked upon successfully loading the special page, after preExecuteChecks have
 	 * been performed.
 	 *
-	 * @param $parameter
+	 * @param string $parameter
 	 * @return void
 	 * @throws \MWException
 	 */
-	function doExecute( string $parameter ) {
+	public function doExecute( string $parameter ) {
 		$output = $this->getOutput();
 		$renderer = $this->getLinkRenderer();
 

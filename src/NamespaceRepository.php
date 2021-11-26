@@ -18,6 +18,7 @@ use WSS\Log\UpdateSpaceLog;
 
 class NamespaceRepository {
 	// Lowest allowed ID for a space.
+	// phpcs:ignore
 	const MIN_SPACE_ID = 50000;
 
 	/**
@@ -42,6 +43,8 @@ class NamespaceRepository {
 
 	/**
 	 * Returns the next available namespace id.
+	 *
+	 * @return int
 	 */
 	public static function getNextAvailableNamespaceId(): int {
 		$dbr = wfGetDB( DB_MASTER );
@@ -196,7 +199,9 @@ class NamespaceRepository {
 	 */
 	public function addSpace( Space $space ): int {
 		if ( $space->exists() ) {
-			throw new \InvalidArgumentException( "Cannot add existing space to database, use NamespaceRepository::updateSpace() instead." );
+			throw new \InvalidArgumentException(
+				"Cannot add existing space to database, use NamespaceRepository::updateSpace() instead."
+			);
 		}
 
 		// We publish the log first, since we ...?
@@ -226,11 +231,11 @@ class NamespaceRepository {
 			[ $space ]
 		);
 
-        // Set the admins. Do this after running the WSSpacesAfterCreateSpace hook!
-        $space->setSpaceAdministrators( [ $space->getOwner()->getName() ] );
-        $this->updateSpaceAdministrators( $database, $space );
+		// Set the admins. Do this after running the WSSpacesAfterCreateSpace hook!
+		$space->setSpaceAdministrators( [ $space->getOwner()->getName() ] );
+		$this->updateSpaceAdministrators( $database, $space );
 
-        $log->publish();
+		$log->publish();
 
 		return $namespace_id;
 	}
@@ -248,7 +253,9 @@ class NamespaceRepository {
 	 */
 	public function updateSpace( $old_space, Space $new_space, bool $force = false, bool $log = true ) {
 		if ( $old_space === false || !$old_space->exists() ) {
-			throw new \InvalidArgumentException( "Cannot update non-existing space in database, use NamespaceRepository::addSpace() instead." );
+			throw new \InvalidArgumentException(
+				"Cannot update non-existing space in database, use NamespaceRepository::addSpace() instead."
+			);
 		}
 
 		// Last minute check to see if the user actually does have enough permissions to edit this space.
@@ -493,7 +500,7 @@ class NamespaceRepository {
 
 	/**
 	 * @param array $administrators
-	 * @param $namespace_id
+	 * @param int $namespace_id
 	 * @return array
 	 */
 	private function createRowsFromSpaceAdministrators( array $administrators, $namespace_id ) {

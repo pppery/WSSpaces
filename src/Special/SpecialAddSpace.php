@@ -15,8 +15,6 @@ use WSS\UI\InvalidPageUI;
 class SpecialAddSpace extends SpecialPage {
 	/**
 	 * SpecialPermissions constructor.
-	 *
-	 * @throws \UserNotLoggedIn
 	 */
 	public function __construct() {
 		parent::__construct( self::getName(), self::getRestriction(), true );
@@ -47,7 +45,7 @@ class SpecialAddSpace extends SpecialPage {
 	 * @inheritDoc
 	 */
 	public function getDescription() {
-		return wfMessage( 'wss-add-space-header' )->plain();
+		return $this->msg( 'wss-add-space-header' )->plain();
 	}
 
 	/**

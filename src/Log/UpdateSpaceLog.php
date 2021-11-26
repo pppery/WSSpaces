@@ -30,7 +30,9 @@ class UpdateSpaceLog extends Log {
 			$old_admins_comment = $old_admins === [] ? "(none)" : implode( ", ", $old_admins );
 			$new_admins_comment = $new_admins === [] ? "(none)" : implode( ", ", $new_admins );
 
-			$this->setComment( wfMessage( 'wss-update-log-changed-admins', $old_admins_comment, $new_admins_comment )->plain() );
+			$this->setComment(
+				wfMessage( 'wss-update-log-changed-admins', $old_admins_comment, $new_admins_comment )->plain()
+			);
 		}
 
 		$this->space = $new_space;

@@ -98,6 +98,9 @@ class SpacePager extends Pager {
 		return 'created_on';
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function getDefaultDirections() {
 		return parent::DIR_DESCENDING;
 	}

@@ -12,7 +12,7 @@ class ManageSpaceBaseUI extends ManageSpaceUI {
 	/**
 	 * @inheritDoc
 	 */
-	function render() {
+	public function render() {
 		$pager = new SpacePager();
 
 		$this->getOutput()->addParserOutput(

@@ -16,7 +16,7 @@ class UnarchiveSpaceUI extends SpacesUI {
 	 * @inheritDoc
 	 * @throws \ConfigException
 	 */
-	function render() {
+	public function render() {
 		$namespace_constant = (int)$this->getParameter();
 		$space = Space::newFromConstant( $namespace_constant );
 
@@ -32,7 +32,7 @@ class UnarchiveSpaceUI extends SpacesUI {
 	/**
 	 * @inheritDoc
 	 */
-	function getIdentifier(): string {
+	public function getIdentifier(): string {
 		return 'unarchive-space';
 	}
 }

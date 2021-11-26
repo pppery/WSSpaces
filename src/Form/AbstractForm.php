@@ -36,7 +36,11 @@ abstract class AbstractForm {
 	 * @param SubmitCallback $submit_callback
 	 * @param AbstractValidationCallback|null $validation_callback
 	 */
-	public function __construct( OutputPage $page, SubmitCallback $submit_callback, AbstractValidationCallback $validation_callback = null ) {
+	public function __construct(
+		OutputPage $page,
+		SubmitCallback $submit_callback,
+		AbstractValidationCallback $validation_callback = null
+	) {
 		$this->page = $page;
 
 		$this->setSubmitCallback( $submit_callback );

@@ -17,6 +17,7 @@ use WSS\Space;
  * @package WSS\UI
  */
 abstract class WSSUI {
+	// phpcs:ignore
 	const GLOBAL_MODULES = [
 		"ext.wss.Global"
 	];
@@ -88,7 +89,7 @@ abstract class WSSUI {
 	/**
 	 * Sets the sidebar.
 	 *
-	 * @param &$bar
+	 * @param array &$bar
 	 * @throws \ConfigException
 	 */
 	public static function setSidebar( &$bar ) {
@@ -116,7 +117,10 @@ abstract class WSSUI {
 		if ( \ExtensionRegistry::getInstance()->isLoaded( 'WSPermissions' ) ) {
 			$bar[wfMessage( 'wss-space-sidebar-header', $space_object->getKey() )->parse()][] = [
 				'text' => wfMessage( 'wss-manage-space-policy' ),
-				'href' => \Title::newFromText( "ManageNamespacePermissions/" . $space_object->getId(), NS_SPECIAL )->getFullUrlForRedirect(),
+				'href' => \Title::newFromText(
+					"ManageNamespacePermissions/" . $space_object->getId(),
+					NS_SPECIAL
+				)->getFullUrlForRedirect(),
 				'active' => ''
 			];
 		} else {
@@ -338,12 +342,12 @@ abstract class WSSUI {
 	 *
 	 * @return void
 	 */
-	abstract function render();
+	abstract public function render();
 
 	/**
 	 * Returns the identifier used in some system messages.
 	 *
 	 * @return string
 	 */
-	abstract function getIdentifier(): string;
+	abstract public function getIdentifier(): string;
 }

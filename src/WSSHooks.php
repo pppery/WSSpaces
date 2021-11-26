@@ -16,6 +16,7 @@ use WSS\UI\WSSUI;
  * @package WSS
  */
 abstract class WSSHooks {
+	// phpcs:ignore
 	const TIMEOUT = 12000;
 
 	/**
@@ -37,12 +38,12 @@ abstract class WSSHooks {
 	 * @return string
 	 */
 	public static function renderSpaceAdmins( Parser $parser, $namespace = '' ) : string {
-        // Check if user has the 'wss-view-space-admins' right.
-        if ( !\RequestContext::getMain()->getUser()->isAllowed( 'wss-view-space-admins' ) ) {
-            return wfMessage( 'wss-permission-denied-spaceadmins' );
-        }
+		// Check if user has the 'wss-view-space-admins' right.
+		if ( !\RequestContext::getMain()->getUser()->isAllowed( 'wss-view-space-admins' ) ) {
+			return wfMessage( 'wss-permission-denied-spaceadmins' );
+		}
 
-	    // Validate namespace input.
+		// Validate namespace input.
 		if ( $namespace === '' ) {
 			return wfMessage( 'wss-api-missing-param-namespace' );
 		}
@@ -64,7 +65,7 @@ abstract class WSSHooks {
 		} );
 
 		if ( empty( $admins ) ) {
-		    return wfMessage( 'wss-pf-no-valid-admins', $namespace )->parse();
+			return wfMessage( 'wss-pf-no-valid-admins', $namespace )->parse();
 		}
 
 		// Add all admin names to a comma separated string.
@@ -100,7 +101,12 @@ abstract class WSSHooks {
 	 * @param int $timeSinceAuth
 	 * @return bool
 	 */
-	public static function onSecuritySensitiveOperationStatus( string &$status, string $operation, Session $session, int $timeSinceAuth ): bool {
+	public static function onSecuritySensitiveOperationStatus(
+		string &$status,
+		string $operation,
+		Session $session,
+		int $timeSinceAuth
+	): bool {
 		$security_sensitive_operations = [
 			"ws-manage-namespaces",
 			"ws-create-namespaces"
@@ -123,7 +129,7 @@ abstract class WSSHooks {
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SkinBuildSidebar
 	 *
 	 * @param \Skin $skin
-	 * @param &$bar
+	 * @param array &$bar
 	 * @return bool
 	 * @throws ConfigException
 	 */
@@ -203,9 +209,9 @@ abstract class WSSHooks {
 	public static function onCanonicalNamespaces( array &$namespaces ): bool {
 		$namespace_repository = new NamespaceRepository();
 		$spaces = $namespace_repository->getSpaces();
-		foreach ($spaces as $id => $space) {
-            $spaces[$id + 1] = $space . "_talk";
-        }
+		foreach ( $spaces as $id => $space ) {
+			$spaces[$id + 1] = $space . "_talk";
+		}
 
 		$namespaces += $spaces;
 
@@ -217,7 +223,7 @@ abstract class WSSHooks {
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ExtensionTypes
 	 *
-	 * @param &$extension_types
+	 * @param array &$extension_types
 	 * @return bool
 	 */
 	public static function onExtensionTypes( array &$extension_types ): bool {

@@ -2,8 +2,6 @@
 
 namespace WSS;
 
-use Wikimedia\Rdbms\ResultWrapper;
-
 /**
  * Class WSSPager
  *

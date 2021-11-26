@@ -13,7 +13,7 @@ class ArchivedSpacesUI extends SpacesUI {
 	/**
 	 * @inheritDoc
 	 */
-	function render() {
+	public function render() {
 		$pager = new ArchivedSpacePager();
 
 		$this->getOutput()->addParserOutput(
@@ -24,7 +24,7 @@ class ArchivedSpacesUI extends SpacesUI {
 	/**
 	 * @inheritDoc
 	 */
-	function getIdentifier(): string {
+	public function getIdentifier(): string {
 		return 'archived-spaces';
 	}
 }

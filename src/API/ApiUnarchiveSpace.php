@@ -35,16 +35,16 @@ class ApiUnarchiveSpace extends ApiBase {
 		$request_params = $this->extractRequestParams();
 
 		if ( !isset( $request_params["nsid"] ) ) {
-			$this->dieWithError( wfMessage( "wss-api-missing-param-nsid" ) );
+			$this->dieWithError( $this->msg( "wss-api-missing-param-nsid" ) );
 		}
 
 		$space = Space::newFromConstant( $request_params["nsid"] );
 
 		if ( !$space instanceof Space ) {
 			$this->dieWithError(
-				wfMessage(
+				$this->msg(
 					"wss-api-invalid-param-detailed-nsid",
-					wfMessage( "wss-api-space-does-not-exist", $request_params["nsid"] )->parse()
+					$this->msg( "wss-api-space-does-not-exist", $request_params["nsid"] )->parse()
 				)->parse()
 			);
 		}
