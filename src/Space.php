@@ -7,6 +7,7 @@ use RequestContext;
 use User;
 
 class Space {
+	// phpcs:ignore
 	const DEFAULT_NAMESPACE_CONSTANT = 0;
 
 	/**
@@ -70,7 +71,9 @@ class Space {
 		array $namespace_administrators = []
 	) {
 		if ( $namespace_id % 2 !== 0 ) {
-			throw new \InvalidArgumentException( "Namespace ID must be an even number; '$namespace_id' is not even'" );
+			throw new \InvalidArgumentException(
+				"Namespace ID must be an even number; '$namespace_id' is not even'"
+			);
 		}
 
 		if ( empty( $namespace_key ) ) {
@@ -78,7 +81,10 @@ class Space {
 		}
 
 		if ( !ctype_alnum( $namespace_key ) ) {
-			throw new \InvalidArgumentException( "A namespace name can only consist of alphanumerical characters, therefore $namespace_key is invalid." );
+			throw new \InvalidArgumentException(
+				"A namespace name can only consist of alphanumerical characters, " .
+				"therefore $namespace_key is invalid."
+			);
 		}
 
 		$this->namespace_id    = $namespace_id;

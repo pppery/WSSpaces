@@ -57,8 +57,8 @@ abstract class SpecialPage extends \SpecialPage {
 	 * The main method that gets invoked upon successfully loading the special page, after preExecuteChecks have
 	 * been performed.
 	 *
-	 * @param $parameter
+	 * @param string $parameter
 	 * @return void
 	 */
-	abstract function doExecute( string $parameter );
+	abstract public function doExecute( string $parameter );
 }

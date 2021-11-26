@@ -6,6 +6,13 @@ use MediaWiki\Linker\LinkRenderer;
 use OutputPage;
 
 class MissingPermissionsUI extends WSSUI {
+	/**
+	 * MissingPermissionsUI constructor.
+	 *
+	 * @param OutputPage $page
+	 * @param LinkRenderer $link_renderer
+	 * @throws \MWException
+	 */
 	public function __construct( OutputPage $page, LinkRenderer $link_renderer ) {
 		parent::__construct( $page, $link_renderer );
 	}
@@ -15,14 +22,14 @@ class MissingPermissionsUI extends WSSUI {
 	 *
 	 * @return void
 	 */
-	function render() {
+	public function render() {
 		$this->getOutput()->addWikiMsg( 'wss-missing-permissions-description' );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	function getIdentifier(): string {
+	public function getIdentifier(): string {
 		return 'missing-permissions';
 	}
 
@@ -36,7 +43,7 @@ class MissingPermissionsUI extends WSSUI {
 	/**
 	 * @inheritDoc
 	 */
-	function getNavigationPrefix(): string {
+	public function getNavigationPrefix(): string {
 		return wfMessage( 'wss-missing-permissions-topnav' )->plain();
 	}
 }

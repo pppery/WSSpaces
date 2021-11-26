@@ -31,7 +31,7 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
 	}
 
 	/**
-	 * @param $value
+	 * @param mixed $value
 	 * @param array $form_data
 	 * @return bool|string
 	 * @throws \ConfigException

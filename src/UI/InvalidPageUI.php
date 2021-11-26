@@ -8,14 +8,14 @@ class InvalidPageUI extends WSSUI {
 	 *
 	 * @return void
 	 */
-	function render() {
+	public function render() {
 		$this->getOutput()->addWikiMsg( 'wss-invalid-page-description' );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	function getIdentifier(): string {
+	public function getIdentifier(): string {
 		return 'invalid-page';
 	}
 
@@ -29,7 +29,7 @@ class InvalidPageUI extends WSSUI {
 	/**
 	 * @inheritDoc
 	 */
-	function getNavigationPrefix(): string {
+	public function getNavigationPrefix(): string {
 		return wfMessage( 'wss-invalidpage-topnav' )->plain();
 	}
 }

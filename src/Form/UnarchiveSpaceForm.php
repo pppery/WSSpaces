@@ -13,6 +13,14 @@ class UnarchiveSpaceForm extends AbstractForm {
 	 */
 	private $space;
 
+	/**
+	 * UnarchiveSpaceForm constructor.
+	 *
+	 * @param Space $space
+	 * @param OutputPage $page
+	 * @param SubmitCallback $submit_callback
+	 * @param AbstractValidationCallback|null $validation_callback
+	 */
 	public function __construct(
 		Space $space,
 		OutputPage $page,

@@ -48,7 +48,12 @@ class AddSpaceSubmitCallback implements SubmitCallback {
 		$namespace_key    = $form_data['namespace'];
 		$namespace_name = $form_data['namespace_name'];
 
-		$space = Space::newFromValues( $namespace_key, $namespace_name, $description, \RequestContext::getMain()->getUser() );
+		$space = Space::newFromValues(
+			$namespace_key,
+			$namespace_name,
+			$description,
+			\RequestContext::getMain()->getUser()
+		);
 
 		$namespace_repository = new NamespaceRepository();
 		$namespace_repository->addSpace( $space );

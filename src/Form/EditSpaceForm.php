@@ -13,6 +13,14 @@ class EditSpaceForm extends AbstractForm {
 	 */
 	private $space;
 
+	/**
+	 * EditSpaceForm constructor.
+	 *
+	 * @param Space $space
+	 * @param OutputPage $page
+	 * @param SubmitCallback $submit_callback
+	 * @param AbstractValidationCallback|null $validation_callback
+	 */
 	public function __construct(
 		Space $space,
 		OutputPage $page,
@@ -44,6 +52,7 @@ class EditSpaceForm extends AbstractForm {
 			],
 			'namespace' => [
 				'label-message' => 'wss-manage-space-form-namespace-label',
+				'help-message' => 'wss-manage-space-form-namespace-help',
 				'type' => 'text',
 				'size' => 32,
 				'maxlength' => 24,

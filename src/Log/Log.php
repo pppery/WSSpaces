@@ -9,6 +9,7 @@ use Title;
 use User;
 
 abstract class Log {
+	// phpcs:ignore
 	const LOG_TYPE = 'space';
 
 	/**
@@ -57,7 +58,6 @@ abstract class Log {
 	 * Logger constructor.
 	 *
 	 * @param Title $title
-	 * @param string $type
 	 * @param string $subtype
 	 */
 	public function __construct( Title $title, string $subtype ) {

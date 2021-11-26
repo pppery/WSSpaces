@@ -12,6 +12,9 @@ use WSS\Validation\AddSpaceValidationCallback;
  * @package WSS\UI
  */
 class ManageSpaceFormUI extends ManageSpaceUI {
+	/**
+	 * @return string
+	 */
 	public function getHeader(): string {
 		$space = Space::newFromConstant( (int)$this->getParameter() );
 		return wfMessage( "wss-manage-space-header", $space->getKey() );
@@ -21,7 +24,7 @@ class ManageSpaceFormUI extends ManageSpaceUI {
 	 * @inheritDoc
 	 * @throws \ConfigException
 	 */
-	function render() {
+	public function render() {
 		$namespace_constant = (int)$this->getParameter();
 		$space = Space::newFromConstant( $namespace_constant );
 
