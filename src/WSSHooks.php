@@ -26,6 +26,7 @@ abstract class WSSHooks {
 	 */
 	public static function onParserFirstCallInit( Parser $parser ) {
 		$parser->setFunctionHook( 'spaceadmins', [ self::class, 'renderSpaceAdmins' ] );
+		$parser->setFunctionHook( 'spaces', [ self::class, 'renderSpaces' ] );
 	}
 
 	/**
@@ -73,6 +74,19 @@ abstract class WSSHooks {
 
 		// Return the admin list.
 		return implode( ",", $admins );
+	}
+
+	/**
+	 * Render the output of {{#spaces:}}.
+	 *
+	 * @param Parser $parser
+	 * @return string
+	 */
+	public static function renderSpaces( Parser $parser ) : string {
+		$namespace_repository = new NamespaceRepository();
+		$spaces = $namespace_repository->getSpaces();
+
+		return implode( ",", $spaces );
 	}
 
 	/**
@@ -190,7 +204,6 @@ abstract class WSSHooks {
 		$namespace_repository = new NamespaceRepository();
 		$spaces = $namespace_repository->getSpaces();
 		foreach ($spaces as $id => $space) {
-            // Using parse() leads to a circular reference, use plain() instead.
             $spaces[$id + 1] = $space . "_talk";
         }
 

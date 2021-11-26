@@ -44,6 +44,7 @@ class EditSpaceForm extends AbstractForm {
 			],
 			'namespace' => [
 				'label-message' => 'wss-manage-space-form-namespace-label',
+				'help-message' => 'wss-manage-space-form-namespace-help',
 				'type' => 'text',
 				'size' => 32,
 				'maxlength' => 24,
