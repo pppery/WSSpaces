@@ -20,6 +20,12 @@ for ($i = 50000; $i < 55000; $i++) {
 }
 ```
 
+## Parser functions
+
+### Retrieving defined spaces
+
+You can use the `{{#spaces:}}` parser function to get a comma-separated list of spaces defined by WSSpaces.
+
 ## Hooks
 
 WSSpaces defines several hooks to alter or extend its behaviour.
