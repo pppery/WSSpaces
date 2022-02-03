@@ -15,16 +15,6 @@ abstract class SpecialPage extends \SpecialPage {
 		$this->setHeaders();
 		$this->checkPermissions();
 
-		$security_level = $this->getLoginSecurityLevel();
-
-		if ( $security_level ) {
-			$proceed = $this->checkLoginSecurityLevel( $security_level );
-
-			if ( !$proceed ) {
-				return;
-			}
-		}
-
 		if ( $this->preExecute() === false ) {
 			return;
 		}
