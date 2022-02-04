@@ -58,13 +58,6 @@ class SpecialArchivedSpaces extends SpecialPage {
 
 	/**
 	 * @inheritDoc
-	 */
-	public function getLoginSecurityLevel() {
-		return 'ws-manage-namespaces';
-	}
-
-	/**
-	 * @inheritDoc
 	 * @throws MWException
 	 */
 	public function preExecute(): bool {

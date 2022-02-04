@@ -50,13 +50,6 @@ class SpecialAddSpace extends SpecialPage {
 
 	/**
 	 * @inheritDoc
-	 */
-	public function getLoginSecurityLevel() {
-		return 'ws-create-namespaces';
-	}
-
-	/**
-	 * @inheritDoc
 	 * @throws \MWException
 	 */
 	public function doExecute( string $parameter ) {
