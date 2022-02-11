@@ -57,13 +57,6 @@ class SpecialActiveSpaces extends SpecialPage {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function getLoginSecurityLevel() {
-		return 'ws-manage-namespaces';
-	}
-
-	/**
 	 * The main method that gets invoked upon successfully loading the special page, after preExecuteChecks have
 	 * been performed.
 	 *
