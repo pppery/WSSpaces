@@ -1,9 +1,9 @@
 {
-  "name": "wikibase-solutions/w-s-spaces",
-    "type": "mediawiki-extension",
-    "description": "Dynamic namespace management system for MediaWiki.",
-    "keywords": [],
-    "license": "GPL-2.0-or-later",
+  "name": "open-csp/w-s-spaces",
+  "type": "mediawiki-extension",
+  "description": "Dynamic namespace management system for MediaWiki.",
+  "keywords": [],
+  "license": "GPL-2.0-or-later",
   "require": {
     "ext-openssl": "*"
   },
