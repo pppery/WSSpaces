@@ -336,7 +336,11 @@ class Space {
 	 * @return bool
 	 */
 	public function exists(): bool {
+		// Get DB_MASTER to ensure integrity
 		$database = self::getDBLoadBalancer()->getConnectionRef( DB_MASTER );
+		if ( !$database->tableExists( 'wss_namespaces', __METHOD__ ) ) {
+			return false;
+		}
 		$result = $database->newSelectQueryBuilder()->select(
 			[ 'namespace_id' ]
 		)->from(

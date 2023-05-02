@@ -60,7 +60,7 @@ class NamespaceRepository {
                 $dbr = self::getDBLoadBalancer->getConnectionRef( DB_MASTER );
                 $result = $dbr->newSelectQueryBuilder()->select(
 			'namespace_id'
-                )->from(
+		)->from(
 			  'wss_namespaces'
 		)->orderBy(
 			'namespace_id',
@@ -496,6 +496,9 @@ class NamespaceRepository {
 	 */
 	private function getSpacesOnArchived( bool $archived ): array {
 		$dbr = $this->dbLoadBalancer->getConnectionRef( DB_REPLICA );
+		if ( !$dbr->tableExists( 'wss_namespaces', __METHOD__ ) ) {
+			return [];
+		}
 		$result = $dbr->newSelectQueryBuilder()->select(
 			[
 				'namespace_id',
