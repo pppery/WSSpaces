@@ -133,18 +133,22 @@ class Space {
 	 * @throws \ConfigException
 	 */
 	public static function newFromConstant( int $namespace_constant ) {
-		$database = wfGetDB( DB_REPLICA );
-		$namespace = $database->select(
-			'wss_namespaces',
-			[ 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ],
+		$dbr = self::getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
+		if ( !$dbr->tableExists('wss_namespaces', __METHOD__ ) ) {
+			return false;
+		}
+		$namespace = $dbr->newSelectQueryBuilder()->select(
+			[ 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ]
+		)->from(
+			'wss_namespaces'
+		)->where(
 			[ 'namespace_id' => $namespace_constant ]
-		);
+		)->caller( __METHOD__ )->fetchRow();
 
-		if ( $namespace->numRows() === 0 ) {
+		if ( false === $namespace ) {
 			return false;
 		}
 
-		$namespace = $namespace->current();
 		$user = User::newFromId( $namespace->creator_id );
 
 		if ( !$user instanceof User ) {
@@ -332,14 +336,16 @@ class Space {
 	 * @return bool
 	 */
 	public function exists(): bool {
-		$database = wfGetDB( DB_MASTER );
-		$result = $database->select(
-			'wss_namespaces',
-			[ 'namespace_id' ],
+		$database = self::getDBLoadBalancer()->getConnectionRef( DB_MASTER );
+		$result = $database->newSelectQueryBuilder()->select(
+			[ 'namespace_id' ]
+		)->from(
+			'wss_namespaces'
+		)->where(
 			[ 'namespace_id' => $this->namespace_id ]
-		);
+		)->fetchField();
 
-		return $result->numRows() > 0 && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
+		return $result !== false && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
 	}
 
 	/**
@@ -376,5 +382,10 @@ class Space {
 			);
 
 		return $services->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) && $user_can_archive;
+	}
+
+	private static function getDBLoadBalancer()
+	{
+		return MediaWikiServices::getInstance()->getDBLoadBalancer();
 	}
 }
