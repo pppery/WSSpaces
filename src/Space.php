@@ -133,7 +133,7 @@ class Space {
 	 * @throws \ConfigException
 	 */
 	public static function newFromConstant( int $namespace_constant ) {
-		$dbr = self::getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
 
 		// It might happen that this function is called during run of update.php,
 		// while database is not property set up. In that case, give a sensible return value.
@@ -342,7 +342,7 @@ class Space {
 	 */
 	public function exists(): bool {
 		// Get DB_MASTER to ensure integrity
-		$database = self::getDBLoadBalancer()->getConnectionRef( DB_MASTER );
+		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
 
 		// If database has not been set up yet (e.g. during update.php run), namespace does not exist yet.
 		if ( !$database->tableExists( 'wss_namespaces', __METHOD__ ) ) {
@@ -354,7 +354,7 @@ class Space {
 			'wss_namespaces'
 		)->where(
 			[ 'namespace_id' => $this->namespace_id ]
-		)->fetchField();
+		)->caller( __METHOD__ )->fetchField();
 
 		return $result !== false && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
 	}
@@ -393,10 +393,5 @@ class Space {
 			);
 
 		return $services->getMainConfig()->get( "WSSpacesEnableSpaceArchiving" ) && $user_can_archive;
-	}
-
-	private static function getDBLoadBalancer()
-	{
-		return MediaWikiServices::getInstance()->getDBLoadBalancer();
 	}
 }

@@ -114,7 +114,7 @@ class NamespaceRepository {
 			]
 		)->from(
 			'wss_namespaces'
-		)->fetchResultSet();
+		)->caller( __METHOD__ )->fetchResultSet();
 
 		$buffer = [];
 		foreach ( $result as $item ) {
@@ -151,7 +151,7 @@ class NamespaceRepository {
 			[
 				'namespace_id' => $namespace_id
 			]
-		)->fetchResultSet();
+		)->caller( __METHOD__ )->fetchResultSet();
 
 		$buffer = [];
 		foreach ( $result as $item ) {
@@ -515,7 +515,7 @@ class NamespaceRepository {
 			[
 				'archived' => $archived
 			]
-		)->fetchResultSet();
+		)->caller( __METHOD__ )->fetchResultSet();
 
 		$buffer = [];
 
