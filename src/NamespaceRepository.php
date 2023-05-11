@@ -44,11 +44,7 @@ class NamespaceRepository {
 	public function __construct() {
 		$this->canonical_namespaces = [ NS_MAIN => 'Main' ] + $this->getConfig()->get( 'CanonicalNamespaceNames' );
 		$this->extension_namespaces = ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
-		$this->dbLoadBalancer = self::getDBLoadBalancer();
-	}
-
-	private static function getDBLoadBalancer() {
-		return MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$this->dbLoadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	}
 
 	/**
@@ -57,7 +53,8 @@ class NamespaceRepository {
 	 * @return int
 	 */
 	public static function getNextAvailableNamespaceId(): int {
-                $dbr = self::getDBLoadBalancer->getConnectionRef( DB_MASTER );
+                $dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
+
                 $result = $dbr->newSelectQueryBuilder()->select(
 			'namespace_id'
 		)->from(
@@ -103,6 +100,10 @@ class NamespaceRepository {
 	 */
 	public function getAllSpaces( $flip = false ): array {
 		$dbr = $this->dbLoadBalancer->getConnectionRef( DB_REPLICA );
+
+		// In some rare cases, update.php might look up namespaces before
+		// the database has been set up for this extension.
+		// Give a reasonable default in that case.
 		if ( !$dbr->tableExists( 'wss_namespaces', __METHOD__ ) ) {
 			return [];
 		}
@@ -131,8 +132,12 @@ class NamespaceRepository {
 	 * @return array
 	 */
 	public static function getNamespaceAdmins( int $namespace_id ): array {
-		$dbr = self::getDBLoadBalancer->getConnectionRef( DB_REPLICA );
-		if ( !$dbr->tableExists( 'wss_namespace_admins', __METHOD__) ) {
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
+
+		// In some rare cases, update.php might look up namespace admins before
+		// the database has been set up for this extension.
+		// Give a reasonable default in that case.
+		if ( !$dbr->tableExists( 'wss_namespace_admins', __METHOD__ ) ) {
 			return [];
 		}
 		$result = $dbr->newSelectQueryBuilder()->select(

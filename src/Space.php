@@ -134,6 +134,9 @@ class Space {
 	 */
 	public static function newFromConstant( int $namespace_constant ) {
 		$dbr = self::getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
+
+		// It might happen that this function is called during run of update.php,
+		// while database is not property set up. In that case, give a sensible return value.
 		if ( !$dbr->tableExists('wss_namespaces', __METHOD__ ) ) {
 			return false;
 		}
@@ -145,7 +148,7 @@ class Space {
 			[ 'namespace_id' => $namespace_constant ]
 		)->caller( __METHOD__ )->fetchRow();
 
-		if ( false === $namespace ) {
+		if ( $namespace === false ) {
 			return false;
 		}
 
@@ -157,11 +160,13 @@ class Space {
 
 		$namespace_administrators = array_map( function ( $row ): string {
 			return User::newFromId( $row->admin_user_id )->getName();
-		}, iterator_to_array( $database->select(
-			'wss_namespace_admins',
-			[ 'admin_user_id' ],
+		}, iterator_to_array( $dbr->newSelectQueryBuilder()->select(
+			'admin_user_id'
+		)->from(
+			'wss_namespace_admins'
+		)->where(
 			[ 'namespace_id' => $namespace_constant ]
-		) ) );
+		)->caller( __METHOD__ )->fetchResultSet() ) );
 
 		return new Space(
 			$namespace->namespace_key,
@@ -338,11 +343,13 @@ class Space {
 	public function exists(): bool {
 		// Get DB_MASTER to ensure integrity
 		$database = self::getDBLoadBalancer()->getConnectionRef( DB_MASTER );
+
+		// If database has not been set up yet (e.g. during update.php run), namespace does not exist yet.
 		if ( !$database->tableExists( 'wss_namespaces', __METHOD__ ) ) {
 			return false;
 		}
 		$result = $database->newSelectQueryBuilder()->select(
-			[ 'namespace_id' ]
+			'namespace_id'
 		)->from(
 			'wss_namespaces'
 		)->where(

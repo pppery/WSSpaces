@@ -2,25 +2,7 @@
 
 namespace WSS\Validation;
 
-use MediaWiki\MediaWikiServices;
-
 abstract class AbstractValidationCallback {
-	/* A DBLoadBalancer for database access */
-	protected $dbLoadBalancer = null;
-
-	/**
-	 * Get a DBLoadBalancer for database access
-	 *
-	 * @return DBLoadBalancer
-	 */
-	protected function getDBLoadBalancer()
-	{
-		if (null === $this->dbLoadBalancer) {
-			$this->dbLoadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		}
-		return $this->dbLoadBalancer;
-	}
-
 	/**
 	 * Validates whether the given value is allowed for the given field.
 	 *
