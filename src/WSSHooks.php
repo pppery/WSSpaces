@@ -61,7 +61,8 @@ abstract class WSSHooks {
 		// Turn the list of admin ids into User objects
 		$admins = array_map( [ User::class, "newFromId" ], $admin_ids );
 		$admins = array_filter( $admins, function ( $user ): bool {
-			return $user instanceof User;
+			// loadFromDatabase checks if the user actually exists in the database.
+			return $user instanceof User && $user->loadFromDatabase();
 		} );
 
 		if ( empty( $admins ) ) {
