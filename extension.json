@@ -29,7 +29,8 @@
     "LoadExtensionSchemaUpdates": "WSS\\WSSHooks::onLoadExtensionSchemaUpdates",
     "CanonicalNamespaces": "WSS\\WSSHooks::onCanonicalNamespaces",
     "ExtensionTypes": "WSS\\WSSHooks::onExtensionTypes",
-    "ParserFirstCallInit": "WSS\\WSSHooks::onParserFirstCallInit"
+    "ParserFirstCallInit": "WSS\\WSSHooks::onParserFirstCallInit",
+    "UserMergeAccountFields": "WSS\\WSSHooks::onUserMergeAccountFields"
   },
   "SpecialPages": {
     "AddSpace": "WSS\\Special\\SpecialAddSpace",

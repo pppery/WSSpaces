@@ -220,6 +220,17 @@ abstract class WSSHooks {
 	}
 
 	/**
+	 * A hook of the UserMerge extension: If a user is merged, do migrate the admin table accordingly
+	 *
+	 * @see https://www.mediawiki.org/wiki/Extension:UserMerge/Hooks/UserMergeAccountFields
+	 *
+	 * @param array &$updateFields The fields as described on the documentation page
+	 */
+	public static function onUserMergeAccountFields( &$updateFields ) {
+		$updateFields []= [ 'wss_namespace_admins', 'admin_user_id', 'options' => [ 'IGNORE' ] ];
+	}
+
+	/**
 	 * Called when generating the extensions credits, use this to change the tables headers.
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ExtensionTypes
