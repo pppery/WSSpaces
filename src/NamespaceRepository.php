@@ -53,9 +53,9 @@ class NamespaceRepository {
 	 * @return int
 	 */
 	public static function getNextAvailableNamespaceId(): int {
-                $dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
 
-                $result = $dbr->newSelectQueryBuilder()->select(
+		$result = $dbr->newSelectQueryBuilder()->select(
 			'namespace_id'
 		)->from(
 			  'wss_namespaces'
