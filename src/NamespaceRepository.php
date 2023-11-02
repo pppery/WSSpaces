@@ -32,6 +32,11 @@ class NamespaceRepository {
 	private $extension_namespaces;
 
 	/**
+	 * @var DBLoadBalancer
+	 */
+	private $dbLoadBalancer;
+
+	/**
 	 * NamespaceRepository constructor.
 	 *
 	 * @throws ConfigException
@@ -39,6 +44,7 @@ class NamespaceRepository {
 	public function __construct() {
 		$this->canonical_namespaces = [ NS_MAIN => 'Main' ] + $this->getConfig()->get( 'CanonicalNamespaceNames' );
 		$this->extension_namespaces = ExtensionRegistry::getInstance()->getAttribute( 'ExtensionNamespaces' );
+		$this->dbLoadBalancer = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	}
 
 	/**
@@ -47,23 +53,23 @@ class NamespaceRepository {
 	 * @return int
 	 */
 	public static function getNextAvailableNamespaceId(): int {
-		$dbr = wfGetDB( DB_MASTER );
-		$result = $dbr->select(
-			  'wss_namespaces',
-			[ 'namespace_id' ],
-			'',
-			__METHOD__,
-			[ 'ORDER BY' => 'namespace_id DESC' ]
-		);
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
 
-		if ( $result->numRows() === 0 ) {
+		$result = $dbr->newSelectQueryBuilder()->select(
+			'namespace_id'
+		)->from(
+			  'wss_namespaces'
+		)->orderBy(
+			'namespace_id',
+			SelectQueryBuilder::SORT_DESC
+		)->caller( __METHOD__ )->fetchField();
+
+		if ( $result === false ) {
 			return self::MIN_SPACE_ID;
 		}
 
-		$greatest_id = $result->current()->namespace_id;
-
 		// + 2 because we need to skip the talk page.
-		return $greatest_id + 2;
+		return $result + 2;
 	}
 
 	/**
@@ -93,14 +99,22 @@ class NamespaceRepository {
 	 * @return array
 	 */
 	public function getAllSpaces( $flip = false ): array {
-		$dbr = wfGetDB( DB_REPLICA );
-		$result = $dbr->select(
-			'wss_namespaces',
+		$dbr = $this->dbLoadBalancer->getConnectionRef( DB_REPLICA );
+
+		// In some rare cases, update.php might look up namespaces before
+		// the database has been set up for this extension.
+		// Give a reasonable default in that case.
+		if ( !$dbr->tableExists( 'wss_namespaces', __METHOD__ ) ) {
+			return [];
+		}
+		$result = $dbr->newSelectQueryBuilder()->select(
 			[
 				'namespace_id',
 				'namespace_key'
 			]
-		);
+		)->from(
+			'wss_namespaces'
+		)->caller( __METHOD__ )->fetchResultSet();
 
 		$buffer = [];
 		foreach ( $result as $item ) {
@@ -118,17 +132,26 @@ class NamespaceRepository {
 	 * @return array
 	 */
 	public static function getNamespaceAdmins( int $namespace_id ): array {
-		$dbr = wfGetDB( DB_REPLICA );
-		$result = $dbr->select(
-			'wss_namespace_admins',
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
+
+		// In some rare cases, update.php might look up namespace admins before
+		// the database has been set up for this extension.
+		// Give a reasonable default in that case.
+		if ( !$dbr->tableExists( 'wss_namespace_admins', __METHOD__ ) ) {
+			return [];
+		}
+		$result = $dbr->newSelectQueryBuilder()->select(
 			[
 				'namespace_id',
 				'admin_user_id'
-			],
+			]
+		)->from(
+			'wss_namespace_admins'
+		)->where(
 			[
 				'namespace_id' => $namespace_id
 			]
-		);
+		)->caller( __METHOD__ )->fetchResultSet();
 
 		$buffer = [];
 		foreach ( $result as $item ) {
@@ -210,7 +233,7 @@ class NamespaceRepository {
 
 		$namespace_id = self::getNextAvailableNamespaceId();
 
-		$database = wfGetDB( DB_MASTER );
+		$database = $this->dbLoadBalancer->getConnectionRef( DB_MASTER );
 		$database->insert(
 		'wss_namespaces',  [
 			'namespace_id' => $namespace_id,
@@ -268,7 +291,7 @@ class NamespaceRepository {
 			$log->insert();
 		}
 
-		$database = wfGetDB( DB_MASTER );
+		$database = $this->dbLoadBalancer->getConnectionRef( DB_MASTER );
 		$database->update( 'wss_namespaces', [
 			'namespace_key' => $new_space->getKey(),
 			'namespace_name' => $new_space->getName(),
@@ -477,17 +500,22 @@ class NamespaceRepository {
 	 * @return array
 	 */
 	private function getSpacesOnArchived( bool $archived ): array {
-		$dbr = wfGetDB( DB_REPLICA );
-		$result = $dbr->select(
-			'wss_namespaces',
+		$dbr = $this->dbLoadBalancer->getConnectionRef( DB_REPLICA );
+		if ( !$dbr->tableExists( 'wss_namespaces', __METHOD__ ) ) {
+			return [];
+		}
+		$result = $dbr->newSelectQueryBuilder()->select(
 			[
 				'namespace_id',
 				'namespace_key'
-			],
+			]
+		)->from(
+			'wss_namespaces'
+		)->where(
 			[
 				'archived' => $archived
 			]
-		);
+		)->caller( __METHOD__ )->fetchResultSet();
 
 		$buffer = [];
 

@@ -71,10 +71,17 @@ class AddSpaceValidationCallback extends AbstractValidationCallback {
 	 */
 	private function validateNamespaceName( $value, array $form_data ) {
 		// Get DB_MASTER to ensure integrity
-		$database = wfGetDB( DB_MASTER );
-		$namespaces = $database->select( "wss_namespaces", [ "namespace_id" ], [ "namespace_name" => $value ] );
+		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
 
-		if ( $namespaces->numRows() === 0 ) {
+		$namespace = $database->newSelectQueryBuilder()->select(
+			"namespace_id"
+		)->from(
+			"wss_namespaces"
+		)->where(
+			[ "namespace_name" => $value ]
+		)->caller( __METHOD__ )->fetchField();
+
+		if ( $namespace === false ) {
 			// There are no spaces with this name
 			return true;
 		}

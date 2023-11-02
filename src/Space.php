@@ -133,18 +133,25 @@ class Space {
 	 * @throws \ConfigException
 	 */
 	public static function newFromConstant( int $namespace_constant ) {
-		$database = wfGetDB( DB_REPLICA );
-		$namespace = $database->select(
-			'wss_namespaces',
-			[ 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ],
-			[ 'namespace_id' => $namespace_constant ]
-		);
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
 
-		if ( $namespace->numRows() === 0 ) {
+		// It might happen that this function is called during run of update.php,
+		// while database is not property set up. In that case, give a sensible return value.
+		if ( !$dbr->tableExists('wss_namespaces', __METHOD__ ) ) {
+			return false;
+		}
+		$namespace = $dbr->newSelectQueryBuilder()->select(
+			[ 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ]
+		)->from(
+			'wss_namespaces'
+		)->where(
+			[ 'namespace_id' => $namespace_constant ]
+		)->caller( __METHOD__ )->fetchRow();
+
+		if ( $namespace === false ) {
 			return false;
 		}
 
-		$namespace = $namespace->current();
 		$user = User::newFromId( $namespace->creator_id );
 
 		if ( !$user instanceof User ) {
@@ -153,11 +160,13 @@ class Space {
 
 		$namespace_administrators = array_map( function ( $row ): string {
 			return User::newFromId( $row->admin_user_id )->getName();
-		}, iterator_to_array( $database->select(
-			'wss_namespace_admins',
-			[ 'admin_user_id' ],
+		}, iterator_to_array( $dbr->newSelectQueryBuilder()->select(
+			'admin_user_id'
+		)->from(
+			'wss_namespace_admins'
+		)->where(
 			[ 'namespace_id' => $namespace_constant ]
-		) ) );
+		)->caller( __METHOD__ )->fetchResultSet() ) );
 
 		return new Space(
 			$namespace->namespace_key,
@@ -332,14 +341,22 @@ class Space {
 	 * @return bool
 	 */
 	public function exists(): bool {
-		$database = wfGetDB( DB_MASTER );
-		$result = $database->select(
-			'wss_namespaces',
-			[ 'namespace_id' ],
-			[ 'namespace_id' => $this->namespace_id ]
-		);
+		// Get DB_MASTER to ensure integrity
+		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
 
-		return $result->numRows() > 0 && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
+		// If database has not been set up yet (e.g. during update.php run), namespace does not exist yet.
+		if ( !$database->tableExists( 'wss_namespaces', __METHOD__ ) ) {
+			return false;
+		}
+		$result = $database->newSelectQueryBuilder()->select(
+			'namespace_id'
+		)->from(
+			'wss_namespaces'
+		)->where(
+			[ 'namespace_id' => $this->namespace_id ]
+		)->caller( __METHOD__ )->fetchField();
+
+		return $result !== false && $this->namespace_id !== self::DEFAULT_NAMESPACE_CONSTANT;
 	}
 
 	/**
