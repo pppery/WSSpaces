@@ -2,6 +2,7 @@
 
 namespace WSS\Validation;
 
+use MediaWiki\MediaWikiServices;
 use WSS\NamespaceRepository;
 use WSS\Space;
 
