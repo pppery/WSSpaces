@@ -28,8 +28,8 @@ abstract class WSSHooks {
 	public static function onParserFirstCallInit( Parser $parser ) {
 		$functions = new ParserFunctions();
 		$parser->setFunctionHook( 'spaceadmins', [ $functions, 'renderSpaceAdmins' ] );
-		$parser->setFunctionHook( 'spacedescription', [ $functions, 'renderSpaces' ] );
-		$parser->setFunctionHook( 'spacename', [ $functions, 'renderSpaces' ] );
+		$parser->setFunctionHook( 'spacedescription', [ $functions, 'renderSpaceDescription' ] );
+		$parser->setFunctionHook( 'spacename', [ $functions, 'renderSpaceName' ] );
 		$parser->setFunctionHook( 'spaces', [ $functions, 'renderSpaces' ] );
 	}
 
