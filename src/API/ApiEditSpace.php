@@ -86,7 +86,7 @@ class ApiEditSpace extends ApiBase {
 	 *
 	 * @throws ApiUsageException
 	 */
-	private function validateParameters(
+	private function validateParams (
 		Space $space,
 		?string $ns_key,
 		?string $ns_name,
