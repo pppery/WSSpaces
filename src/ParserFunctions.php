@@ -84,7 +84,7 @@ class ParserFunctions {
 
 		$space = Space::newFromConstant( $namespace );
 		if ( !$space instanceof Space ) {
-			return wfMessage( "wss-api-space-does-not-exist" );
+			return wfMessage( "wss-space-not-wsspaces", $namespace );
 		}
 
 		return $space->getName();
@@ -105,7 +105,7 @@ class ParserFunctions {
 
 		$space = Space::newFromConstant( $namespace );
 		if ( !$space instanceof Space ) {
-			return wfMessage( "wss-api-space-does-not-exist" );
+			return wfMessage( "wss-space-not-wsspaces", $namespace );
 		}
 
 		return $space->getDescription();
