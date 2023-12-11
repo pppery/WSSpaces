@@ -26,69 +26,11 @@ abstract class WSSHooks {
 	 * @throws MWException
 	 */
 	public static function onParserFirstCallInit( Parser $parser ) {
-		$parser->setFunctionHook( 'spaceadmins', [ self::class, 'renderSpaceAdmins' ] );
-		$parser->setFunctionHook( 'spaces', [ self::class, 'renderSpaces' ] );
-	}
-
-	/**
-	 * Render the output of {{#spaceadmins: namespace}}.
-	 *
-	 * @param Parser $parser
-	 * @param string $namespace
-	 * @return string
-	 */
-	public static function renderSpaceAdmins( Parser $parser, $namespace = '' ) : string {
-		// Check if user has the 'wss-view-space-admins' right.
-		if ( !\RequestContext::getMain()->getUser()->isAllowed( 'wss-view-space-admins' ) ) {
-			return wfMessage( 'wss-permission-denied-spaceadmins' );
-		}
-
-		// Validate namespace input.
-		if ( $namespace === '' ) {
-			return wfMessage( 'wss-api-missing-param-namespace' );
-		}
-		if ( !ctype_digit( $namespace ) ) {
-			return wfMessage( 'wss-pf-invalid-number' );
-		}
-
-		// Get all admin ids for a namespace. If no admins are found, return the error message.
-		$admin_ids = NamespaceRepository::getNamespaceAdmins( $namespace );
-
-		if ( empty( $admin_ids ) ) {
-			return wfMessage( 'wss-pf-no-admins-found', $namespace )->parse();
-		}
-
-		// Turn the list of admin ids into User objects
-		$admins = array_map( [ User::class, "newFromId" ], $admin_ids );
-		$admins = array_filter( $admins, function ( $user ): bool {
-			// loadFromDatabase checks if the user actually exists in the database.
-			return $user instanceof User && $user->loadFromDatabase();
-		} );
-
-		if ( empty( $admins ) ) {
-			return wfMessage( 'wss-pf-no-valid-admins', $namespace )->parse();
-		}
-
-		// Add all admin names to a comma separated string.
-		$admins = array_map( function ( User $user ): string {
-			return $user->getName();
-		}, $admins );
-
-		// Return the admin list.
-		return implode( ",", $admins );
-	}
-
-	/**
-	 * Render the output of {{#spaces:}}.
-	 *
-	 * @param Parser $parser
-	 * @return string
-	 */
-	public static function renderSpaces( Parser $parser ) : string {
-		$namespace_repository = new NamespaceRepository();
-		$spaces = $namespace_repository->getSpaces();
-
-		return implode( ",", $spaces );
+		$functions = new ParserFunctions();
+		$parser->setFunctionHook( 'spaceadmins', [ $functions, 'renderSpaceAdmins' ] );
+		$parser->setFunctionHook( 'spacedescription', [ $functions, 'renderSpaces' ] );
+		$parser->setFunctionHook( 'spacename', [ $functions, 'renderSpaces' ] );
+		$parser->setFunctionHook( 'spaces', [ $functions, 'renderSpaces' ] );
 	}
 
 	/**
