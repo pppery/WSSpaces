@@ -2,6 +2,10 @@
 
 namespace WSS;
 
+use User;
+use Parser;
+use SelectQueryBuilder;
+
 /**
  * Contains all parserFunctions for the WSSpaces extension
  */
