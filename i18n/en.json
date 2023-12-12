@@ -70,6 +70,7 @@
   "wss-api-invalid-param-detailed-nsid": "The parameter nsid is invalid: S1",
   "wss-api-invalid-param-detailed-nskey": "The parameter nskey is invalid: $1",
   "wss-api-invalid-param-detailed-nsname": "The parameter nsname is invalid: $1",
+  "wss-api-invalid-param-detailed-nsadmins": "The parameter nsadmins is invalid, these names are not users: $1",
   "wss-api-space-does-not-exist": "The space $1 does not exist",
   "wss-namespace-in-use": "This namespace is already in use. Please choose a different name.",
   "wss-invalid-namespace": "A namespace may only consist of letters.",

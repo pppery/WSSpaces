@@ -4,9 +4,11 @@ namespace WSS\API;
 
 use ApiUsageException;
 use MWException;
+use User;
 use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\Validation\AddSpaceValidationCallback;
+use MediaWiki\MediaWikiServices;
 
 class ApiEditSpace extends ApiBase {
 	/**
@@ -48,8 +50,7 @@ class ApiEditSpace extends ApiBase {
 		$ns_key = $request_params["nskey"] ?? null;
 		$ns_name = $request_params["nsname"] ?? null;
 		$ns_description = $request_params["nsdescription"] ?? null;
-		$ns_admins = $request_params["nsadmins"] ?? "";
-		$ns_admins = explode( ",", $ns_admins );
+		$ns_admins = $request_params[ "nsadmins" ] ?? null;
 
 		$this->validateParams( $old_space, $ns_id, $ns_key, $ns_name, $ns_description );
 
@@ -66,8 +67,12 @@ class ApiEditSpace extends ApiBase {
 		if ( $ns_name !== null ) {
 			$new_space->setName( $ns_name );
 		}
-		if ( $ns_admins !== [""] ) {
-			$new_space->setSpaceAdministrators( $ns_admins );
+		if ( $ns_admins !== null ) {
+			$ns_admins = explode( ",", $ns_admins );
+			if ( is_array( $ns_admins ) && !empty( $ns_admins ) ) {
+				$this->validateAdmins( $ns_admins );
+				$new_space->setSpaceAdministrators( $ns_admins );
+			}
 		}
 
 		try {
@@ -99,7 +104,7 @@ class ApiEditSpace extends ApiBase {
 		// Although this validation is made for HTMLForm, we use it here to avoid repeating ourselves
 		$add_space_validation_callback = new AddSpaceValidationCallback();
 		$request_data = [
-			"namespaceid" => $ns_id,
+			"namespaceid" => $space->getId(),
 			"namespace" => $ns_key,
 			"namespace_name" => $ns_name,
 			"description" => $ns_description
@@ -118,6 +123,25 @@ class ApiEditSpace extends ApiBase {
 		// Validate "nsdescription"
 		if ( !is_null( $ns_description ) && $add_space_validation_callback->validateRequired( $ns_description ) !== true ) {
 			$this->dieWithError( $this->msg( "wss-api-invalid-param-nsdescription" ) );
+		}
+	}
+
+	/**
+	 * Check if all usernames belong to users. Die if one of them does not.
+	 *
+	 * @param string[] $admins Usernames of admins.
+	 */
+	private function validateAdmins( array $admins ) {
+		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
+		$badNames = [];
+		foreach ( $admins as $admin ) {
+			$user = $userFactory->newFromName( $admin );
+			if ( (!$user instanceof User) || (!$user->isRegistered()) ) {
+				$badNames []= $admin;
+			}
+		}
+		if ( !empty( $badNames ) ) {
+			$this->dieWithError( $this->msg( 'wss-api-invalid-param-detailed-nsadmins', '"'.implode( '","', $badNames ).'"' ) );
 		}
 	}
 
