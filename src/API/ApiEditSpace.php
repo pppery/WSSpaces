@@ -90,7 +90,7 @@ class ApiEditSpace extends ApiBase {
 		Space $space,
 		?string $ns_key,
 		?string $ns_name,
-		?string $ns_descripotion
+		?string $ns_description
 	) {
 		if ( !$space->canEdit() ) {
 			$this->dieWithError( [ 'apierror-permissiondenied', $this->msg( "action-wss-edit-space" ) ] );
