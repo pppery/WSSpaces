@@ -4,9 +4,11 @@ namespace WSS\API;
 
 use ApiUsageException;
 use MWException;
+use User;
 use WSS\NamespaceRepository;
 use WSS\Space;
 use WSS\Validation\AddSpaceValidationCallback;
+use MediaWiki\MediaWikiServices;
 
 class ApiEditSpace extends ApiBase {
 	/**
@@ -29,26 +31,49 @@ class ApiEditSpace extends ApiBase {
 	 * @throws MWException
 	 */
 	public function execute() {
-		$this->validateParameters();
-
 		$request_params = $this->extractRequestParams();
 
+		if ( !isset( $request_params["nsid"] ) ) {
+			$this->dieWithError( $this->msg( "wss-api-missing-param-nsid" ) );
+		}
 		$ns_id = $request_params["nsid"];
-		$ns_key = $request_params["nskey"];
-		$ns_name = $request_params["nsname"];
-		$ns_description = $request_params["nsdescription"];
-		$ns_admins = $request_params["nsadmins"];
-		$ns_admins = explode( ",", $ns_admins );
+		$old_space = Space::newFromConstant( $ns_id );
+		if ( !$old_space instanceof Space ) {
+			$this->dieWithError(
+				$this->msg(
+					"wss-api-invalid-param-detailed-nsid",
+					$this->msg( "wss-api-space-does-not-exist", $request_params["nsid"] )->parse()
+				)
+			);
+		}
+
+		$ns_key = $request_params["nskey"] ?? null;
+		$ns_name = $request_params["nsname"] ?? null;
+		$ns_description = $request_params["nsdescription"] ?? null;
+		$ns_admins = $request_params[ "nsadmins" ] ?? null;
+
+		$this->validateParams( $old_space, $ns_id, $ns_key, $ns_name, $ns_description );
 
 		$namespace_repository = new NamespaceRepository();
 
-		$old_space = Space::newFromConstant( $ns_id );
 		$new_space = clone $old_space;
 
-		$new_space->setKey( $ns_key );
-		$new_space->setDescription( $ns_description );
-		$new_space->setName( $ns_name );
-		$new_space->setSpaceAdministrators( $ns_admins );
+		if ( $ns_key !== null ) {
+			$new_space->setKey( $ns_key );
+		}
+		if ( $ns_description !== null ) {
+			$new_space->setDescription( $ns_description );
+		}
+		if ( $ns_name !== null ) {
+			$new_space->setName( $ns_name );
+		}
+		if ( $ns_admins !== null ) {
+			$ns_admins = explode( ",", $ns_admins );
+			if ( is_array( $ns_admins ) && !empty( $ns_admins ) ) {
+				$this->validateAdmins( $ns_admins );
+				$new_space->setSpaceAdministrators( $ns_admins );
+			}
+		}
 
 		try {
 			$namespace_repository->updateSpace( $old_space, $new_space );
@@ -66,50 +91,12 @@ class ApiEditSpace extends ApiBase {
 	 *
 	 * @throws ApiUsageException
 	 */
-	private function validateParameters() {
-		$request_params = $this->extractRequestParams();
-
-		$ns_id = isset( $request_params["nsid"] ) ? $request_params["nsid"] : false;
-
-		if ( $ns_id === false ) {
-			$this->dieWithError( $this->msg( "wss-api-missing-param-nsid" ) );
-		}
-
-		$ns_key = isset( $request_params["nskey"] ) ? $request_params["nskey"] : false;
-
-		if ( $ns_key === false ) {
-			$this->dieWithError( $this->msg( "wss-api-missing-param-nskey" ) );
-		}
-
-		$ns_name = isset( $request_params["nsname"] ) ? $request_params["nsname"] : false;
-
-		if ( $ns_name === false ) {
-			$this->dieWithError( $this->msg( "wss-api-missing-param-nsname" ) );
-		}
-
-		$ns_description = isset( $request_params["nsdescription"] ) ? $request_params["nsdescription"] : false;
-
-		if ( $ns_description === false ) {
-			$this->dieWithError( $this->msg( "wss-api-missing-param-nsdescription" ) );
-		}
-
-		$ns_admins = isset( $request_params["nsadmins"] ) ? $request_params["nsadmins"] : false;
-
-		if ( $ns_admins === false ) {
-			$this->dieWithError( $this->msg( "wss-api-missing-param-nsadmins" ) );
-		}
-
-		$space = Space::newFromConstant( $ns_id );
-
-		if ( !$space instanceof Space ) {
-			$this->dieWithError(
-				$this->msg(
-					"wss-api-invalid-param-detailed-nsid",
-					$this->msg( "wss-api-space-does-not-exist", $request_params["nsid"] )->parse()
-				)
-			);
-		}
-
+	private function validateParams (
+		Space $space,
+		?string $ns_key,
+		?string $ns_name,
+		?string $ns_description
+	) {
 		if ( !$space->canEdit() ) {
 			$this->dieWithError( [ 'apierror-permissiondenied', $this->msg( "action-wss-edit-space" ) ] );
 		}
@@ -117,25 +104,44 @@ class ApiEditSpace extends ApiBase {
 		// Although this validation is made for HTMLForm, we use it here to avoid repeating ourselves
 		$add_space_validation_callback = new AddSpaceValidationCallback();
 		$request_data = [
-			"namespaceid" => $ns_id,
+			"namespaceid" => $space->getId(),
 			"namespace" => $ns_key,
 			"namespace_name" => $ns_name,
 			"description" => $ns_description
 		];
 
 		// Validate "nskey"
-		if ( $add_space_validation_callback->validateField( "namespace", $ns_key, $request_data ) !== true ) {
+		if ( !is_null( $ns_key ) && $add_space_validation_callback->validateField( "namespace", $ns_key, $request_data ) !== true ) {
 			$this->dieWithError( $this->msg( "wss-api-invalid-param-nskey" ) );
 		}
 
 		// Validate "nsname"
-		if ( $add_space_validation_callback->validateField( "namespace_name", $ns_name, $request_data ) !== true ) {
+		if ( !is_null( $ns_name ) && $add_space_validation_callback->validateField( "namespace_name", $ns_name, $request_data ) !== true ) {
 			$this->dieWithError( $this->msg( "wss-api-invalid-param-nsname" ) );
 		}
 
 		// Validate "nsdescription"
-		if ( $add_space_validation_callback->validateRequired( $ns_description ) !== true ) {
+		if ( !is_null( $ns_description ) && $add_space_validation_callback->validateRequired( $ns_description ) !== true ) {
 			$this->dieWithError( $this->msg( "wss-api-invalid-param-nsdescription" ) );
+		}
+	}
+
+	/**
+	 * Check if all usernames belong to users. Die if one of them does not.
+	 *
+	 * @param string[] $admins Usernames of admins.
+	 */
+	private function validateAdmins( array $admins ) {
+		$userFactory = MediaWikiServices::getInstance()->getUserFactory();
+		$badNames = [];
+		foreach ( $admins as $admin ) {
+			$user = $userFactory->newFromName( $admin );
+			if ( (!$user instanceof User) || (!$user->isRegistered()) ) {
+				$badNames []= $admin;
+			}
+		}
+		if ( !empty( $badNames ) ) {
+			$this->dieWithError( $this->msg( 'wss-api-invalid-param-detailed-nsadmins', '"'.implode( '","', $badNames ).'"' ) );
 		}
 	}
 
