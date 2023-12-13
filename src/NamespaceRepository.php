@@ -61,7 +61,7 @@ class NamespaceRepository {
 			  'wss_namespaces'
 		)->orderBy(
 			'namespace_id',
-			SelectQueryBuilder::SORT_DESC
+			'DESC'
 		)->caller( __METHOD__ )->fetchField();
 
 		if ( $result === false ) {
