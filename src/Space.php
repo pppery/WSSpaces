@@ -134,6 +134,10 @@ class Space {
 	 */
 	public static function newFromConstant( int $namespace_constant ) {
 		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
+		if ( $namespace_constant % 2 ) {
+			// Get subject namespace if this is a talk namespace.
+			$namespace_constant--;
+		}
 
 		// It might happen that this function is called during run of update.php,
 		// while database is not property set up. In that case, give a sensible return value.
