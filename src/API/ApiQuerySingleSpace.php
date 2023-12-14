@@ -43,15 +43,15 @@ class ApiQuerySingleSpace extends \ApiQueryBase {
 			return null;
 		}
 
-                $database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
+		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
 
-                $result = $database->newSelectQueryBuilder()->select(
-                        'namespace_id'
-                )->from(
-                        'wss_namespaces'
-                )->where(
-                        $cond
-                )->caller( __METHOD__ )->fetchField();
+		$result = $database->newSelectQueryBuilder()->select(
+			'namespace_id'
+		)->from(
+			'wss_namespaces'
+		)->where(
+			$cond
+		)->caller( __METHOD__ )->fetchField();
 
 		return $result !== false ? Space::newFromConstant( $result ) : null;
 	}
