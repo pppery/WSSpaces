@@ -130,6 +130,7 @@
     "editspace": "WSS\\API\\ApiEditSpace"
   },
   "APIListModules": {
+    "singlespace": "WSS\\API\\ApiQuerySingleSpace",
     "spaces": "WSS\\API\\ApiQuerySpaces",
     "namespaceadmins": "WSS\\API\\ApiQuerySpaceAdmins"
   },
