@@ -33,27 +33,14 @@ class ApiQuerySingleSpace extends \ApiQueryBase {
 	protected function getSpace( $ns_id, $ns_key, $ns_name ): ?Space
 	{
 		if ( $ns_id !== false ) {
-			return Space::newFromConstant( $ns_id );
-		}
-		if ( $ns_key !== false ) {
-			$cond = [ 'namespace_key' => $ns_key ];
+			return Space::newFromConstant( $ns_id ) ?: null;
+		} elseif ( $ns_key !== false ) {
+			return Space::newFromKey( $ns_key ) ?: null;
 		} elseif ( $ns_name !== false ) {
-			$cond = [ 'namespace_name' => $ns_name ];
-		} else {
-			return null;
+			return Space::newFromName( $ns_name ) ?: null;
 		}
 
-		$database = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
-
-		$result = $database->newSelectQueryBuilder()->select(
-			'namespace_id'
-		)->from(
-			'wss_namespaces'
-		)->where(
-			$cond
-		)->caller( __METHOD__ )->fetchField();
-
-		return $result !== false ? Space::newFromConstant( $result ) : null;
+		return null;
 	}
 
 	protected function addSpaceValuesToResult( $result, $space ): void
