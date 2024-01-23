@@ -133,11 +133,44 @@ class Space {
 	 * @throws \ConfigException
 	 */
 	public static function newFromConstant( int $namespace_constant ) {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
 		if ( $namespace_constant % 2 ) {
 			// Get subject namespace if this is a talk namespace.
 			$namespace_constant--;
 		}
+
+		return self::newFromRow( [ 'namespace_id' => $namespace_constant ] );
+	}
+
+	/**
+	 * Returns a new space object from the given namespace name.
+	 *
+	 * @param string $nsName
+	 * @return bool|Space
+	 * @throws \ConfigException
+	 */
+	public static function newFromName( string $nsName ) {
+		return self::newFromRow( [ 'namespace_name' => $nsName ] );
+	}
+
+	/**
+	 * Returns a new space object from the given namespace key.
+	 *
+	 * @param string $nsKey
+	 * @return bool|Space
+	 * @throws \ConfigException
+	 */
+	public static function newFromKey( string $nsKey ) {
+		return self::newFromRow( [ 'namespace_key' => $nsKey ] );
+	}
+
+	/**
+	 * Returns a new space object for the given condition. Should be a condition on the wss_spaces table
+	 *
+	 * @param array $condition The condition that we query on
+	 * @return Space|false     The (first) space that satisfies $condition
+	 */
+	private static function newFromRow( array $condition ) {
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_REPLICA );
 
 		// It might happen that this function is called during run of update.php,
 		// while database is not property set up. In that case, give a sensible return value.
@@ -145,11 +178,11 @@ class Space {
 			return false;
 		}
 		$namespace = $dbr->newSelectQueryBuilder()->select(
-			[ 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ]
+			[ 'namespace_id', 'namespace_key', 'namespace_name', 'description', 'creator_id', 'archived' ]
 		)->from(
 			'wss_namespaces'
 		)->where(
-			[ 'namespace_id' => $namespace_constant ]
+			$condition
 		)->caller( __METHOD__ )->fetchRow();
 
 		if ( $namespace === false ) {
@@ -169,13 +202,13 @@ class Space {
 		)->from(
 			'wss_namespace_admins'
 		)->where(
-			[ 'namespace_id' => $namespace_constant ]
+			[ 'namespace_id' => $namespace->namespace_id ]
 		)->caller( __METHOD__ )->fetchResultSet() ) );
 
 		return new Space(
 			$namespace->namespace_key,
 			$namespace->namespace_name,
-			$namespace_constant,
+			$namespace->namespace_id,
 			$namespace->description,
 			$user,
 			$namespace->archived,
