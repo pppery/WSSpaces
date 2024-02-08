@@ -121,12 +121,12 @@ abstract class WSSHooks {
 		$type = $updater->getDB()->getType();
 
 		// Associative array where the keys are the name of the table and the value the name of the associated SQL file
-		$sql_files = [
+		$sql_create_files = [
 			"wss_namespaces" => "wss_namespaces_table.sql",
 			"wss_namespace_admins" => "wss_namespace_admins_table.sql"
 		];
 
-		foreach ( $sql_files as $table => $sql_file ) {
+		foreach ( $sql_create_files as $table => $sql_file ) {
 			$path = sprintf( "%s/%s/%s", $directory, $type, $sql_file );
 
 			if ( !file_exists( $path ) ) {
@@ -134,6 +134,28 @@ abstract class WSSHooks {
 			}
 
 			$updater->addExtensionTable( $table, $path );
+		}
+
+		$sql_patch_files = [
+			[
+				'table' => 'wss_namespaces',
+				'field' => 'namespace_name',
+				'file' => "wss_namespaces_patch_1.sql"
+			],
+		];
+
+		foreach ($sql_patch_files as $patch) {
+			$path = sprintf( "%s/%s/%s", $directory, $type, $patch['file'] );
+
+			if ( !file_exists( $path ) ) {
+				throw new MWException( wfMessage( 'wss-unsupported-dbms', $type )->parse() );
+			}
+
+			if ( isset( $patch['field'] ) ) {
+				$updater->modifyExtensionField( $patch[ 'table' ], $patch[ 'field' ], $path );
+			} else {
+				$updater->modifyExtensionTable( $patch[ 'table' ], $path );
+			}
 		}
 
 		return true;
