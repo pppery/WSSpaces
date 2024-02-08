@@ -390,6 +390,10 @@ class NamespaceRepository {
 		if ( MediaWikiServices::getInstance()->getMainConfig()->get( "WSSpacesAutoAddAdminsToUserGroups" ) ) {
 			foreach ( $difference_of_admins as $admin ) {
 				$admin_object = User::newFromId( (int)$admin );
+				if ( !$admin_object->loadFromDatabase() ) {
+					// If the user doesn't exist, we can't change their usergroups
+					continue;
+				}
 
 				$this->removeUserFromUserGroup( $admin_object, $space->getGroupName(), $user_group_manager );
 
