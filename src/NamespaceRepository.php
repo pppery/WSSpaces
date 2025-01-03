@@ -53,7 +53,7 @@ class NamespaceRepository {
 	 * @return int
 	 */
 	public static function getNextAvailableNamespaceId(): int {
-		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_MASTER );
+		$dbr = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnectionRef( DB_PRIMARY );
 
 		$result = $dbr->newSelectQueryBuilder()->select(
 			'namespace_id'
@@ -233,7 +233,7 @@ class NamespaceRepository {
 
 		$namespace_id = self::getNextAvailableNamespaceId();
 
-		$database = $this->dbLoadBalancer->getConnectionRef( DB_MASTER );
+		$database = $this->dbLoadBalancer->getConnectionRef( DB_PRIMARY );
 		$database->insert(
 		'wss_namespaces',  [
 			'namespace_id' => $namespace_id,
@@ -291,7 +291,7 @@ class NamespaceRepository {
 			$log->insert();
 		}
 
-		$database = $this->dbLoadBalancer->getConnectionRef( DB_MASTER );
+		$database = $this->dbLoadBalancer->getConnectionRef( DB_PRIMARY );
 		$database->update( 'wss_namespaces', [
 			'namespace_key' => $new_space->getKey(),
 			'namespace_name' => $new_space->getName(),
